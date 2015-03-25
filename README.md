@@ -55,7 +55,7 @@ For guidance on using the plugin see the plugin's page within the phplist docume
 
 ##Support##
 
-Questions and problems can be reported in the phplist user forum topic <http://forums.phplist.com/viewtopic.php?f=7&t=41650>.
+Questions and problems can be reported in the phplist user forum topic <https://forums.phplist.com/viewtopic.php?f=7&t=42237>.
 
 ## Donation ##
 This plugin is free but if you install and find it useful then a donation to support further development is greatly appreciated.
