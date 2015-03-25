@@ -68,43 +68,15 @@ class RssFeedPlugin extends phplistPlugin
         'max' => 50,
         'category'=> 'RSS',
       ),
-      "rss_texttemplate" => array (
-        'value' => '
-        [title]
-        [description]
-        URL: [link]
-        ',
-        'description' => 'Template for text item in RSS feeds',
-        'type' => "textarea",
-        'category'=> 'RSS',
-      ),
       "rss_htmltemplate" => array (
-        'value' => '<br/>
-        <a href="[link]"><b>[title]</b></a><br/>
-        <p class="information">[description]</p>
-        <hr/>',
-        'description' => 'Template for HTML item in RSS feeds',
-        'type' => "textarea",
-        'allowempty' => 1,
-        'category'=> 'RSS',
-      ),
-      "rssmanager_textseparatortemplate" => array (
         'value' => '
-        **** [listname] ******
-
-        ',
-        'description' => 'Template for separator between feeds in RSS feeds (text)',
-        'type' => "text",
-        'allowempty' => 1,
-        'category'=> 'RSS',
-      ),
-      "rssmanager_htmlseparatortemplate" => array (
-        'value' => '<br/>
-        <h3>[listname]</h3>
-         ',
-        'description' => 'Template for separator between feeds in RSS feeds (HTML)',
-        'type' => "text",
-        'allowempty' => 1,
+        <a href="[URL]"><b>[TITLE]</b></a><br/>
+        [PUBLISHED]</br>
+        [CONTENT]
+        <hr/>',
+        'description' => 'Item HTML template',
+        'type' => "textarea",
+        'allowempty' => 0,
         'category'=> 'RSS',
       ),
     );
