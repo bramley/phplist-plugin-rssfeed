@@ -3,6 +3,8 @@ class RssFeedPlugin extends phplistPlugin
 {
     const VERSION_FILE = 'version.txt';
 
+    private $dao;
+
     public $name = 'RSS Feed Manager';
     public $authors = 'Duncan Cameron';
 
@@ -25,7 +27,7 @@ class RssFeedPlugin extends phplistPlugin
     public $DBstruct = array (
         'feed' => array (
             'id' => array ('integer not null primary key auto_increment', 'ID'),
-            'url' => array ('varchar(255) not null unique', ''),
+            'url' => array ('varchar(65535) not null', ''),
             'etag' => array ('varchar(100) not null', ''),
             'lastmodified' => array ('varchar(100) not null', ''),
         ),
@@ -35,9 +37,6 @@ class RssFeedPlugin extends phplistPlugin
             'feedid' => array ('integer not null', 'fk to feed'),
             'published' => array ('datetime not null', 'published datetime'),
             'added' => array ('datetime not null', 'datetime added'),
-            'processed' => array ('mediumint unsigned default 0', 'number processed'),
-            'astext' => array ('integer default 0', 'Sent as text'),
-            'ashtml' => array ('integer default 0', 'Sent as HTML'),
             'index_1' => array('feedpublishedindex (feedid, published)', ''),
             'index_2' => array('feeduidindex (feedid, uid)', ''),
         ),
@@ -93,6 +92,14 @@ class RssFeedPlugin extends phplistPlugin
         $feed = $parser->execute();
     }
 
+    private function replaceProperties($template, $properties)
+    {
+        foreach ($properties as $key => $value) {
+            $template = str_ireplace("[$key]", $value, $template);
+        }
+        return $template;
+    }
+
     public function __construct()
     {
         $this->coderoot = dirname(__FILE__) . '/' . __CLASS__ . '/';
@@ -113,6 +120,31 @@ class RssFeedPlugin extends phplistPlugin
     {
         parent::initialise();
         return $this->name . ' '. s('initialised');
+    }
+
+    public function processQueueStart()
+    {
+        error_reporting(-1);
+        $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
+
+        foreach ($this->dao->readyRssMessages() as $message) {
+            $items = iterator_to_array($this->dao->latestFeedContentByUrl(
+                $message['rss_feed'],
+                $message['repeatinterval'],
+                getConfig('rss_maximum')
+            ));
+
+            if (count($items) < getConfig('rss_minimum')) {
+                $count = $this->dao->reEmbargoMessage($message['id']);
+
+                If ($count > 0) {
+                    logEvent("Embargo advanced for RSS message {$message['id']}");
+                } else {
+                    $count = $this->dao->setMessageSent($message['id']);
+                    logEvent("RSS message {$message['id']} marked as 'sent' because it has finished repeating");
+                }
+            }
+        }
     }
 
     public function allowMessageToBeQueued($messageData = array())
@@ -175,14 +207,6 @@ END;
         }
 
         return str_ireplace('[RSS]', $this->rssHtml, $content);
-    }
-
-    private function replaceProperties($template, $properties)
-    {
-        foreach ($properties as $key => $value) {
-            $template = str_ireplace("[$key]", $value, $template);
-        }
-        return $template;
     }
 
     public function campaignStarted($data = array())
