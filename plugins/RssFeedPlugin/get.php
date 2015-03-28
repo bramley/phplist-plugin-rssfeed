@@ -5,26 +5,25 @@ use PicoFeed\Reader\Reader;
 use PicoFeed\Config\Config;
 use PicoFeed\PicoFeedException;
 
-$pl = $plugins['RssFeedPlugin'];
-
-if (!$GLOBALS['commandline']) {
-  ob_end_flush();
+if ($commandline) {
+    ob_end_clean();
+    echo ClineSignature();
+    echo s('Getting and Parsing the RSS sources'), "\n";
 } else {
-  ob_end_clean();
-  print ClineSignature();
-  print s('Getting and Parsing the RSS sources') . "\n";
-  ob_start();
+    ob_end_flush();
 }
 
-function output($line) {
-  if ($GLOBALS['commandline']) {
-    ob_end_clean();
-    print strip_tags($line) . "\n";
-    ob_start();
-  } else {
-    print "$line<br/>\n";
-  }
-  flush();
+function output($line)
+{
+    global $commandline;
+
+    if ($commandline) {
+        echo $line, "\n";
+    } else {
+        echo "$line<br/>\n";
+        ob_flush();
+        flush();
+    }
 }
 
 $dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
@@ -49,18 +48,15 @@ foreach ($dao->feeds() as $row) {
             $resource->getContent(),
             $resource->getEncoding()
         );
+        $line = s('Parsing') . ' ' . $feedUrl;
+        output($line);
 
         $feed = $parser->execute();
-
-        output('<hr/>' . $GLOBALS['I18N']->get('Parsing') . ' ' . $feedUrl . '..');
-        cl_output(s('Parsing') . ' ' . $feedUrl . '..');
-        flushBrowser();
-        $report = $GLOBALS['I18N']->get('Parsing') . " $feedUrl\n";
-        $itemcount = 0;
-        $newitemcount = 0;
+        $itemCount = 0;
+        $newItemCount = 0;
 
         foreach ($feed->getItems() as $item) {
-            $itemcount++;
+            $itemCount++;
             $date = $item->getDate();
             $date->setTimeZone(new DateTimeZone(date_default_timezone_get()));
             $published = $date->format('Y-m-d H:i:s');
@@ -68,7 +64,7 @@ foreach ($dao->feeds() as $row) {
             $itemId = $dao->addItem($item->getId(), $published, $feedId);
 
             if ($itemId > 0) {
-                $newitemcount++;
+                $newItemCount++;
                 $dao->addItemData(
                     $itemId,
                     array(
@@ -88,13 +84,14 @@ foreach ($dao->feeds() as $row) {
         $lastModified = $resource->getLastModified();
         $dao->updateFeed($feedId, $etag, $lastModified);
         
-        output(sprintf('<br/>%d %s, %d %s', $itemcount, s('items'), $newitemcount, s('new items')));
-        $report .= sprintf('%d items, %d new items' . "\n", $itemcount, $newitemcount);
-        cl_output(sprintf('%d items, %d new items' . "\n", $itemcount, $newitemcount));
+        $line = s('%d items, %d new items', $itemCount, $newItemCount);
+        output($line);
+
+        if ($newItemCount > 0) {
+            logEvent("Feed $feedUrl $line");
+        }
     } catch (PicoFeedException $e) {
-        echo $e->getMessage(), "\n";
+        output($e->getMessage());
     }
-    flush();
-    logEvent($report);
 }
 
