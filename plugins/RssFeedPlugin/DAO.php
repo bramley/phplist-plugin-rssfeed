@@ -101,7 +101,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
         return $this->dbCommand->queryAffectedRows($sql);
     }
 
-    public function latestFeedContentByUrl($url, $interval, $limit = 30)
+    public function latestFeedContentByUrl($url, $interval, $limit)
     {
         $url = sql_escape($url);
         $sql = 
@@ -155,7 +155,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
                 SELECT DISTINCT data
                 FROM {$this->tables['messagedata']} md
                 JOIN {$this->tables['message']} m ON m.id = md.id
-                WHERE $owner md.name = 'rss_feed'
+                WHERE $owner md.name = 'rss_feed' AND md.data != ''
             )
             ORDER BY it.published
             LIMIT $start, $maximum";
@@ -174,9 +174,43 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
                 SELECT DISTINCT data
                 FROM {$this->tables['messagedata']} md
                 JOIN {$this->tables['message']} m ON m.id = md.id
-                WHERE $owner md.name = 'rss_feed'
+                WHERE $owner md.name = 'rss_feed' AND md.data != ''
             )";
 
         return $this->dbCommand->queryOne($sql, 't');
+    }
+
+    /*
+     * Used to avoid sending RSS messages that do not have any recent content
+     */
+    public function readyRssMessages()
+    {
+        $sql = 
+            "SELECT m.id, m.repeatinterval, md.data as rss_feed
+            FROM {$this->tables['message']} m
+            JOIN {$this->tables['messagedata']} md ON m.id = md.id AND md.name = 'rss_feed' AND md.data != ''
+            WHERE m.status NOT IN ('draft', 'sent', 'prepared', 'suspended')
+            AND m.embargo <= current_timestamp";
+
+        return $this->dbCommand->queryAll($sql);
+    }
+
+    public function reEmbargoMessage($id)
+    {
+        $sql = 
+            "UPDATE {$this->tables['message']}
+            SET embargo = embargo + 
+                INTERVAL (FLOOR(TIMESTAMPDIFF(MINUTE, embargo, NOW()) / repeatinterval) + 1) * repeatinterval MINUTE
+            WHERE id = $id AND now() < repeatuntil";
+        return $this->dbCommand->queryAffectedRows($sql);
+    }
+
+    public function setMessageSent($id)
+    {
+        $sql = 
+            "UPDATE {$this->tables['message']}
+            SET status = 'sent'
+            WHERE id = $id";
+        return $this->dbCommand->queryAffectedRows($sql);
     }
 }
