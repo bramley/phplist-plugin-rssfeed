@@ -65,4 +65,6 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2015-03-29  Use embargo instead of now() to select recent items
+                A message that does not have any content now has embargo moved forward
     2015-03-24  Release to GitHub

@@ -128,11 +128,7 @@ class RssFeedPlugin extends phplistPlugin
         $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
 
         foreach ($this->dao->readyRssMessages() as $message) {
-            $items = iterator_to_array($this->dao->latestFeedContentByUrl(
-                $message['rss_feed'],
-                $message['repeatinterval'],
-                getConfig('rss_maximum')
-            ));
+            $items = iterator_to_array($this->dao->latestFeedContent($message['id'], getConfig('rss_maximum')));
 
             if (count($items) < getConfig('rss_minimum')) {
                 $count = $this->dao->reEmbargoMessage($message['id']);
@@ -216,7 +212,7 @@ END;
             return;
         }
         $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
-        $items = iterator_to_array($this->dao->latestFeedContentByUrl($data['rss_feed'], $data['repeatinterval'], getConfig('rss_maximum')));
+        $items = iterator_to_array($this->dao->latestFeedContent($data['id'], getConfig('rss_maximum')));
 
         if (count($items) >= getConfig('rss_minimum')) {
             $htmltemplate = getConfig('rss_htmltemplate');

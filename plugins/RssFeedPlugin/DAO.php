@@ -101,6 +101,24 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
         return $this->dbCommand->queryAffectedRows($sql);
     }
 
+    public function latestFeedContent($mid, $limit)
+    {
+        $sql = 
+            "SELECT itd1.value as title, itd2.value as content, itd3.value as url, it.published
+            FROM {$this->tables['message']} m
+            JOIN {$this->tables['messagedata']} md ON m.id = md.id AND md.name = 'rss_feed'
+            JOIN {$this->tables['feed']} fe ON fe.url = md.data
+            JOIN {$this->tables['item']} it ON fe.id = it.feedid
+            JOIN {$this->tables['item_data']} itd1 on itd1.itemid = it.id AND itd1.property = 'title'
+            JOIN {$this->tables['item_data']} itd2 on itd2.itemid = it.id AND itd2.property = 'content'
+            JOIN {$this->tables['item_data']} itd3 on itd3.itemid = it.id AND itd3.property = 'url'
+            WHERE m.id = $mid AND it.published >= m.embargo - INTERVAL m.repeatinterval MINUTE AND it.published < m.embargo
+            ORDER BY it.published
+            LIMIT $limit";
+
+        return $this->dbCommand->queryAll($sql);
+    }
+
     public function latestFeedContentByUrl($url, $interval, $limit)
     {
         $url = sql_escape($url);

@@ -1,3 +1,11 @@
+version 2015-03-29
+      Correct setting for html template
+      Correct url of support forum topic
+      Tidy-up of displaying progress
+      Avoid sending RSS messages that do not have any content
+      html escape item title
+      Use embargo instead of now to select published items
+
 version 2015-03-24
       Initial commit
 
