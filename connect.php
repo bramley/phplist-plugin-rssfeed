@@ -1539,25 +1539,55 @@ function repeatMessage($msgid) {
 
   $data = loadMessageData($msgid);
   ## do not repeat when it has already been done
-  if (!empty($data['repeatedid'])) return;
+  if ($data['repeatinterval'] == 0 || !empty($data['repeatedid']))
+    return;
 
-  # get the future embargo, either "repeat" minutes after the old embargo
-  # or "repeat" after this very moment to make sure that we're not sending the
-  # message every time running the queue when there's no embargo set.
+  # calculate the future embargo, a multiple of repeatinterval minutes after the current embargo
+
   $msgdata = Sql_Fetch_Array_Query(
-    sprintf('select *,date_add(embargo,interval repeatinterval minute) as newembargo,
-      date_add(now(),interval repeatinterval minute) as newembargo2, date_add(embargo,interval repeatinterval minute) > now() as isfuture
-      from %s where id = %d and repeatuntil > now()',$GLOBALS["tables"]["message"],$msgid));
-  if (!$msgdata["id"] || !$msgdata["repeatinterval"]) return;
+    sprintf(
+        'SELECT *,
+        embargo +
+            INTERVAL (FLOOR(TIMESTAMPDIFF(MINUTE, embargo, GREATEST(embargo, NOW())) / repeatinterval) + 1) * repeatinterval MINUTE AS newembargo
+        FROM %s
+        WHERE id = %d AND now() < repeatuntil',
+        $GLOBALS["tables"]["message"],
+        $msgid
+    )
+  );
+
+  if (!$msgdata) {
+    logEvent("Message $msgid not repeated due to reaching the repeatuntil date");
+    return;
+  }
+
+  # check whether the new embargo is not on an exclusion
+  if (isset($GLOBALS["repeat_exclude"]) && is_array($GLOBALS["repeat_exclude"])) {
+    $loopcnt = 0;
+
+    while (excludedDateForRepetition($msgdata["newembargo"])) {
+      if (++$loopcnt > 15) {
+        logEvent("Unable to find new embargo date too many exclusions? for message $msgid");
+        return;
+      }
+      $result = Sql_Fetch_Array_Query(
+          sprintf(
+            "SELECT '%s' + INTERVAL repeatinterval MINUTE AS newembargo
+            FROM %s
+            WHERE id = %d",
+            $msgdata["newembargo"],
+            $GLOBALS["tables"]["message"],
+            $msgid
+          )
+      );
+      $msgdata['newembargo'] = $result['newembargo'];
+    }
+  }
 
   # copy the new message
-  $query
-  = ' insert into ' . $GLOBALS['tables']['message']
-  . '    (entered)'
-  . ' values'
-  . '    (current_timestamp)';
-  Sql_Query($query);
-  $newid = Sql_Insert_Id($GLOBALS['tables']['message'], 'id');
+  Sql_Query(sprintf('
+    insert into %s (entered) values(now())',$GLOBALS["tables"]["message"]));
+  $newid = Sql_Insert_id();
   require dirname(__FILE__).'/structure.php';
   if (!is_array($DBstruct["message"])) {
     logEvent("Error including structure when trying to duplicate message $msgid");
@@ -1569,33 +1599,14 @@ function repeatMessage($msgid) {
         $GLOBALS["tables"]["message"],$column,addslashes($msgdata[$column]),$newid));
      }
   }
-  $req = Sql_Query(sprintf('select * from %s where id = %d',
-    $GLOBALS['tables']['messagedata'],$msgid));
+  $req = Sql_Query(sprintf(
+    "SELECT *
+    FROM %s
+    WHERE id = %d AND name NOT IN ('id')",
+    $GLOBALS['tables']['messagedata'],$msgid
+  ));
   while ($row = Sql_Fetch_Array($req)) {
     setMessageData($newid,$row['name'],$row['data']);
-  }
-
-  # check whether the new embargo is not on an exclusion
-  if (isset($GLOBALS["repeat_exclude"]) && is_array($GLOBALS["repeat_exclude"])) {
-    $repeatinterval = $msgdata["repeatinterval"];
-    $loopcnt = 0;
-    while (excludedDateForRepetition($msgdata["newembargo"])) {
-      $repeat += $msgdata["repeatinterval"];
-      $loopcnt++;
-      $msgdata = Sql_Fetch_Array_Query(
-          sprintf('select *,date_add(embargo,interval %d minute) as newembargo,
-            date_add(current_timestamp,interval %d minute) as newembargo2, date_add(embargo,interval %d minute) > current_timestamp as isfuture
-            from %s where id = %d and repeatuntil > current_timestamp',$repeatinterval,$repeatinterval,$repeatinterval,
-            $GLOBALS["tables"]["message"],$msgid));
-      if ($loopcnt > 15) {
-        logEvent("Unable to find new embargo date too many exclusions? for message $msgid");
-        return;
-      }
-    }
-  }
-  # correct some values
-  if (!$msgdata["isfuture"]) {
-    $msgdata["newembargo"] = $msgdata["newembargo2"];
   }
 
   Sql_Query(sprintf('update %s set embargo = "%s",status = "submitted",sent = "" where id = %d',
@@ -1614,7 +1625,7 @@ function repeatMessage($msgid) {
   # lists
   $req = Sql_Query(sprintf('select listid from %s where messageid = %d',$GLOBALS["tables"]["listmessage"],$msgid));
   while ($row = Sql_Fetch_Row($req)) {
-    Sql_Query(sprintf('insert into %s (messageid,listid,entered) values(%d,%d,current_timestamp)',
+    Sql_Query(sprintf('insert into %s (messageid,listid,entered) values(%d,%d,now())',
       $GLOBALS["tables"]["listmessage"],$newid,$row[0]));
   }
 
@@ -1634,7 +1645,7 @@ function repeatMessage($msgid) {
       values("%s","%s","%s","%s",%d)',
       $GLOBALS["tables"]["attachment"],addslashes($row["filename"]),addslashes($row["remotefile"]),
       addslashes($row["mimetype"]),addslashes($row["description"]),$row["size"]));
-    $attid = Sql_Insert_Id($GLOBALS['tables']['attachment'], 'id');
+    $attid = Sql_Insert_id();
     Sql_Query(sprintf('insert into %s (messageid,attachmentid) values(%d,%d)',
       $GLOBALS["tables"]["message_attachment"],$newid,$attid));
   }
