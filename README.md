@@ -12,11 +12,14 @@ When the campaign is sent the content of the message has recent items, dependent
 
 ### Dependencies ###
 
+Developing this plugin has highlighted a few problems with the way that phplist handles repeated messages.
+Fixes for the problems should be in the next phplist release, 3.0.13, but until that is available, you need to use phplist 3.0.12
+and replace one file.
+Copy the file connect.php to your phplist admin directory, replacing the existing file (which you might want to save).
+
 Requires php version 5.3 or later. 
 
-Requires the Common Plugin version 2015-03-23 or later to be installed. You should install or upgrade to the latest version.
-
-See <https://github.com/bramley/phplist-plugin-common>
+Requires the Common Plugin version 2015-03-23 or later to be installed. You should install or upgrade to the latest version. See <https://github.com/bramley/phplist-plugin-common>
 
 ### Set the plugin directory ###
 The default plugin directory is `plugins` within the admin directory.
