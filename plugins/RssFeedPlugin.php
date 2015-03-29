@@ -224,8 +224,13 @@ END;
 
             foreach ($items as $item) {
                 $d = new DateTime($item['published']);
-                $item['published'] = $d->format('d/m/Y H:i');
-                $html .= $this->replaceProperties($htmltemplate, $item);
+                $html .= $this->replaceProperties(
+                    $htmltemplate,
+                    array(
+                        'published' => $d->format('d/m/Y H:i'),
+                        'title' => htmlspecialchars($item['title'])
+                    ) + $item
+                );
             }
             $this->rssHtml = $html;
         } else {
