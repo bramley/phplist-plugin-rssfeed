@@ -22,6 +22,8 @@ class RssFeedPlugin extends phplistPlugin
     const VERSION_FILE = 'version.txt';
 
     private $dao;
+    private $rssHtml;
+    private $rssText;
 
     public $name = 'RSS Feed Manager';
     public $authors = 'Duncan Cameron';
@@ -118,6 +120,44 @@ class RssFeedPlugin extends phplistPlugin
         return $template;
     }
 
+    private function sampleItems()
+    {
+        return array(
+            array(
+                'published' => '2015-03-28 10:41:41',
+                'title' => 'Hamilton on pole after Rosberg block',
+                'content' => 
+'<p>Lewis Hamilton takes pole position for the Malaysian GP as Ferrari&#039;s Sebastian Vettel split the Mercedes in a rain-hit qualifying.</p>',
+                'url' => 'http://www.bbc.co.uk/sport/0/formula1/32099506',
+            ),
+            array(
+                'published' => '2015-03-28 12:16:20',
+                'title' => "Labour 'would have to talk' to SNP",
+                'content' => 
+'<p>The deputy leader of the SNP Stewart Hosie believes a minority Labour government would have to negotiate with the nationalists ahead of its first Queen&#039;s speech.</p>',
+                'url' => 'http://www.bbc.co.uk/news/uk-scotland-scotland-politics-32099155#sa-ns_mchannel=rss&ns_source=PublicRSS20-sa',
+            )
+        );
+    }
+
+    private function generateItemHtml(array $items)
+    {
+        $htmltemplate = getConfig('rss_htmltemplate');
+        $html = '';
+
+        foreach ($items as $item) {
+            $d = new DateTime($item['published']);
+            $html .= $this->replaceProperties(
+                $htmltemplate,
+                array(
+                    'published' => $d->format('d/m/Y H:i'),
+                    'title' => htmlspecialchars($item['title'])
+                ) + $item
+            );
+        }
+        return $html;
+    }
+
     public function __construct()
     {
         $this->coderoot = dirname(__FILE__) . '/' . __CLASS__ . '/';
@@ -139,31 +179,39 @@ class RssFeedPlugin extends phplistPlugin
         parent::initialise();
         return $this->name . ' '. s('initialised');
     }
-
-    public function processQueueStart()
+/*
+ *  Methods for composing a campaign
+ * 
+ */ 
+    public function sendMessageTab($messageid = 0, $data = array ())
     {
-        error_reporting(-1);
-        $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
+        $feedUrl = isset($data['rss_feed']) ? $data['rss_feed'] : '';
+        $html = <<<END
+    <label>RSS feed URL
+    <input type="text" name="rss_feed" value="$feedUrl" /></label>
+END;
+        return $html;
+    }
 
-        foreach ($this->dao->readyRssMessages() as $message) {
-            $items = iterator_to_array($this->dao->latestFeedContent($message['id'], getConfig('rss_maximum')));
+    public function sendMessageTabTitle($messageid = 0)
+    {
+        return 'RSS';
+    }
 
-            if (count($items) < getConfig('rss_minimum')) {
-                $count = $this->dao->reEmbargoMessage($message['id']);
-
-                If ($count > 0) {
-                    logEvent("Embargo advanced for RSS message {$message['id']}");
-                } else {
-                    $count = $this->dao->setMessageSent($message['id']);
-                    logEvent("RSS message {$message['id']} marked as 'sent' because it has finished repeating");
-                }
-            }
+    public function sendTestAllowed ($messageData)
+    {
+        if (!isset($messageData['rss_feed']) || $messageData['rss_feed'] == '') {
+            $this->rssHtml = null;
+            return true;
         }
+
+        $this->rssHtml = $this->generateItemHtml($this->sampleItems());
+        $this->rssText = HTML2Text($this->rssHtml);
+        return true;
     }
 
     public function allowMessageToBeQueued($messageData = array())
     {
-
         if (!isset($messageData['rss_feed']) || $messageData['rss_feed'] == '') {
             return '';
         }
@@ -191,19 +239,47 @@ class RssFeedPlugin extends phplistPlugin
         return '';
     }
 
-    public function sendMessageTab($messageid = 0, $data = array ())
+/*
+ *  Methods for processing the queue and messages
+ * 
+ */ 
+    public function processQueueStart()
     {
-        $feedUrl = isset($data['rss_feed']) ? $data['rss_feed'] : '';
-        $html = <<<END
-    <label>RSS feed URL
-    <input type="text" name="rss_feed" value="$feedUrl" /></label>
-END;
-        return $html;
+        error_reporting(-1);
+        $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
+
+        foreach ($this->dao->readyRssMessages() as $message) {
+            $items = iterator_to_array($this->dao->latestFeedContent($message['id'], getConfig('rss_maximum')));
+
+            if (count($items) < getConfig('rss_minimum')) {
+                $count = $this->dao->reEmbargoMessage($message['id']);
+
+                If ($count > 0) {
+                    logEvent("Embargo advanced for RSS message {$message['id']}");
+                } else {
+                    $count = $this->dao->setMessageSent($message['id']);
+                    logEvent("RSS message {$message['id']} marked as 'sent' because it has finished repeating");
+                }
+            }
+        }
     }
 
-    public function sendMessageTabTitle($messageid = 0)
+    public function campaignStarted($data = array())
     {
-        return 'RSS';
+        if (!isset($data['rss_feed']) || stripos($data['message'], '[RSS]') === false || $data['repeatinterval'] == 0) {
+            $this->rssHtml = null;
+            return;
+        }
+        $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
+        $items = iterator_to_array($this->dao->latestFeedContent($data['id'], getConfig('rss_maximum')));
+
+        if (count($items) >= getConfig('rss_minimum')) {
+            $this->rssHtml = $this->generateItemHtml($items);
+            $this->rssText = HTML2Text($this->rssHtml);
+        } else {
+            $this->rssHtml = '';
+            $this->rssText = '';
+        }
     }
 
     public function canSend ($messagedata, $userdata)
@@ -223,32 +299,12 @@ END;
         return str_ireplace('[RSS]', $this->rssHtml, $content);
     }
 
-    public function campaignStarted($data = array())
+    public function parseOutgoingTextMessage($messageid, $content, $destination = '', $userdata = array())
     {
-        if (!isset($data['rss_feed']) || stripos($data['message'], '[RSS]') === false || $data['repeatinterval'] == 0) {
-            $this->rssHtml = null;
-            return;
+        if ($this->rssHtml === null) {
+             return $content;
         }
-        $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
-        $items = iterator_to_array($this->dao->latestFeedContent($data['id'], getConfig('rss_maximum')));
 
-        if (count($items) >= getConfig('rss_minimum')) {
-            $htmltemplate = getConfig('rss_htmltemplate');
-            $html = '';
-
-            foreach ($items as $item) {
-                $d = new DateTime($item['published']);
-                $html .= $this->replaceProperties(
-                    $htmltemplate,
-                    array(
-                        'published' => $d->format('d/m/Y H:i'),
-                        'title' => htmlspecialchars($item['title'])
-                    ) + $item
-                );
-            }
-            $this->rssHtml = $html;
-        } else {
-            $this->rssHtml = '';
-        }
+        return str_ireplace('[RSS]', $this->rssText, $content);
     }
 }
