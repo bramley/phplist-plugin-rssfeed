@@ -1,4 +1,22 @@
 <?php
+/**
+ * RssFeedPlugin for phplist
+ * 
+ * This file is a part of RssFeedPlugin.
+ *
+ * @category  phplist
+ * @package   RssFeedPlugin
+ * @author    Duncan Cameron
+ * @copyright 2015 Duncan Cameron
+ * @license   http://www.gnu.org/licenses/gpl.html GNU General Public License, Version 3
+ */
+
+/**
+ * Registers plugin with phplist
+ * Provides hooks into message processing
+ * 
+ */
+
 class RssFeedPlugin extends phplistPlugin
 {
     const VERSION_FILE = 'version.txt';
