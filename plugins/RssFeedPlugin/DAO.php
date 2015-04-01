@@ -220,7 +220,19 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
             SET embargo = embargo + 
                 INTERVAL (FLOOR(TIMESTAMPDIFF(MINUTE, embargo, NOW()) / repeatinterval) + 1) * repeatinterval MINUTE
             WHERE id = $id AND now() < repeatuntil";
-        return $this->dbCommand->queryAffectedRows($sql);
+
+        if (($count = $this->dbCommand->queryAffectedRows($sql)) > 0) {
+            $sql = 
+                "SELECT embargo
+                FROM {$this->tables['message']}
+                WHERE id = $id";
+            $embargo = $this->dbCommand->queryOne($sql, 'embargo');
+
+            list($e['year'], $e['month'], $e['day'], $e['hour'], $e['minute']) =
+                sscanf($embargo, '%04d-%02d-%02d %02d:%02d');
+            setMessageData($id, 'embargo', $e);
+        }
+        return $count;
     }
 
     public function setMessageSent($id)

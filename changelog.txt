@@ -1,3 +1,9 @@
+version 2015-04-01
+      Explanation of replacing connect.php
+      Add content to plain text message
+      Include sample items when sending a test message
+      Update row in messagedata table when embargo is changed
+
 version 2015-03-29
       Correct setting for html template
       Correct url of support forum topic
