@@ -119,23 +119,6 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
         return $this->dbCommand->queryAll($sql);
     }
 
-    public function latestFeedContentByUrl($url, $interval, $limit)
-    {
-        $url = sql_escape($url);
-        $sql = 
-            "SELECT itd1.value as title, itd2.value as content, itd3.value as url, it.published
-            FROM {$this->tables['feed']} fe
-            JOIN {$this->tables['item']} it ON fe.id = it.feedid
-            JOIN {$this->tables['item_data']} itd1 on itd1.itemid = it.id AND itd1.property = 'title'
-            JOIN {$this->tables['item_data']} itd2 on itd2.itemid = it.id AND itd2.property = 'content'
-            JOIN {$this->tables['item_data']} itd3 on itd3.itemid = it.id AND itd3.property = 'url'
-            WHERE fe.url = '$url' AND it.published > now() - INTERVAL $interval MINUTE
-            ORDER BY it.published
-            LIMIT $limit";
-
-        return $this->dbCommand->queryAll($sql);
-    }
-
     public function feeds()
     {
         $sql = 
@@ -204,13 +187,13 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
     public function readyRssMessages()
     {
         $sql = 
-            "SELECT m.id, m.repeatinterval, md.data as rss_feed
+            "SELECT m.id
             FROM {$this->tables['message']} m
             JOIN {$this->tables['messagedata']} md ON m.id = md.id AND md.name = 'rss_feed' AND md.data != ''
             WHERE m.status NOT IN ('draft', 'sent', 'prepared', 'suspended')
             AND m.embargo <= current_timestamp";
 
-        return $this->dbCommand->queryAll($sql);
+        return $this->dbCommand->queryColumn($sql, 'id');
     }
 
     public function reEmbargoMessage($id)

@@ -248,17 +248,17 @@ END;
         error_reporting(-1);
         $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
 
-        foreach ($this->dao->readyRssMessages() as $message) {
-            $items = iterator_to_array($this->dao->latestFeedContent($message['id'], getConfig('rss_maximum')));
+        foreach ($this->dao->readyRssMessages() as $mid) {
+            $items = iterator_to_array($this->dao->latestFeedContent($mid, getConfig('rss_maximum')));
 
             if (count($items) < getConfig('rss_minimum')) {
-                $count = $this->dao->reEmbargoMessage($message['id']);
+                $count = $this->dao->reEmbargoMessage($mid);
 
                 If ($count > 0) {
-                    logEvent("Embargo advanced for RSS message {$message['id']}");
+                    logEvent("Embargo advanced for RSS message $mid");
                 } else {
-                    $count = $this->dao->setMessageSent($message['id']);
-                    logEvent("RSS message {$message['id']} marked as 'sent' because it has finished repeating");
+                    $count = $this->dao->setMessageSent($mid);
+                    logEvent("RSS message $mid marked as 'sent' because it has finished repeating");
                 }
             }
         }
@@ -272,22 +272,8 @@ END;
         }
         $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
         $items = iterator_to_array($this->dao->latestFeedContent($data['id'], getConfig('rss_maximum')));
-
-        if (count($items) >= getConfig('rss_minimum')) {
-            $this->rssHtml = $this->generateItemHtml($items);
-            $this->rssText = HTML2Text($this->rssHtml);
-        } else {
-            $this->rssHtml = '';
-            $this->rssText = '';
-        }
-    }
-
-    public function canSend ($messagedata, $userdata)
-    {
-        if ($this->rssHtml === null) {
-             return true;
-        }
-        return $this->rssHtml != '';
+        $this->rssHtml = $this->generateItemHtml($items);
+        $this->rssText = HTML2Text($this->rssHtml);
     }
 
     public function parseOutgoingHTMLMessage($messageid, $content, $destination = '', $userdata = array())
