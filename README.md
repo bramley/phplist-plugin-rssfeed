@@ -68,6 +68,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2015-04-08  Corrected error reporting
     2015-04-04  Internal changes
     2015-04-01  Generate items as plain text in addition to html
                 Include sample items when sending a test message

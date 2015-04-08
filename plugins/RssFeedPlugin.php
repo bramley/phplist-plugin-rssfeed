@@ -245,7 +245,7 @@ END;
  */ 
     public function processQueueStart()
     {
-        error_reporting(-1);
+        $level = error_reporting(-1);
         $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
 
         foreach ($this->dao->readyRssMessages() as $mid) {
@@ -261,6 +261,7 @@ END;
                     logEvent("RSS message $mid marked as 'sent' because it has finished repeating");
                 }
             }
+        error_reporting($level);
         }
     }
 
