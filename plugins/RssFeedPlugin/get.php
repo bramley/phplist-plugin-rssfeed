@@ -24,7 +24,7 @@ function output($line)
         flush();
     }
 }
-
+$localTimeZone = new DateTimeZone(date_default_timezone_get());
 $conf = new Config;
 $conf->setContentFiltering(true);
 $dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
@@ -63,7 +63,7 @@ foreach ($feeds as $row) {
         foreach ($feed->getItems() as $item) {
             $itemCount++;
             $date = $item->getDate();
-            $date->setTimeZone(new DateTimeZone(date_default_timezone_get()));
+            $date->setTimeZone($localTimeZone);
             $published = $date->format('Y-m-d H:i:s');
 
             $itemId = $dao->addItem($item->getId(), $published, $feedId);
