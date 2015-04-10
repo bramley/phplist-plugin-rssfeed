@@ -128,6 +128,18 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
         return $this->dbCommand->queryAll($sql);
     }
 
+    public function activeFeeds()
+    {
+        $sql = 
+            "SELECT DISTINCT fe.*
+            FROM {$this->tables['feed']} fe
+            JOIN {$this->tables['messagedata']} md ON fe.url = md.data AND md.name = 'rss_feed'
+            JOIN {$this->tables['message']} m ON md.id = m.id
+            WHERE m.status NOT IN ('draft', 'sent', 'prepared', 'suspended')
+            ";
+        return $this->dbCommand->queryAll($sql);
+    }
+
     public function updateFeed($feedId, $etag, $lastModified)
     {
         $etag = sql_escape($etag);

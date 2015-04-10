@@ -8,7 +8,6 @@ use PicoFeed\PicoFeedException;
 if ($commandline) {
     ob_end_clean();
     echo ClineSignature();
-    echo s('Getting and Parsing the RSS sources'), "\n";
 } else {
     ob_end_flush();
 }
@@ -26,11 +25,17 @@ function output($line)
     }
 }
 
-$dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
 $conf = new Config;
 $conf->setContentFiltering(true);
+$dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
+$feeds = $dao->activeFeeds();
 
-foreach ($dao->feeds() as $row) {
+if (count($feeds) == 0) {
+    output('There are no active RSS feeds to fetch');
+    return;
+}
+
+foreach ($feeds as $row) {
     $feedId = $row['id'];
     $feedUrl = $row['url'];
 
