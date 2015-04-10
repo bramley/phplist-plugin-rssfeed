@@ -1,3 +1,7 @@
+version 2015-04-11
+      Fetch only feeds that are active
+      Internal changes
+
 version 2015-04-08
       Reset error reporting to previous level
 
