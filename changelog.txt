@@ -1,4 +1,5 @@
 version 2015-04-11
+      Use the database timezone instead of php timezone for published
       Fetch only feeds that are active
       Internal changes
 

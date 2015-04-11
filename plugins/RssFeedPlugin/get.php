@@ -28,7 +28,7 @@ function output($line)
 
 function getRssFeeds()
 {
-    $localTimeZone = new DateTimeZone(date_default_timezone_get());
+    $utcTimeZone = new DateTimeZone('UTC');
     $config = new Config;
     $config->setContentFiltering(true);
     $dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
@@ -67,7 +67,7 @@ function getRssFeeds()
             foreach ($feed->getItems() as $item) {
                 $itemCount++;
                 $date = $item->getDate();
-                $date->setTimeZone($localTimeZone);
+                $date->setTimeZone($utcTimeZone);
                 $published = $date->format('Y-m-d H:i:s');
 
                 $itemId = $dao->addItem($item->getId(), $published, $feedId);

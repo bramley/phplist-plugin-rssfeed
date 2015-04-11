@@ -51,7 +51,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
         $sql = 
             "INSERT INTO {$this->tables['item']}
             (uid, published, feedid, added)
-            SELECT '$uid', '$published', $feedId, current_timestamp
+            SELECT '$uid', CONVERT_TZ('$published', '+00:00', @@session.time_zone), $feedId, current_timestamp
             FROM (SELECT 1) AS a
             WHERE NOT EXISTS(
                 SELECT uid
