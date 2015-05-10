@@ -157,7 +157,10 @@ class RssFeedPlugin extends phplistPlugin
         }
         return $html;
     }
-
+/*
+ *  Public functions
+ *
+ */
     public function __construct()
     {
         $this->coderoot = dirname(__FILE__) . '/' . __CLASS__ . '/';
@@ -166,6 +169,18 @@ class RssFeedPlugin extends phplistPlugin
             : '';
 
         parent::__construct();
+    }
+
+    public function dependencyCheck()
+    {
+        global $plugins;
+
+        return array(
+            'Common plugin installed' =>
+                phpListPlugin::isEnabled('CommonPlugin') && 
+                (substr($plugins['CommonPlugin']->version, 0, 3) === 'Git' || $plugins['CommonPlugin']->version >= '2015-03-23'),
+            'PHP version 5.3.0 or greater' => version_compare(PHP_VERSION, '5.3') > 0,
+        );
     }
 
     public function adminmenu()

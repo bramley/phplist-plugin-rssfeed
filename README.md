@@ -68,6 +68,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2015-05-10  Add dependency checks
     2015-04-11  Improve timezone handling for published datetime
                 Fetch items only for active feeds
     2015-04-08  Corrected error reporting
