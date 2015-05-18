@@ -28,76 +28,76 @@ class RssFeedPlugin extends phplistPlugin
     public $name = 'RSS Feed Manager';
     public $authors = 'Duncan Cameron';
 
-    public $commandlinePluginPages = array (
-      'get'
+    public $commandlinePluginPages = array(
+        'get'
     );
 
     public $topMenuLinks = array(
-      'get' => array('category' => 'system'),
-      'view' => array('category' => 'campaigns'),
-      'delete' => array('category' => 'system'),
+        'get' => array('category' => 'system'),
+        'view' => array('category' => 'campaigns'),
+        'delete' => array('category' => 'system'),
     );
 
     public $pageTitles = array(
-      "get" => "Fetch RSS items",
-      "view" => "View RSS items",
-      "delete" => "Delete outdated RSS items",
+        'get' => 'Fetch RSS items',
+        'view' => 'View RSS items',
+        'delete' => 'Delete outdated RSS items',
     );
 
-    public $DBstruct = array (
-        'feed' => array (
-            'id' => array ('integer not null primary key auto_increment', 'ID'),
-            'url' => array ('varchar(65535) not null', ''),
-            'etag' => array ('varchar(100) not null', ''),
-            'lastmodified' => array ('varchar(100) not null', ''),
+    public $DBstruct = array(
+        'feed' => array(
+            'id' => array('integer not null primary key auto_increment', 'ID'),
+            'url' => array('varchar(65535) not null', ''),
+            'etag' => array('varchar(100) not null', ''),
+            'lastmodified' => array('varchar(100) not null', ''),
         ),
-        'item' => array (
-            'id' => array ('integer not null primary key auto_increment', 'ID'),
-            'uid' => array ('varchar(100) not null', 'unique id'),
-            'feedid' => array ('integer not null', 'fk to feed'),
-            'published' => array ('datetime not null', 'published datetime'),
-            'added' => array ('datetime not null', 'datetime added'),
+        'item' => array(
+            'id' => array('integer not null primary key auto_increment', 'ID'),
+            'uid' => array('varchar(100) not null', 'unique id'),
+            'feedid' => array('integer not null', 'fk to feed'),
+            'published' => array('datetime not null', 'published datetime'),
+            'added' => array('datetime not null', 'datetime added'),
             'index_1' => array('feedpublishedindex (feedid, published)', ''),
             'index_2' => array('feeduidindex (feedid, uid)', ''),
         ),
-        'item_data' => array (
-            'itemid' => array ('integer not null', 'fk to item'),
-            'property' => array ('varchar(100) not null', ''),
-            'value'  => array ('text', ''),
-            'primary key'   => array ('(itemid, property)', ''),
+        'item_data' => array(
+            'itemid' => array('integer not null', 'fk to item'),
+            'property' => array('varchar(100) not null', ''),
+            'value'  => array('text', ''),
+            'primary key'   => array('(itemid, property)', ''),
         ),
     );
 
     public $settings = array(
-      "rss_minimum" => array (
-        'value' => 1,
-        'description' => 'Minimum number of items to send in an RSS email',
-        'type' => "integer",
-        'allowempty' => 0,
-        'min' => 1,
-        'max' => 50,
-        'category'=> 'RSS',
-      ),
-      "rss_maximum" => array (
-        'value' => 30,
-        'description' => 'Maximum number of items to send in an RSS email',
-        'type' => "integer",
-        'allowempty' => 0,
-        'min' => 1,
-        'max' => 50,
-        'category'=> 'RSS',
-      ),
-      "rss_htmltemplate" => array (
-        'value' => '
-        <a href="[URL]"><b>[TITLE]</b></a><br/>
-        [PUBLISHED]</br>
-        [CONTENT]
-        <hr/>',
-        'description' => 'Item HTML template',
-        'type' => "textarea",
-        'allowempty' => 0,
-        'category'=> 'RSS',
-      ),
+        'rss_minimum' => array(
+            'value' => 1,
+            'description' => 'Minimum number of items to send in an RSS email',
+            'type' => 'integer',
+            'allowempty' => 0,
+            'min' => 1,
+            'max' => 50,
+            'category'=> 'RSS',
+        ),
+        'rss_maximum' => array(
+            'value' => 30,
+            'description' => 'Maximum number of items to send in an RSS email',
+            'type' => 'integer',
+            'allowempty' => 0,
+            'min' => 1,
+            'max' => 50,
+            'category'=> 'RSS',
+        ),
+        'rss_htmltemplate' => array(
+            'value' => '
+            <a href="[URL]"><b>[TITLE]</b></a><br/>
+            [PUBLISHED]</br>
+            [CONTENT]
+            <hr/>',
+            'description' => 'Item HTML template',
+            'type' => "textarea",
+            'allowempty' => 0,
+            'category'=> 'RSS',
+        ),
     );
 
     private function validateFeed($feedUrl)
@@ -198,7 +198,7 @@ class RssFeedPlugin extends phplistPlugin
  *  Methods for composing a campaign
  * 
  */ 
-    public function sendMessageTab($messageid = 0, $data = array ())
+    public function sendMessageTab($messageid = 0, $data = array())
     {
         $feedUrl = isset($data['rss_feed']) ? $data['rss_feed'] : '';
         $html = <<<END
@@ -276,8 +276,8 @@ END;
                     logEvent("RSS message $mid marked as 'sent' because it has finished repeating");
                 }
             }
-        error_reporting($level);
         }
+        error_reporting($level);
     }
 
     public function campaignStarted($data = array())
