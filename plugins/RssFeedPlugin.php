@@ -27,6 +27,8 @@ class RssFeedPlugin extends phplistPlugin
 
     public $name = 'RSS Feed Manager';
     public $authors = 'Duncan Cameron';
+    public $documentationUrl = 'https://resources.phplist.com/plugin/rssfeed';
+
 
     public $commandlinePluginPages = array (
       'get'
