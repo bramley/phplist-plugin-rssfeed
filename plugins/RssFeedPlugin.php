@@ -141,6 +141,17 @@ class RssFeedPlugin extends phplistPlugin
             )
         );
     }
+    
+    function cronJobs() 
+    {
+        return array(
+           array( 
+                'page' => 'get',
+                'frequency' => 60, 
+            ),
+
+        );
+    }
 
     private function generateItemHtml(array $items)
     {
