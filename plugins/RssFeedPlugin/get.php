@@ -6,8 +6,7 @@ use PicoFeed\Config\Config;
 use PicoFeed\PicoFeedException;
 
 if ($commandline) {
-    ob_end_clean();
-    echo ClineSignature();
+    cl_output( ClineSignature());
 } else {
     ob_end_flush();
 }
@@ -18,7 +17,7 @@ function output($line)
     global $commandline;
 
     if ($commandline) {
-        echo $line, "\n";
+        cl_output($line);
     } else {
         echo "$line<br/>\n";
         ob_flush();
