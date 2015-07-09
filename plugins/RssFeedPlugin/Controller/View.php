@@ -29,7 +29,7 @@ class RssFeedPlugin_Controller_View
 
         $w->setTitle($this->i18n->get('RSS'));
 
-        foreach ($this->dao->feedItems($start, $limit, $loginId) as $row) {
+        foreach ($this->dao->feedItems($start, $limit, $loginId, false) as $row) {
             $key = $row['id'];
             $w->addElement($key, $row['url']);
             $w->addColumn($key, 'Title', $row['title']);

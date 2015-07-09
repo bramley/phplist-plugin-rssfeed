@@ -154,9 +154,10 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
     /*
      *  Used by view controller
      */
-    public function feedItems($start, $maximum, $loginId)
+    public function feedItems($start, $maximum, $loginId, $asc = true)
     {
-        $owner = $loginId ? "m.owner = $loginId AND" : '';
+        $andOwner = $loginId ? "AND m.owner = $loginId" : '';
+        $order = $asc ? 'ASC' : 'DESC';
         $sql = 
             "SELECT it.id, itd1.value as title, itd2.value as content, itd3.value as url, it.published
             FROM {$this->tables['item']} it
@@ -168,9 +169,9 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
                 SELECT DISTINCT data
                 FROM {$this->tables['messagedata']} md
                 JOIN {$this->tables['message']} m ON m.id = md.id
-                WHERE $owner md.name = 'rss_feed' AND md.data != ''
+                WHERE md.name = 'rss_feed' AND md.data != '' $andOwner
             )
-            ORDER BY it.published
+            ORDER BY it.published $order
             LIMIT $start, $maximum";
 
         return $this->dbCommand->queryAll($sql);
@@ -178,7 +179,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
 
     public function totalFeedItems($loginId)
     {
-        $owner = $loginId ? "m.owner = $loginId AND" : '';
+        $andOwner = $loginId ? "AND m.owner = $loginId" : '';
         $sql = 
             "SELECT COUNT(*) AS t
             FROM {$this->tables['item']} it
@@ -187,7 +188,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
                 SELECT DISTINCT data
                 FROM {$this->tables['messagedata']} md
                 JOIN {$this->tables['message']} m ON m.id = md.id
-                WHERE $owner md.name = 'rss_feed' AND md.data != ''
+                WHERE md.name = 'rss_feed' AND md.data != '' $andOwner
             )";
 
         return $this->dbCommand->queryOne($sql, 't');
