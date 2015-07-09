@@ -27,6 +27,8 @@ class RssFeedPlugin extends phplistPlugin
 
     public $name = 'RSS Feed Manager';
     public $authors = 'Duncan Cameron';
+    public $documentationUrl = 'https://resources.phplist.com/plugin/rssfeed';
+
 
     public $commandlinePluginPages = array(
         'get'
@@ -137,6 +139,17 @@ class RssFeedPlugin extends phplistPlugin
 '<p>The deputy leader of the SNP Stewart Hosie believes a minority Labour government would have to negotiate with the nationalists ahead of its first Queen&#039;s speech.</p>',
                 'url' => 'http://www.bbc.co.uk/news/uk-scotland-scotland-politics-32099155#sa-ns_mchannel=rss&ns_source=PublicRSS20-sa',
             )
+        );
+    }
+    
+    function cronJobs() 
+    {
+        return array(
+           array( 
+                'page' => 'get',
+                'frequency' => 60, 
+            ),
+
         );
     }
 
