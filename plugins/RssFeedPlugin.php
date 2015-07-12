@@ -27,6 +27,7 @@ class RssFeedPlugin extends phplistPlugin
 
     public $name = 'RSS Feed Manager';
     public $authors = 'Duncan Cameron';
+    public $documentationUrl = 'https://resources.phplist.com/plugin/rssfeed';
 
     public $commandlinePluginPages = array(
         'get'
@@ -188,12 +189,22 @@ class RssFeedPlugin extends phplistPlugin
         return $this->pageTitles;
     }
 
-
     public function initialise()
     {
         parent::initialise();
         return $this->name . ' '. s('initialised');
     }
+
+    public function cronJobs()
+    {
+        return array(
+            array(
+                'page' => 'get',
+                'frequency' => 60,
+            )
+        );
+    }
+
 /*
  *  Methods for composing a campaign
  * 

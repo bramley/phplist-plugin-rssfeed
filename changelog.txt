@@ -1,3 +1,12 @@
+version 2015-07-12
+      reset error level in correct place
+      correct white-space
+      Correct support forum
+      Display items 'latest first'. Fixes #6
+      Move rss get processing into controller class
+      Add cronJobs() method, documentation url - Fixes #4
+      Enable output buffering - Fixes #5
+
 version 2015-05-10
       Add dependency checks
 

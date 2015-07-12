@@ -16,14 +16,42 @@
  * interface to show rss items
  */
 class RssFeedPlugin_Controller_View
-    extends RssFeedPlugin_Controller
+    extends CommonPlugin_Controller
     implements CommonPlugin_IPopulator
 {
+    /*
+     *    Protected methods
+     */
+    protected function actionDefault()
+    {
+        $toolbar = new CommonPlugin_Toolbar($this);
+        $toolbar->addExportButton();
+        $toolbar->addHelpButton('viewrss');
+        $listing = new CommonPlugin_Listing($this, $this);
+        echo $listing->display();
+        return;
+
+        $params = array(
+            'toolbar' => $toolbar->display(),
+            'listing' => $listing->display()
+        );
+        print $this->render(dirname(__FILE__) . '/view.tpl.php', $params);
+    }
+
+    /*
+     *    Public methods
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB());
+    }
+
     /*
      * Implementation of CommonPlugin_IPopulator
      */
 
-    function populate(WebblerListing $w, $start, $limit)
+    public function populate(WebblerListing $w, $start, $limit)
     {
         $loginId = $_SESSION['logindetails']['superuser'] ? '' : $_SESSION['logindetails']['id'];
 
@@ -38,7 +66,7 @@ class RssFeedPlugin_Controller_View
         }
     }
 
-    function total()
+    public function total()
     {
         $loginId = $_SESSION['logindetails']['superuser'] ? '' : $_SESSION['logindetails']['id'];
         return $this->dao->totalFeedItems($loginId);
