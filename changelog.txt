@@ -1,3 +1,6 @@
+version 2015-07-14
+      Provide values for etag and last modified when adding a feed. Fixes #7
+
 version 2015-07-12
       reset error level in correct place
       correct white-space

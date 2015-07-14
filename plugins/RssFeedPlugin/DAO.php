@@ -31,8 +31,8 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
         $url = sql_escape($url);
         $sql = 
             "INSERT INTO {$this->tables['feed']}
-            (url)
-            SELECT '$url'
+            (url, etag, lastmodified)
+            SELECT '$url', '', ''
             FROM (SELECT 1) AS a
             WHERE NOT EXISTS(
                 SELECT url
