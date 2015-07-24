@@ -211,7 +211,7 @@ class RssFeedPlugin extends phplistPlugin
  */ 
     public function sendMessageTab($messageid = 0, $data = array())
     {
-        $feedUrl = isset($data['rss_feed']) ? $data['rss_feed'] : '';
+        $feedUrl = isset($data['rss_feed']) ? htmlspecialchars($data['rss_feed']) : '';
         $html = <<<END
     <label>RSS feed URL
     <input type="text" name="rss_feed" value="$feedUrl" /></label>
@@ -234,6 +234,12 @@ END;
         $this->rssHtml = $this->generateItemHtml($this->sampleItems());
         $this->rssText = HTML2Text($this->rssHtml);
         return true;
+    }
+
+    public function viewMessage($messageid, $data)
+    {
+        $feedUrl = isset($data['rss_feed']) ? $data['rss_feed'] : '';
+        return $feedUrl ? array('Feed URL', htmlspecialchars($feedUrl)) : false;
     }
 
     public function allowMessageToBeQueued($messageData = array())
