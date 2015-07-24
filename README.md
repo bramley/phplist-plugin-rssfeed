@@ -68,6 +68,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2015-08-01  Display feed url on view message page, add description to plugin page
     2015-07-14  Fix for GitHub #7
     2015-07-12  Display items in reverse chronological order
                 GitHub #4, #5, #6
