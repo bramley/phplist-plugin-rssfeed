@@ -20,6 +20,7 @@ class RssFeedPlugin extends phplistPlugin
     const VERSION_FILE = 'version.txt';
     const OLDEST_FIRST = 1;
     const LATEST_FIRST = 2;
+    const TWITTER_PAGE = 'twitterfeed';
 
     private $dao;
     private $rssHtml;
@@ -33,6 +34,8 @@ class RssFeedPlugin extends phplistPlugin
     public $commandlinePluginPages = array(
         'get',
     );
+
+    public $publicPages = array(self::TWITTER_PAGE);
 
     public $topMenuLinks = array(
         'get' => array('category' => 'system'),
