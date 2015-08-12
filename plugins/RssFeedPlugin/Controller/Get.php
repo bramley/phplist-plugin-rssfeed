@@ -23,7 +23,7 @@ use PicoFeed\PicoFeedException;
 class RssFeedPlugin_Controller_Get
     extends CommonPlugin_Controller
 {
-    private function getRssFeeds($output)
+    private function getRssFeeds(Closure $output)
     {
         $utcTimeZone = new DateTimeZone('UTC');
         $config = new Config;

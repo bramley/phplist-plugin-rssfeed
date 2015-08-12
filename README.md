@@ -68,17 +68,19 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
-    2015-08-01  Display feed url on view message page, add description to plugin page
-    2015-07-14  Fix for GitHub #7
-    2015-07-12  Display items in reverse chronological order
-                GitHub #4, #5, #6
-    2015-05-10  Add dependency checks
-    2015-04-11  Improve timezone handling for published datetime
-                Fetch items only for active feeds
-    2015-04-08  Corrected error reporting
-    2015-04-04  Internal changes
-    2015-04-01  Generate items as plain text in addition to html
-                Include sample items when sending a test message
-    2015-03-29  Use embargo instead of now() to select recent items
-                A message that does not have any content now has embargo moved forward
-    2015-03-24  Release to GitHub
+    2.1.0+20150812  Use title of latest item in subject, use feed items for test message
+                    Display items in ascending or descending order of published date
+    2015-08-01      Display feed url on view message page, add description to plugin page
+    2015-07-14      Fix for GitHub #7
+    2015-07-12      Display items in reverse chronological order
+                    GitHub #4, #5, #6
+    2015-05-10      Add dependency checks
+    2015-04-11      Improve timezone handling for published datetime
+                    Fetch items only for active feeds
+    2015-04-08      Corrected error reporting
+    2015-04-04      Internal changes
+    2015-04-01      Generate items as plain text in addition to html
+                    Include sample items when sending a test message
+    2015-03-29      Use embargo instead of now() to select recent items
+                    A message that does not have any content now has embargo moved forward
+    2015-03-24      Release to GitHub

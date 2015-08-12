@@ -24,18 +24,9 @@ class RssFeedPlugin_Controller_View
      */
     protected function actionDefault()
     {
-        $toolbar = new CommonPlugin_Toolbar($this);
-        $toolbar->addExportButton();
-        $toolbar->addHelpButton('viewrss');
         $listing = new CommonPlugin_Listing($this, $this);
         echo $listing->display();
         return;
-
-        $params = array(
-            'toolbar' => $toolbar->display(),
-            'listing' => $listing->display()
-        );
-        print $this->render(dirname(__FILE__) . '/view.tpl.php', $params);
     }
 
     /*

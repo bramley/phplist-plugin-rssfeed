@@ -20,6 +20,8 @@
 class RssFeedPlugin extends phplistPlugin
 {
     const VERSION_FILE = 'version.txt';
+    const OLDEST_FIRST = 1;
+    const LATEST_FIRST = 2;
 
     private $dao;
     private $rssHtml;
@@ -72,32 +74,39 @@ class RssFeedPlugin extends phplistPlugin
 
     public $settings = array(
         'rss_minimum' => array(
-            'value' => 1,
             'description' => 'Minimum number of items to send in an RSS email',
             'type' => 'integer',
+            'value' => 1,
             'allowempty' => 0,
             'min' => 1,
             'max' => 50,
             'category'=> 'RSS',
         ),
         'rss_maximum' => array(
-            'value' => 30,
             'description' => 'Maximum number of items to send in an RSS email',
             'type' => 'integer',
+            'value' => 30,
             'allowempty' => 0,
             'min' => 1,
             'max' => 50,
             'category'=> 'RSS',
         ),
         'rss_htmltemplate' => array(
+            'description' => 'Item HTML template',
+            'type' => "textarea",
             'value' => '
             <a href="[URL]"><b>[TITLE]</b></a><br/>
             [PUBLISHED]</br>
             [CONTENT]
             <hr/>',
-            'description' => 'Item HTML template',
-            'type' => "textarea",
             'allowempty' => 0,
+            'category'=> 'RSS',
+        ),
+        'rss_subjectsuffix' => array(
+            'description' => 'Text to append when the title of the latest item is used in the subject',
+            'type' => "text",
+            'value' => '',
+            'allowempty' => true,
             'category'=> 'RSS',
         ),
     );
@@ -142,10 +151,14 @@ class RssFeedPlugin extends phplistPlugin
         );
     }
 
-    private function generateItemHtml(array $items)
+    private function generateItemHtml(array $items, $order)
     {
         $htmltemplate = getConfig('rss_htmltemplate');
         $html = '';
+
+        if ($order == self::LATEST_FIRST) {
+            $items = array_reverse($items);
+        }
 
         foreach ($items as $item) {
             $d = new DateTime($item['published']);
@@ -159,6 +172,24 @@ class RssFeedPlugin extends phplistPlugin
         }
         return $html;
     }
+
+    private function modifySubject(array $messageData, array $items)
+    {
+        global $MD;
+
+        $item = $items[count($items) - 1];
+        $titleReplace = $item['title'];
+
+        if (count($items) > 1 && ($suffix = getConfig('rss_subjectsuffix'))) {
+            $titleReplace .= $suffix;
+        }
+        $subject = $this->replaceProperties(
+            $messageData['subject'],
+            array('RSSITEM:TITLE' => $titleReplace)
+        );
+
+        $MD[$messageData['id']]['subject'] = $subject;
+    }
 /*
  *  Public functions
  *
@@ -169,7 +200,6 @@ class RssFeedPlugin extends phplistPlugin
         $this->version = (is_file($f = $this->coderoot . self::VERSION_FILE))
             ? file_get_contents($f)
             : '';
-
         parent::__construct();
     }
 
@@ -178,9 +208,10 @@ class RssFeedPlugin extends phplistPlugin
         global $plugins;
 
         return array(
-            'Common plugin installed' =>
-                phpListPlugin::isEnabled('CommonPlugin') && 
-                (substr($plugins['CommonPlugin']->version, 0, 3) === 'Git' || $plugins['CommonPlugin']->version >= '2015-03-23'),
+            'Common plugin v3 installed' =>
+                phpListPlugin::isEnabled('CommonPlugin')
+                    && preg_match('/\d+\.\d+\.\d+/', $plugins['CommonPlugin']->version, $matches)
+                    && version_compare($matches[0], '3') > 0,
             'PHP version 5.3.0 or greater' => version_compare(PHP_VERSION, '5.3') > 0,
         );
     }
@@ -188,12 +219,6 @@ class RssFeedPlugin extends phplistPlugin
     public function adminmenu()
     {
         return $this->pageTitles;
-    }
-
-    public function initialise()
-    {
-        parent::initialise();
-        return $this->name . ' '. s('initialised');
     }
 
     public function cronJobs()
@@ -213,9 +238,17 @@ class RssFeedPlugin extends phplistPlugin
     public function sendMessageTab($messageid = 0, $data = array())
     {
         $feedUrl = isset($data['rss_feed']) ? htmlspecialchars($data['rss_feed']) : '';
+        $order = CHtml::dropDownList(
+            'rss_order',
+            isset($data['rss_order']) ? $data['rss_order'] : self::OLDEST_FIRST,
+            array(self::OLDEST_FIRST => 'Oldest items first', self::LATEST_FIRST => 'Latest items first')
+        );
+            
         $html = <<<END
     <label>RSS feed URL
     <input type="text" name="rss_feed" value="$feedUrl" /></label>
+    <label>How to order feed items
+    $order</label>
 END;
         return $html;
     }
@@ -225,22 +258,37 @@ END;
         return 'RSS';
     }
 
-    public function sendTestAllowed ($messageData)
+    public function sendTestAllowed($messageData)
     {
+
         if (!isset($messageData['rss_feed']) || $messageData['rss_feed'] == '') {
             $this->rssHtml = null;
             return true;
         }
+        $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
+        $items = iterator_to_array($this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum'), false));
 
-        $this->rssHtml = $this->generateItemHtml($this->sampleItems());
+        if (count($items) == 0) {
+            $items = $this->sampleItems();
+        }
+        $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order']);
         $this->rssText = HTML2Text($this->rssHtml);
+        $this->modifySubject($messageData, $items);
         return true;
     }
 
     public function viewMessage($messageid, $data)
     {
-        $feedUrl = isset($data['rss_feed']) ? $data['rss_feed'] : '';
-        return $feedUrl ? array('Feed URL', htmlspecialchars($feedUrl)) : false;
+        if (empty($data['rss_feed'])) {
+            return false;
+        }
+        $html = $this->sendMessageTab($messageid, $data);
+        $html = <<<END
+    <fieldset disabled>
+    $html
+    </fieldset>
+END;
+        return array('RSS', $html);
     }
 
     public function allowMessageToBeQueued($messageData = array())
@@ -282,7 +330,7 @@ END;
         $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
 
         foreach ($this->dao->readyRssMessages() as $mid) {
-            $items = iterator_to_array($this->dao->latestFeedContent($mid, getConfig('rss_maximum')));
+            $items = iterator_to_array($this->dao->messageFeedItems($mid, getConfig('rss_maximum')));
 
             if (count($items) < getConfig('rss_minimum')) {
                 $count = $this->dao->reEmbargoMessage($mid);
@@ -305,9 +353,10 @@ END;
             return;
         }
         $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
-        $items = iterator_to_array($this->dao->latestFeedContent($data['id'], getConfig('rss_maximum')));
-        $this->rssHtml = $this->generateItemHtml($items);
+        $items = iterator_to_array($this->dao->messageFeedItems($data['id'], getConfig('rss_maximum')));
+        $this->rssHtml = $this->generateItemHtml($items, $data['rss_order']);
         $this->rssText = HTML2Text($this->rssHtml);
+        $this->modifySubject($data, $items);
     }
 
     public function parseOutgoingHTMLMessage($messageid, $content, $destination = '', $userdata = array())
@@ -315,7 +364,6 @@ END;
         if ($this->rssHtml === null) {
              return $content;
         }
-
         return str_ireplace('[RSS]', $this->rssHtml, $content);
     }
 
@@ -324,7 +372,6 @@ END;
         if ($this->rssHtml === null) {
              return $content;
         }
-
         return str_ireplace('[RSS]', $this->rssText, $content);
     }
 }

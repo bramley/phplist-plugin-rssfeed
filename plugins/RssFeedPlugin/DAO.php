@@ -101,20 +101,27 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
         return $this->dbCommand->queryAffectedRows($sql);
     }
 
-    public function latestFeedContent($mid, $limit)
+    public function messageFeedItems($mid, $limit, $useEmbargo = true)
     {
+        $published = $useEmbargo
+            ? 'AND it.published >= m.embargo - INTERVAL m.repeatinterval MINUTE AND it.published < m.embargo'
+            : '';
         $sql = 
-            "SELECT itd1.value as title, itd2.value as content, itd3.value as url, it.published
-            FROM {$this->tables['message']} m
-            JOIN {$this->tables['messagedata']} md ON m.id = md.id AND md.name = 'rss_feed'
-            JOIN {$this->tables['feed']} fe ON fe.url = md.data
-            JOIN {$this->tables['item']} it ON fe.id = it.feedid
-            JOIN {$this->tables['item_data']} itd1 on itd1.itemid = it.id AND itd1.property = 'title'
-            JOIN {$this->tables['item_data']} itd2 on itd2.itemid = it.id AND itd2.property = 'content'
-            JOIN {$this->tables['item_data']} itd3 on itd3.itemid = it.id AND itd3.property = 'url'
-            WHERE m.id = $mid AND it.published >= m.embargo - INTERVAL m.repeatinterval MINUTE AND it.published < m.embargo
-            ORDER BY it.published
-            LIMIT $limit";
+            "SELECT title, content, url, published
+            FROM (
+                SELECT itd1.value as title, itd2.value as content, itd3.value as url, it.published
+                FROM {$this->tables['message']} m
+                JOIN {$this->tables['messagedata']} md ON m.id = md.id AND md.name = 'rss_feed'
+                JOIN {$this->tables['feed']} fe ON fe.url = md.data
+                JOIN {$this->tables['item']} it ON fe.id = it.feedid
+                JOIN {$this->tables['item_data']} itd1 on itd1.itemid = it.id AND itd1.property = 'title'
+                JOIN {$this->tables['item_data']} itd2 on itd2.itemid = it.id AND itd2.property = 'content'
+                JOIN {$this->tables['item_data']} itd3 on itd3.itemid = it.id AND itd3.property = 'url'
+                WHERE m.id = $mid $published
+                ORDER BY it.published DESC
+                LIMIT $limit
+            ) AS temp
+            ORDER BY published ASC";
 
         return $this->dbCommand->queryAll($sql);
     }
@@ -135,7 +142,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
             FROM {$this->tables['feed']} fe
             JOIN {$this->tables['messagedata']} md ON fe.url = md.data AND md.name = 'rss_feed'
             JOIN {$this->tables['message']} m ON md.id = m.id
-            WHERE m.status NOT IN ('draft', 'sent', 'prepared', 'suspended')
+            WHERE m.status NOT IN ('sent', 'prepared', 'suspended')
             ";
         return $this->dbCommand->queryAll($sql);
     }
@@ -236,6 +243,16 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
         $sql = 
             "UPDATE {$this->tables['message']}
             SET status = 'sent'
+            WHERE id = $id";
+        return $this->dbCommand->queryAffectedRows($sql);
+    }
+
+    public function setSubject($id, $subject)
+    {
+        $subject = sql_escape($subject);
+        $sql = 
+            "UPDATE {$this->tables['message']}
+            SET subject = '$subject'
             WHERE id = $id";
         return $this->dbCommand->queryAffectedRows($sql);
     }
