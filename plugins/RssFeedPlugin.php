@@ -212,7 +212,13 @@ class RssFeedPlugin extends phplistPlugin
                 phpListPlugin::isEnabled('CommonPlugin')
                     && preg_match('/\d+\.\d+\.\d+/', $plugins['CommonPlugin']->version, $matches)
                     && version_compare($matches[0], '3') > 0,
-            'PHP version 5.3.0 or greater' => version_compare(PHP_VERSION, '5.3') > 0,
+            'phpList version 3.2.0 or later' => version_compare(VERSION, '3.2') > 0,
+            'PHP version 5.3.0 or later' => version_compare(PHP_VERSION, '5.3') > 0,
+            'iconv extension installed' => extension_loaded('iconv'),
+            'xml extension installed' => extension_loaded('xml'),
+            'dom extension installed' => extension_loaded('dom'),
+            'libxml extension installed' => extension_loaded('libxml'),
+            'SimpleXML extension installed' => extension_loaded('SimpleXML'),
         );
     }
 
@@ -335,7 +341,7 @@ END;
             if (count($items) < getConfig('rss_minimum')) {
                 $count = $this->dao->reEmbargoMessage($mid);
 
-                If ($count > 0) {
+                if ($count > 0) {
                     logEvent("Embargo advanced for RSS message $mid");
                 } else {
                     $count = $this->dao->setMessageSent($mid);

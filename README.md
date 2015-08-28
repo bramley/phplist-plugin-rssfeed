@@ -2,7 +2,7 @@
 
 ## Description ##
 
-This plugin lets you create campaigns that include content from RSS feeds and are automatically repeated at regular intervals.
+This plugin lets you create campaigns that include content from RSS or Atom feeds and which are automatically repeated at regular intervals.
 
 The plugin adds a tab to the Send a campaign page on which you specify the URL of the RSS feed.
 When the campaign is sent the content of the message has recent items, dependent on the repeat frequency, from the feed.
@@ -12,14 +12,19 @@ When the campaign is sent the content of the message has recent items, dependent
 
 ### Dependencies ###
 
-Developing this plugin has highlighted a few problems with the way that phplist handles repeated messages.
-Fixes for the problems should be in the next phplist release, 3.0.13, but until that is available, you need to use phplist 3.0.12
-and replace one file.
-Copy the file connect.php to your phplist admin directory, replacing the existing file (which you might want to save).
+These dependencies must be met for the plugin to be installed and run successfully.
 
-Requires php version 5.3 or later. 
+* phplist version 3.2.0 or later.
+* php version 5.3 or later. 
+* The Common Plugin version 3. You should install, or upgrade to, the latest version. See <https://github.com/bramley/phplist-plugin-common>
 
-Requires the Common Plugin version 2015-03-23 or later to be installed. You should install or upgrade to the latest version. See <https://github.com/bramley/phplist-plugin-common>
+The plugin uses the PicoFeed package that additionally requires these php extensions to be loaded:
+
+* iconv
+* dom
+* xml
+* libxml
+* SimpleXML
 
 ### Set the plugin directory ###
 The default plugin directory is `plugins` within the admin directory.
@@ -28,15 +33,13 @@ You can use a directory outside of the web root by changing the definition of `P
 The benefit of this is that plugins will not be affected when you upgrade phplist.
 
 ### Install through phplist ###
+The recommended method of installing the plugin is through phplist.
+
 Install on the Plugins page (menu Config > Plugins) using the package URL `https://github.com/bramley/phplist-plugin-rssfeed/archive/master.zip`
 
-In phplist releases 3.0.5 and earlier there is a bug that can cause a plugin to be incompletely installed on some configurations (<https://mantis.phplist.com/view.php?id=16865>). 
-Check that these files are in the plugin directory. If not then you will need to install manually. The bug has been fixed in release 3.0.6.
-
-* the file RssFeedPlugin.php
-* the directory RssFeedPlugin
-
 ### Install manually ###
+If you are not able to install the plugin through phplist then it can be installed manually instead.
+
 Download the plugin zip file from <https://github.com/bramley/phplist-plugin-rssfeed/archive/master.zip>
 
 Expand the zip file, then copy the contents of the plugins directory to your phplist plugins directory.
@@ -45,16 +48,10 @@ This should contain
 * the file RssFeedPlugin.php
 * the directory RssFeedPlugin
 
-###Settings###
-The plugin adds an RSS group to the Settings page where you can enter:
-
-* The minimum number of items to be included in a campaign. The default is 1.
-* The maximum number of items to be included in a campaign. The default is 30.
-* The item HTML template.
-
 ##Usage##
 
-For guidance on using the plugin see the plugin's page within the phplist documentation site <https://resources.phplist.com/plugin/rssfeed>
+For guidance on using the plugin and its configuration settings see the plugin's page within the phplist documentation site
+<https://resources.phplist.com/plugin/rssfeed>
 
 ##Support##
 
@@ -68,6 +65,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.1.1+20150828  Update to dependencies
     2.1.0+20150812  Use title of latest item in subject, use feed items for test message
                     Display items in ascending or descending order of published date
     2015-08-01      Display feed url on view message page, add description to plugin page
