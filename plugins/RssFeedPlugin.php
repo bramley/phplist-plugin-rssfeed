@@ -283,12 +283,12 @@ END;
         return true;
     }
 
-    public function viewMessage($messageid, $data)
+    public function viewMessage($messageid, array $messagedata)
     {
-        if (empty($data['rss_feed'])) {
+        if (empty($messagedata['rss_feed'])) {
             return false;
         }
-        $html = $this->sendMessageTab($messageid, $data);
+        $html = $this->sendMessageTab($messageid, $messagedata);
         $html = <<<END
     <fieldset disabled>
     $html
