@@ -51,7 +51,7 @@ class RssFeedPlugin extends phplistPlugin
     public $DBstruct = array(
         'feed' => array(
             'id' => array('integer not null primary key auto_increment', 'ID'),
-            'url' => array('varchar(65535) not null', ''),
+            'url' => array('text not null', ''),
             'etag' => array('varchar(100) not null', ''),
             'lastmodified' => array('varchar(100) not null', ''),
         ),
