@@ -1,3 +1,8 @@
+version 2.1.2+20151014
+      Fixes #8 strict standards warning
+      Fixes #9 make the sample RSS items a bit more relevant (and useful) to phpList
+      Fixes #10 corrected url field type
+
 version 2.1.1+20150828
       Updated dependencies
 
