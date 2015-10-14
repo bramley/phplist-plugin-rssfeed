@@ -135,19 +135,40 @@ class RssFeedPlugin extends phplistPlugin
     {
         return array(
             array(
-                'published' => '2015-03-28 10:41:41',
-                'title' => 'Hamilton on pole after Rosberg block',
+                'published' => date('Y-m-d H:i:s',time()-10000),
+                'title' => 'These are just some entries to test the RSS feed',
                 'content' => 
-'<p>Lewis Hamilton takes pole position for the Malaysian GP as Ferrari&#039;s Sebastian Vettel split the Mercedes in a rain-hit qualifying.</p>',
-                'url' => 'http://www.bbc.co.uk/sport/0/formula1/32099506',
+'<p>The phpList manual is available online, or you can download it to your favourite device.</p>',
+                'url' => 'https://www.phplist.org/manual/',
             ),
             array(
-                'published' => '2015-03-28 12:16:20',
-                'title' => "Labour 'would have to talk' to SNP",
+                'published' => date('Y-m-d H:i:s',time()-8000),
+                'title' => 'Adding your first Subscribers ',
                 'content' => 
-'<p>The deputy leader of the SNP Stewart Hosie believes a minority Labour government would have to negotiate with the nationalists ahead of its first Queen&#039;s speech.</p>',
-                'url' => 'http://www.bbc.co.uk/news/uk-scotland-scotland-politics-32099155#sa-ns_mchannel=rss&ns_source=PublicRSS20-sa',
-            )
+'<p>phpList Manual chapter explaining how to add subscribers.</p>',
+                'url' => 'https://www.phplist.org/manual/ch006_adding-your-first-subscribers.xhtml',
+            ),
+            array(
+                'published' => date('Y-m-d H:i:s',time()-6000),
+                'title' => "Composing your first campaign",
+                'content' => 
+'<p>How to write your first campaign in phpList.</p>',
+                'url' => 'https://www.phplist.org/manual/ch007_sending-your-first-campaign.xhtml',
+            ),
+            array(
+                'published' => date('Y-m-d H:i:s',time()-4000),
+                'title' => "Sending a campaign",
+                'content' => 
+'<p>The phpList manual pages, explaining how to send your campaign.</p>',
+                'url' => 'https://www.phplist.org/manual/ch008_your-first-campaign.xhtml',
+            ),
+            array(
+                'published' => date('Y-m-d H:i:s',time()),
+                'title' => "Campaign Statistics",
+                'content' => 
+'<p>Once you have sent your campaign, just sit back and watch the statistics grow.</p>',
+                'url' => 'https://www.phplist.org/manual/ch009_basic-campaign-statistics.xhtml',
+            ),
         );
     }
 
