@@ -96,7 +96,7 @@ class RssFeedPlugin extends phplistPlugin
             'type' => "textarea",
             'value' => '
             <a href="[URL]"><b>[TITLE]</b></a><br/>
-            [PUBLISHED]</br>
+            [PUBLISHED]<br/>
             [CONTENT]
             <hr/>',
             'allowempty' => 0,
