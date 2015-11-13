@@ -198,12 +198,17 @@ class RssFeedPlugin extends phplistPlugin
     {
         global $MD;
 
-        $item = $items[count($items) - 1];
-        $titleReplace = $item['title'];
+        if (count($items) == 0) {
+            $titleReplace = 'No title';
+        } else {
+            $item = $items[count($items) - 1];
+            $titleReplace = $item['title'];
 
-        if (count($items) > 1 && ($suffix = getConfig('rss_subjectsuffix'))) {
-            $titleReplace .= $suffix;
+            if (count($items) > 1 && ($suffix = getConfig('rss_subjectsuffix'))) {
+                $titleReplace .= $suffix;
+            }
         }
+
         $subject = $this->replaceProperties(
             $messageData['subject'],
             array('RSSITEM:TITLE' => $titleReplace)
