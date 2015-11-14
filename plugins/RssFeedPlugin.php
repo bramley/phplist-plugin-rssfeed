@@ -111,6 +111,11 @@ class RssFeedPlugin extends phplistPlugin
         ),
     );
 
+    private function isRssMessage($messageData)
+    {
+        return isset($messageData['rss_feed']) && $messageData['rss_feed'] != '';
+    }
+
     private function validateFeed($feedUrl)
     {
         $reader = new PicoFeed\Reader\Reader();
@@ -198,13 +203,15 @@ class RssFeedPlugin extends phplistPlugin
     {
         global $MD;
 
-        if (count($items) == 0) {
+        $size = count($items);
+
+        if ($size == 0) {
             $titleReplace = 'No title';
         } else {
-            $item = $items[count($items) - 1];
+            $item = $items[$size - 1];
             $titleReplace = $item['title'];
 
-            if (count($items) > 1 && ($suffix = getConfig('rss_subjectsuffix'))) {
+            if ($size > 1 && ($suffix = getConfig('rss_subjectsuffix'))) {
                 $titleReplace .= $suffix;
             }
         }
@@ -292,8 +299,7 @@ END;
 
     public function sendTestAllowed($messageData)
     {
-
-        if (!isset($messageData['rss_feed']) || $messageData['rss_feed'] == '') {
+        if (!$this->isRssMessage($messageData)) {
             $this->rssHtml = null;
             return true;
         }
@@ -309,12 +315,12 @@ END;
         return true;
     }
 
-    public function viewMessage($messageid, array $messagedata)
+    public function viewMessage($messageId, array $messageData)
     {
-        if (empty($messagedata['rss_feed'])) {
+        if (!$this->isRssMessage($messageData)) {
             return false;
         }
-        $html = $this->sendMessageTab($messageid, $messagedata);
+        $html = $this->sendMessageTab($messageId, $messageData);
         $html = <<<END
     <fieldset disabled>
     $html
@@ -325,7 +331,7 @@ END;
 
     public function allowMessageToBeQueued($messageData = array())
     {
-        if (!isset($messageData['rss_feed']) || $messageData['rss_feed'] == '') {
+        if (!$this->isRssMessage($messageData)) {
             return '';
         }
         $feedUrl = $messageData['rss_feed'];
@@ -378,17 +384,17 @@ END;
         error_reporting($level);
     }
 
-    public function campaignStarted($data = array())
+    public function campaignStarted($messageData = array())
     {
-        if (!isset($data['rss_feed']) || stripos($data['message'], '[RSS]') === false || $data['repeatinterval'] == 0) {
+        if (!$this->isRssMessage($messageData)) {
             $this->rssHtml = null;
             return;
         }
         $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
-        $items = iterator_to_array($this->dao->messageFeedItems($data['id'], getConfig('rss_maximum')));
-        $this->rssHtml = $this->generateItemHtml($items, $data['rss_order']);
+        $items = iterator_to_array($this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum')));
+        $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order']);
         $this->rssText = HTML2Text($this->rssHtml);
-        $this->modifySubject($data, $items);
+        $this->modifySubject($messageData, $items);
     }
 
     public function parseOutgoingHTMLMessage($messageid, $content, $destination = '', $userdata = array())
