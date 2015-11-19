@@ -111,7 +111,7 @@ class RssFeedPlugin extends phplistPlugin
         ),
     );
 
-    private function isRssMessage($messageData)
+    private function isRssMessage(array $messageData)
     {
         return isset($messageData['rss_feed']) && $messageData['rss_feed'] != '';
     }
@@ -199,10 +199,8 @@ class RssFeedPlugin extends phplistPlugin
         return $html;
     }
 
-    private function modifySubject(array $messageData, array $items)
+    private function newSubject($subject, array $items)
     {
-        global $MD;
-
         $size = count($items);
 
         if ($size == 0) {
@@ -216,12 +214,28 @@ class RssFeedPlugin extends phplistPlugin
             }
         }
 
-        $subject = $this->replaceProperties(
-            $messageData['subject'],
+        return $this->replaceProperties(
+            $subject,
             array('RSSITEM:TITLE' => $titleReplace)
         );
+    }
 
-        $MD[$messageData['id']]['subject'] = $subject;
+    private function modifySubject(array $messageData, array $items)
+    {
+        global $MD;
+
+        $MD[$messageData['id']]['subject'] = $this->newSubject($messageData['subject'], $items);
+    }
+
+    private function itemsForTestMessage($mid)
+    {
+        $items = iterator_to_array($this->dao->messageFeedItems($mid, getConfig('rss_maximum'), false));
+
+        if (count($items) == 0) {
+            $items = $this->sampleItems();
+        }
+
+        return $items;
     }
 /*
  *  Public functions
@@ -253,6 +267,21 @@ class RssFeedPlugin extends phplistPlugin
             'libxml extension installed' => extension_loaded('libxml'),
             'SimpleXML extension installed' => extension_loaded('SimpleXML'),
         );
+    }
+
+    /**
+     * Use this method as a hook to create the dao
+     * Need to create autoloader because of the unpredictable order in which plugins are called
+     *
+     * @access  public
+     * @return  null
+     */
+    public function sendFormats()
+    {
+        global $plugins;
+
+        require_once $plugins['CommonPlugin']->coderoot . 'Autoloader.php';
+        $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB());
     }
 
     public function adminmenu()
@@ -303,15 +332,12 @@ END;
             $this->rssHtml = null;
             return true;
         }
-        $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
-        $items = iterator_to_array($this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum'), false));
+        $items = $this->itemsForTestMessage($messageData['id']);
 
-        if (count($items) == 0) {
-            $items = $this->sampleItems();
-        }
         $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order']);
         $this->rssText = HTML2Text($this->rssHtml);
         $this->modifySubject($messageData, $items);
+
         return true;
     }
 
@@ -353,7 +379,6 @@ END;
         if ($messageData['repeatinterval'] == 0) {
             return 'Repeat interval must be selected for an RSS campaign';
         }
-        $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
         $this->dao->addFeed($feedUrl);
         return '';
     }
@@ -365,7 +390,6 @@ END;
     public function processQueueStart()
     {
         $level = error_reporting(-1);
-        $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
 
         foreach ($this->dao->readyRssMessages() as $mid) {
             $items = iterator_to_array($this->dao->messageFeedItems($mid, getConfig('rss_maximum')));
@@ -390,7 +414,6 @@ END;
             $this->rssHtml = null;
             return;
         }
-        $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
         $items = iterator_to_array($this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum')));
         $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order']);
         $this->rssText = HTML2Text($this->rssHtml);
@@ -402,6 +425,7 @@ END;
         if ($this->rssHtml === null) {
              return $content;
         }
+
         return str_ireplace('[RSS]', $this->rssHtml, $content);
     }
 
@@ -410,6 +434,30 @@ END;
         if ($this->rssHtml === null) {
              return $content;
         }
+
         return str_ireplace('[RSS]', $this->rssText, $content);
+    }
+
+    /**
+     * Called by ViewBrowser plugin to manipulate template and message.
+     * Gets the RSS HTML content and modifies the message subject.
+     * 
+     * @param string &$templateBody the body of the template
+     * @param array  &$messageData  the message data
+     */
+    public function viewBrowserHook(&$templateBody, array &$messageData)
+    {
+        if (!$this->isRssMessage($messageData)) {
+            return;
+        }
+
+        if ($messageData['status'] == 'draft') {
+            $items = $this->itemsForTestMessage($messageData['id']);
+        } else {
+            $items = iterator_to_array($this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum')));
+        }
+
+        $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order']);
+        $messageData['subject'] = $this->newSubject($messageData['subject'], $items);
     }
 }

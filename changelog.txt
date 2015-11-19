@@ -1,3 +1,10 @@
+version 2.2.0+20151120
+      Remove redundant file
+      Correction to the template html
+      handle empty items array
+      Refactoring
+      Support for view in browser plugin
+
 version 2.1.2+20151014
       Fixes #8 strict standards warning
       Fixes #9 make the sample RSS items a bit more relevant (and useful) to phpList

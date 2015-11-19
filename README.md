@@ -65,6 +65,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.2.0+20151120  Support for View in Browser plugin
     2.1.2+20151014  GitHub #8, #9, #10
     2.1.1+20150828  Update to dependencies
     2.1.0+20150812  Use title of latest item in subject, use feed items for test message
