@@ -1,21 +1,19 @@
 <?php
 /**
- * RssFeedPlugin for phplist
+ * RssFeedPlugin for phplist.
  * 
  * This file is a part of RssFeedPlugin.
  *
  * @category  phplist
- * @package   RssFeedPlugin
+ *
  * @author    Duncan Cameron
  * @copyright 2015 Duncan Cameron
  * @license   http://www.gnu.org/licenses/gpl.html GNU General Public License, Version 3
  */
 
 /**
- * Data access class
- * 
+ * Data access class.
  */
-
 class RssFeedPlugin_DAO extends CommonPlugin_DAO
 {
     public function __construct($db)
@@ -29,7 +27,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
     public function addFeed($url)
     {
         $url = sql_escape($url);
-        $sql = 
+        $sql =
             "INSERT INTO {$this->tables['feed']}
             (url, etag, lastmodified)
             SELECT '$url', '', ''
@@ -48,7 +46,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
     {
         $uid = sql_escape($uid);
 
-        $sql = 
+        $sql =
             "INSERT INTO {$this->tables['item']}
             (uid, published, feedid, added)
             SELECT '$uid', CONVERT_TZ('$published', '+00:00', @@session.time_zone), $feedId, current_timestamp
@@ -72,7 +70,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
             $value = sql_escape($value);
             $a[] = "\n($itemId, '$property', '$value')";
         }
-        $sql = 
+        $sql =
             "INSERT INTO {$this->tables['item_data']}
             (itemid, property, value)
             VALUES"
@@ -83,7 +81,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
 
     public function deleteItems($days)
     {
-        $sql = 
+        $sql =
             "DELETE itd
             FROM {$this->tables['item']} it
             JOIN {$this->tables['item_data']} itd ON itd.itemid = it.id
@@ -92,7 +90,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
 
         $rows = $this->dbCommand->queryAffectedRows($sql);
 
-        $sql = 
+        $sql =
             "DELETE it
             FROM {$this->tables['item']} it
             WHERE it.published < now() - INTERVAL $days DAY
@@ -106,7 +104,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
         $published = $useEmbargo
             ? 'AND it.published >= m.embargo - INTERVAL m.repeatinterval MINUTE AND it.published < m.embargo'
             : '';
-        $sql = 
+        $sql =
             "SELECT title, content, url, published
             FROM (
                 SELECT itd1.value as title, itd2.value as content, itd3.value as url, it.published
@@ -128,7 +126,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
 
     public function feeds()
     {
-        $sql = 
+        $sql =
             "SELECT *
             FROM {$this->tables['feed']}";
 
@@ -137,13 +135,14 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
 
     public function activeFeeds()
     {
-        $sql = 
+        $sql =
             "SELECT DISTINCT fe.*
             FROM {$this->tables['feed']} fe
             JOIN {$this->tables['messagedata']} md ON fe.url = md.data AND md.name = 'rss_feed'
             JOIN {$this->tables['message']} m ON md.id = m.id
             WHERE m.status NOT IN ('sent', 'prepared', 'suspended')
             ";
+
         return $this->dbCommand->queryAll($sql);
     }
 
@@ -151,7 +150,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
     {
         $etag = sql_escape($etag);
         $lastModified = sql_escape($lastModified);
-        $sql = 
+        $sql =
             "UPDATE {$this->tables['feed']}
             SET etag = '$etag', lastmodified = '$lastModified'
             WHERE id = $feedId";
@@ -165,7 +164,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
     {
         $andOwner = $loginId ? "AND m.owner = $loginId" : '';
         $order = $asc ? 'ASC' : 'DESC';
-        $sql = 
+        $sql =
             "SELECT it.id, itd1.value as title, itd2.value as content, itd3.value as url, it.published
             FROM {$this->tables['item']} it
             JOIN {$this->tables['item_data']} itd1 on it.id = itd1.itemid AND itd1.property = 'title'
@@ -187,7 +186,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
     public function totalFeedItems($loginId)
     {
         $andOwner = $loginId ? "AND m.owner = $loginId" : '';
-        $sql = 
+        $sql =
             "SELECT COUNT(*) AS t
             FROM {$this->tables['item']} it
             JOIN {$this->tables['feed']} fe ON it.feedid = fe.id
@@ -206,7 +205,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
      */
     public function readyRssMessages()
     {
-        $sql = 
+        $sql =
             "SELECT m.id
             FROM {$this->tables['message']} m
             JOIN {$this->tables['messagedata']} md ON m.id = md.id AND md.name = 'rss_feed' AND md.data != ''
@@ -218,14 +217,14 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
 
     public function reEmbargoMessage($id)
     {
-        $sql = 
+        $sql =
             "UPDATE {$this->tables['message']}
             SET embargo = embargo + 
                 INTERVAL (FLOOR(TIMESTAMPDIFF(MINUTE, embargo, NOW()) / repeatinterval) + 1) * repeatinterval MINUTE
             WHERE id = $id AND now() < repeatuntil";
 
         if (($count = $this->dbCommand->queryAffectedRows($sql)) > 0) {
-            $sql = 
+            $sql =
                 "SELECT embargo
                 FROM {$this->tables['message']}
                 WHERE id = $id";
@@ -235,25 +234,28 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
                 sscanf($embargo, '%04d-%02d-%02d %02d:%02d');
             setMessageData($id, 'embargo', $e);
         }
+
         return $count;
     }
 
     public function setMessageSent($id)
     {
-        $sql = 
+        $sql =
             "UPDATE {$this->tables['message']}
             SET status = 'sent'
             WHERE id = $id";
+
         return $this->dbCommand->queryAffectedRows($sql);
     }
 
     public function setSubject($id, $subject)
     {
         $subject = sql_escape($subject);
-        $sql = 
+        $sql =
             "UPDATE {$this->tables['message']}
             SET subject = '$subject'
             WHERE id = $id";
+
         return $this->dbCommand->queryAffectedRows($sql);
     }
 }

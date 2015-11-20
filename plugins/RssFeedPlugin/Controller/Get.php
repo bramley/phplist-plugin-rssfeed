@@ -1,21 +1,19 @@
 <?php
 /**
- * RssFeedPlugin for phplist
+ * RssFeedPlugin for phplist.
  * 
  * This file is a part of RssFeedPlugin.
  *
  * @category  phplist
- * @package   RssFeedPlugin
+ *
  * @author    Duncan Cameron
  * @copyright 2015 Duncan Cameron
  * @license   http://www.gnu.org/licenses/gpl.html GNU General Public License, Version 3
  */
 
 /**
- * This class retrieves RSS items
- *
+ * This class retrieves RSS items.
  */
-
 use PicoFeed\Reader\Reader;
 use PicoFeed\Config\Config;
 use PicoFeed\PicoFeedException;
@@ -26,13 +24,14 @@ class RssFeedPlugin_Controller_Get
     private function getRssFeeds(Closure $output)
     {
         $utcTimeZone = new DateTimeZone('UTC');
-        $config = new Config;
+        $config = new Config();
         $config->setContentFiltering(true);
-        $dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
+        $dao = new RssFeedPlugin_DAO(new CommonPlugin_DB());
         $feeds = $dao->activeFeeds();
 
         if (count($feeds) == 0) {
             $output('There are no active RSS feeds to fetch');
+
             return;
         }
 
@@ -46,7 +45,7 @@ class RssFeedPlugin_Controller_Get
 
                 if (!$resource->isModified()) {
                     $output("Feed '$feedUrl' not modified");
-                    continue;   
+                    continue;
                 }
 
                 $parser = $reader->getParser(
@@ -62,7 +61,7 @@ class RssFeedPlugin_Controller_Get
                 $newItemCount = 0;
 
                 foreach ($feed->getItems() as $item) {
-                    $itemCount++;
+                    ++$itemCount;
                     $date = $item->getDate();
                     $date->setTimeZone($utcTimeZone);
                     $published = $date->format('Y-m-d H:i:s');
@@ -70,7 +69,7 @@ class RssFeedPlugin_Controller_Get
                     $itemId = $dao->addItem($item->getId(), $published, $feedId);
 
                     if ($itemId > 0) {
-                        $newItemCount++;
+                        ++$newItemCount;
                         $dao->addItemData(
                             $itemId,
                             array(
@@ -81,7 +80,7 @@ class RssFeedPlugin_Controller_Get
                                 'enclosureurl' => $item->getEnclosureUrl(),
                                 'enclosuretype' => $item->getEnclosureType(),
                                 'content' => $item->getContent(),
-                                'rtl' => $item->isRTL()
+                                'rtl' => $item->isRTL(),
                             )
                         );
                     }
@@ -89,7 +88,7 @@ class RssFeedPlugin_Controller_Get
                 $etag = $resource->getEtag();
                 $lastModified = $resource->getLastModified();
                 $dao->updateFeed($feedId, $etag, $lastModified);
-                
+
                 $line = s('%d items, %d new items', $itemCount, $newItemCount);
                 $output($line);
 
@@ -107,13 +106,13 @@ class RssFeedPlugin_Controller_Get
         global $commandline;
 
         if ($commandline) {
-            $output = function($line)  {
+            $output = function ($line) {
                 echo $line, "\n";
             };
             ob_end_clean();
             echo ClineSignature();
         } else {
-            $output = function($line) {
+            $output = function ($line) {
                 echo "$line<br/>\n";
                 ob_flush();
                 flush();

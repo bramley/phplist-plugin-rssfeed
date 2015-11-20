@@ -1,11 +1,11 @@
 <?php
 /**
- * RssFeedPlugin for phplist
+ * RssFeedPlugin for phplist.
  * 
  * This file is a part of RssFeedPlugin.
  *
  * @category  phplist
- * @package   RssFeedPlugin
+ *
  * @author    Duncan Cameron
  * @copyright 2015 Duncan Cameron
  * @license   http://www.gnu.org/licenses/gpl.html GNU General Public License, Version 3
@@ -13,10 +13,8 @@
 
 /**
  * Registers plugin with phplist
- * Provides hooks into message processing
- * 
+ * Provides hooks into message processing.
  */
-
 class RssFeedPlugin extends phplistPlugin
 {
     const VERSION_FILE = 'version.txt';
@@ -33,7 +31,7 @@ class RssFeedPlugin extends phplistPlugin
     public $documentationUrl = 'https://resources.phplist.com/plugin/rssfeed';
 
     public $commandlinePluginPages = array(
-        'get'
+        'get',
     );
 
     public $topMenuLinks = array(
@@ -67,8 +65,8 @@ class RssFeedPlugin extends phplistPlugin
         'item_data' => array(
             'itemid' => array('integer not null', 'fk to item'),
             'property' => array('varchar(100) not null', ''),
-            'value'  => array('text', ''),
-            'primary key'   => array('(itemid, property)', ''),
+            'value' => array('text', ''),
+            'primary key' => array('(itemid, property)', ''),
         ),
     );
 
@@ -80,7 +78,7 @@ class RssFeedPlugin extends phplistPlugin
             'allowempty' => 0,
             'min' => 1,
             'max' => 50,
-            'category'=> 'RSS',
+            'category' => 'RSS',
         ),
         'rss_maximum' => array(
             'description' => 'Maximum number of items to send in an RSS email',
@@ -89,25 +87,25 @@ class RssFeedPlugin extends phplistPlugin
             'allowempty' => 0,
             'min' => 1,
             'max' => 50,
-            'category'=> 'RSS',
+            'category' => 'RSS',
         ),
         'rss_htmltemplate' => array(
             'description' => 'Item HTML template',
-            'type' => "textarea",
+            'type' => 'textarea',
             'value' => '
             <a href="[URL]"><b>[TITLE]</b></a><br/>
             [PUBLISHED]<br/>
             [CONTENT]
             <hr/>',
             'allowempty' => 0,
-            'category'=> 'RSS',
+            'category' => 'RSS',
         ),
         'rss_subjectsuffix' => array(
             'description' => 'Text to append when the title of the latest item is used in the subject',
-            'type' => "text",
+            'type' => 'text',
             'value' => '',
             'allowempty' => true,
-            'category'=> 'RSS',
+            'category' => 'RSS',
         ),
     );
 
@@ -133,6 +131,7 @@ class RssFeedPlugin extends phplistPlugin
         foreach ($properties as $key => $value) {
             $template = str_ireplace("[$key]", $value, $template);
         }
+
         return $template;
     }
 
@@ -140,38 +139,33 @@ class RssFeedPlugin extends phplistPlugin
     {
         return array(
             array(
-                'published' => date('Y-m-d H:i:s',time()-10000),
+                'published' => date('Y-m-d H:i:s', time() - 10000),
                 'title' => 'These are just some sample entries for the test RSS message',
-                'content' => 
-'<p>The phpList manual is available online, or you can download it to your favourite device.</p>',
+                'content' => '<p>The phpList manual is available online, or you can download it to your favourite device.</p>',
                 'url' => 'https://www.phplist.org/manual/',
             ),
             array(
-                'published' => date('Y-m-d H:i:s',time()-8000),
+                'published' => date('Y-m-d H:i:s', time() - 8000),
                 'title' => 'Adding your first Subscribers ',
-                'content' => 
-'<p>phpList Manual chapter explaining how to add subscribers.</p>',
+                'content' => '<p>phpList Manual chapter explaining how to add subscribers.</p>',
                 'url' => 'https://www.phplist.org/manual/ch006_adding-your-first-subscribers.xhtml',
             ),
             array(
-                'published' => date('Y-m-d H:i:s',time()-6000),
-                'title' => "Composing your first campaign",
-                'content' => 
-'<p>How to write your first campaign in phpList.</p>',
+                'published' => date('Y-m-d H:i:s', time() - 6000),
+                'title' => 'Composing your first campaign',
+                'content' => '<p>How to write your first campaign in phpList.</p>',
                 'url' => 'https://www.phplist.org/manual/ch007_sending-your-first-campaign.xhtml',
             ),
             array(
-                'published' => date('Y-m-d H:i:s',time()-4000),
-                'title' => "Sending a campaign",
-                'content' => 
-'<p>The phpList manual pages, explaining how to send your campaign.</p>',
+                'published' => date('Y-m-d H:i:s', time() - 4000),
+                'title' => 'Sending a campaign',
+                'content' => '<p>The phpList manual pages, explaining how to send your campaign.</p>',
                 'url' => 'https://www.phplist.org/manual/ch008_your-first-campaign.xhtml',
             ),
             array(
-                'published' => date('Y-m-d H:i:s',time()),
-                'title' => "Campaign Statistics",
-                'content' => 
-'<p>Once you have sent your campaign, just sit back and watch the statistics grow.</p>',
+                'published' => date('Y-m-d H:i:s', time()),
+                'title' => 'Campaign Statistics',
+                'content' => '<p>Once you have sent your campaign, just sit back and watch the statistics grow.</p>',
                 'url' => 'https://www.phplist.org/manual/ch009_basic-campaign-statistics.xhtml',
             ),
         );
@@ -192,10 +186,11 @@ class RssFeedPlugin extends phplistPlugin
                 $htmltemplate,
                 array(
                     'published' => $d->format('d/m/Y H:i'),
-                    'title' => htmlspecialchars($item['title'])
+                    'title' => htmlspecialchars($item['title']),
                 ) + $item
             );
         }
+
         return $html;
     }
 
@@ -255,8 +250,7 @@ class RssFeedPlugin extends phplistPlugin
         global $plugins;
 
         return array(
-            'Common plugin v3 installed' =>
-                phpListPlugin::isEnabled('CommonPlugin')
+            'Common plugin v3 installed' => phpListPlugin::isEnabled('CommonPlugin')
                     && preg_match('/\d+\.\d+\.\d+/', $plugins['CommonPlugin']->version, $matches)
                     && version_compare($matches[0], '3') > 0,
             'phpList version 3.2.0 or later' => version_compare(VERSION, '3.2') > 0,
@@ -271,10 +265,7 @@ class RssFeedPlugin extends phplistPlugin
 
     /**
      * Use this method as a hook to create the dao
-     * Need to create autoloader because of the unpredictable order in which plugins are called
-     *
-     * @access  public
-     * @return  null
+     * Need to create autoloader because of the unpredictable order in which plugins are called.
      */
     public function sendFormats()
     {
@@ -295,14 +286,14 @@ class RssFeedPlugin extends phplistPlugin
             array(
                 'page' => 'get',
                 'frequency' => 60,
-            )
+            ),
         );
     }
 
 /*
  *  Methods for composing a campaign
  * 
- */ 
+ */
     public function sendMessageTab($messageid = 0, $data = array())
     {
         $feedUrl = isset($data['rss_feed']) ? htmlspecialchars($data['rss_feed']) : '';
@@ -311,13 +302,14 @@ class RssFeedPlugin extends phplistPlugin
             isset($data['rss_order']) ? $data['rss_order'] : self::OLDEST_FIRST,
             array(self::OLDEST_FIRST => 'Oldest items first', self::LATEST_FIRST => 'Latest items first')
         );
-            
+
         $html = <<<END
     <label>RSS feed URL
     <input type="text" name="rss_feed" value="$feedUrl" /></label>
     <label>How to order feed items
     $order</label>
 END;
+
         return $html;
     }
 
@@ -330,6 +322,7 @@ END;
     {
         if (!$this->isRssMessage($messageData)) {
             $this->rssHtml = null;
+
             return true;
         }
         $items = $this->itemsForTestMessage($messageData['id']);
@@ -352,6 +345,7 @@ END;
     $html
     </fieldset>
 END;
+
         return array('RSS', $html);
     }
 
@@ -380,13 +374,14 @@ END;
             return 'Repeat interval must be selected for an RSS campaign';
         }
         $this->dao->addFeed($feedUrl);
+
         return '';
     }
 
 /*
  *  Methods for processing the queue and messages
  * 
- */ 
+ */
     public function processQueueStart()
     {
         $level = error_reporting(-1);
@@ -412,6 +407,7 @@ END;
     {
         if (!$this->isRssMessage($messageData)) {
             $this->rssHtml = null;
+
             return;
         }
         $items = iterator_to_array($this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum')));
@@ -423,7 +419,7 @@ END;
     public function parseOutgoingHTMLMessage($messageid, $content, $destination = '', $userdata = array())
     {
         if ($this->rssHtml === null) {
-             return $content;
+            return $content;
         }
 
         return str_ireplace('[RSS]', $this->rssHtml, $content);
@@ -432,7 +428,7 @@ END;
     public function parseOutgoingTextMessage($messageid, $content, $destination = '', $userdata = array())
     {
         if ($this->rssHtml === null) {
-             return $content;
+            return $content;
         }
 
         return str_ireplace('[RSS]', $this->rssText, $content);

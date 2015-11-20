@@ -1,12 +1,14 @@
 <?php
+
 error_reporting(-1);
 
 if (isset($_POST['daysago']) && ctype_digit($_POST['daysago'])) {
     if (!$_SESSION['logindetails']['superuser']) {
         print '<p>'.s('Sorry, only super users can delete RSS items from the database').'</p>';
+
         return;
     }
-    $dao = new RssFeedPlugin_DAO(new CommonPlugin_DB);
+    $dao = new RssFeedPlugin_DAO(new CommonPlugin_DB());
     $count = $dao->deleteItems($_POST['daysago']);
     echo "<div class='note'>$count items deleted</div>";
 }
