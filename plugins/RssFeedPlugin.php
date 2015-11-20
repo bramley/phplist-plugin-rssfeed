@@ -239,10 +239,10 @@ class RssFeedPlugin extends phplistPlugin
     public function __construct()
     {
         $this->coderoot = dirname(__FILE__) . '/' . __CLASS__ . '/';
+        parent::__construct();
         $this->version = (is_file($f = $this->coderoot . self::VERSION_FILE))
             ? file_get_contents($f)
             : '';
-        parent::__construct();
     }
 
     public function dependencyCheck()
@@ -324,6 +324,12 @@ END;
     {
         return 'RSS';
     }
+
+    public function sendMessageTabInsertBefore()
+    {
+        return 'Format';
+    }
+
 
     public function sendTestAllowed($messageData)
     {

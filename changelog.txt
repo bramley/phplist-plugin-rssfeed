@@ -1,9 +1,12 @@
-version 2.2.0+20151120
+version 2.2.0+20151121
       Remove redundant file
       Correction to the template html
       handle empty items array
       Refactoring
-      Support for view in browser plugin
+      Support for view in browser plugin, fixes #12
+      changes by PHP CS Fixer
+      Update dependencies, now requires php 5.4 or later
+      implement sendMessageTabInsertBefore, fixes #13
 
 version 2.1.2+20151014
       Fixes #8 strict standards warning
