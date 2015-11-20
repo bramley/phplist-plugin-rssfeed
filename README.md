@@ -15,7 +15,7 @@ When the campaign is sent the content of the message has recent items, dependent
 These dependencies must be met for the plugin to be installed and run successfully.
 
 * phplist version 3.2.0 or later.
-* php version 5.3 or later. 
+* php version 5.4 or later. 
 * The Common Plugin version 3. You should install, or upgrade to, the latest version. See <https://github.com/bramley/phplist-plugin-common>
 
 The plugin uses the PicoFeed package that additionally requires these php extensions to be loaded:

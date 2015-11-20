@@ -250,11 +250,18 @@ class RssFeedPlugin extends phplistPlugin
         global $plugins;
 
         return array(
-            'Common plugin v3 installed' => phpListPlugin::isEnabled('CommonPlugin')
-                    && preg_match('/\d+\.\d+\.\d+/', $plugins['CommonPlugin']->version, $matches)
-                    && version_compare($matches[0], '3') > 0,
+            'Common plugin v3 installed' => (
+                phpListPlugin::isEnabled('CommonPlugin')
+                && preg_match('/\d+\.\d+\.\d+/', $plugins['CommonPlugin']->version, $matches)
+                && version_compare($matches[0], '3') > 0
+            ),
+            'View in Browser plugin v2.4.0 or later installed' => (
+                phpListPlugin::isEnabled('ViewBrowserPlugin')
+                && version_compare($plugins['ViewBrowserPlugin']->version, '2.4.0') >= 0
+                || !phpListPlugin::isEnabled('ViewBrowserPlugin')
+            ),
             'phpList version 3.2.0 or later' => version_compare(VERSION, '3.2') > 0,
-            'PHP version 5.3.0 or later' => version_compare(PHP_VERSION, '5.3') > 0,
+            'PHP version 5.4.0 or later' => version_compare(PHP_VERSION, '5.4') > 0,
             'iconv extension installed' => extension_loaded('iconv'),
             'xml extension installed' => extension_loaded('xml'),
             'dom extension installed' => extension_loaded('dom'),
