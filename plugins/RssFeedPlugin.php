@@ -285,6 +285,12 @@ END;
         return 'RSS';
     }
 
+    public function sendMessageTabInsertBefore()
+    {
+        return 'Format';
+    }
+
+
     public function sendTestAllowed($messageData)
     {
 
