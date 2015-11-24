@@ -65,6 +65,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.2.1+20151124  Use description element as content for an RSS feed
     2.2.0+20151121  Support for View in Browser plugin, reposition RSS tab
     2.1.2+20151014  GitHub #8, #9, #10
     2.1.1+20150828  Update to dependencies

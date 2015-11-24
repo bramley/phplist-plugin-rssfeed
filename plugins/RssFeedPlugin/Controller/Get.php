@@ -14,13 +14,43 @@
 /**
  * This class retrieves RSS items.
  */
-use PicoFeed\Reader\Reader;
 use PicoFeed\Config\Config;
+use PicoFeed\Parser\Item;
 use PicoFeed\PicoFeedException;
+use PicoFeed\Reader\Reader;
 
 class RssFeedPlugin_Controller_Get
     extends CommonPlugin_Controller
 {
+    /**
+     * Get the content for an item.
+     * For an RSS feed use the description element if present.
+     * For an ATOM feed use the summary element if present.
+     *
+     * @param PicoFeed\Parser\Item $item
+     *
+     * @return string the content for the item
+     */
+    private function getItemContent(Item $item)
+    {
+        $content = '';
+        $values = $item->getTag('description');
+
+        if ($values === false || count($values) == 0) {
+            $values = $item->getTag('summary');
+
+            if ($values === false || count($values) == 0) {
+                $content = $item->getContent();
+            } else {
+                $content = $values[0];
+            }
+        } else {
+            $content = $values[0];
+        }
+
+        return $content;
+    }
+
     private function getRssFeeds(Closure $output)
     {
         $utcTimeZone = new DateTimeZone('UTC');
@@ -70,6 +100,7 @@ class RssFeedPlugin_Controller_Get
 
                     if ($itemId > 0) {
                         ++$newItemCount;
+                        $itemContent = $this->getItemContent($item);
                         $dao->addItemData(
                             $itemId,
                             array(
@@ -79,7 +110,7 @@ class RssFeedPlugin_Controller_Get
                                 'author' => $item->getAuthor(),
                                 'enclosureurl' => $item->getEnclosureUrl(),
                                 'enclosuretype' => $item->getEnclosureType(),
-                                'content' => $item->getContent(),
+                                'content' => $itemContent,
                                 'rtl' => $item->isRTL(),
                             )
                         );

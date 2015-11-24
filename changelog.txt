@@ -1,3 +1,6 @@
+version 2.2.1+20151124
+      For an RSS feed use the description element if present as the content. For an ATOM feed use the summary element if present.
+
 version 2.2.0+20151121
       Remove redundant file
       Correction to the template html
