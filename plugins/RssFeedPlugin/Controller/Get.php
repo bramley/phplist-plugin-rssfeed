@@ -44,8 +44,10 @@ class RssFeedPlugin_Controller_Get
             } else {
                 $content = $values[0];
             }
-        } else {
+        } elseif (is_array($values)) {
             $content = $values[0];
+        } else {
+            $content = $values;
         }
 
         return $content;
