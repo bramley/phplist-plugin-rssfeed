@@ -1,3 +1,6 @@
+version 2.3.1+20160105
+      Correct output buffering
+
 version 2.3.0+20151231
       Add public page to convert twitter feed to rss
 

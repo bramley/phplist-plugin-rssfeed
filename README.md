@@ -65,6 +65,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.3.1+20160105  Fix output buffering problem
     2.3.0+20151231  Add public page to generate RSS from a twitter timeline
     2.2.1+20151124  Use description element as content for an RSS feed
     2.2.0+20151121  Support for View in Browser plugin, reposition RSS tab

@@ -70,11 +70,12 @@ class RssFeedPlugin_Controller_Get
             $feedUrl = $row['url'];
 
             try {
+                $output(s('Fetching') . ' ' . $feedUrl);
                 $reader = new Reader($config);
                 $resource = $reader->download($feedUrl, $row['lastmodified'], $row['etag']);
 
                 if (!$resource->isModified()) {
-                    $output("Feed '$feedUrl' not modified");
+                    $output('Not modified');
                     continue;
                 }
 
@@ -83,9 +84,6 @@ class RssFeedPlugin_Controller_Get
                     $resource->getContent(),
                     $resource->getEncoding()
                 );
-                $line = s('Parsing') . ' ' . $feedUrl;
-                $output($line);
-
                 $feed = $parser->execute();
                 $itemCount = 0;
                 $newItemCount = 0;
@@ -145,7 +143,7 @@ class RssFeedPlugin_Controller_Get
         } else {
             $output = function ($line) {
                 echo "$line<br/>\n";
-                ob_flush();
+                @ob_flush();
                 flush();
             };
             ob_end_flush();
