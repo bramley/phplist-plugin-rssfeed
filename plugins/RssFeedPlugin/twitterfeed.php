@@ -34,12 +34,10 @@ ob_end_clean();
 
 switch ($result->code) {
     case 404:
-        header('Not Found', true, 404);
-        echo 'Not found';
+        header('HTTP/1.0 404 Not found');
         break;
     case 304:
-        header('Not modified', true, 304);
-        echo 'Not modified';
+        header('HTTP/1.0 304 Not modified');
         break;
     default:
         $now = new DateTime();

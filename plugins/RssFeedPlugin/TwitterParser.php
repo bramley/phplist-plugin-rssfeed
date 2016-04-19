@@ -54,7 +54,7 @@ class TwitterParser
 
     private function getAvatar(DOMElement $e)
     {
-        $nl = $this->xpath->query(".//img[@class='u-photo avatar']", $e);
+        $nl = $this->xpath->query(".//img[@class='Avatar']", $e);
 
         if ($nl->length === 0) {
             return '';
@@ -68,7 +68,7 @@ class TwitterParser
 
     private function getInlineImage(DOMElement $e)
     {
-        $nl = $this->xpath->query(".//img[@class='autosized-media']", $e);
+        $nl = $this->xpath->query(".//img[@class='NaturalImage-image']", $e);
 
         if ($nl->length === 0) {
             return '';
@@ -76,8 +76,11 @@ class TwitterParser
         $image = $nl->item(0);
         $srcset = urldecode($image->getAttribute('data-srcset'));
         $srcs = explode(',', $srcset);
-        $src = substr($srcs[count($srcs) - 1], 0, strpos($srcs[count($srcs) - 1], ' '));
+        list($src, $width) = explode(' ',  $srcs[count($srcs) - 1], 2);
+        preg_match('/\d+/', $width, $w);
         $image->setAttribute('src', $src);
+        $image->setAttribute('width', $w[0]);
+        $image->removeAttribute('height');
 
         $this->removeAttributes($image->parentNode);
 
@@ -86,13 +89,13 @@ class TwitterParser
 
     private function getContent(DOMElement $e)
     {
-        $nl = $this->xpath->query("div[@class='e-entry-content']/p[@class='e-entry-title']", $e);
-        $pNode = $nl->item(0);
-        $this->removeAttributes($pNode);
-        $this->removeSpan($pNode);
-        $this->fixHttpLinks($pNode);
+        $nl = $this->xpath->query("div[@class='timeline-Tweet-text']", $e);
+        $div = $nl->item(0);
+        $this->removeAttributes($div);
+        $this->removeSpan($div);
+        $this->fixHttpLinks($div);
 
-        return array($pNode->textContent, $e->ownerDocument->saveXML($pNode));
+        return array($div->textContent, $e->ownerDocument->saveXML($div));
     }
 
     /**
@@ -147,19 +150,19 @@ class TwitterParser
             $since = null;
         }
 
-        foreach ($this->xpath->query("//li[contains(@class,'h-entry')]") as $e) {
+        foreach ($this->xpath->query('.//div[@data-tweet-id]') as $e) {
             $id = $this->xpath->evaluate('string(@data-tweet-id)', $e);
-            $url = $this->xpath->evaluate("string(div[@class='header']/a/@href)", $e);
-            $name = $this->xpath->evaluate("string(.//span[contains(@class,'p-name')])", $e);
-            $nickname = $this->xpath->evaluate("string(.//span[contains(@class,'p-nickname')])", $e);
-            $nl = $this->xpath->query("div[@class='e-entry-content']/div[@class='retweet-credit']", $e);
+            $url = $this->xpath->evaluate("string(.//div[@class='timeline-Tweet-metadata']/a/@href)", $e);
+            $name = $this->xpath->evaluate("string(.//span[contains(@class,'TweetAuthor-name')])", $e);
+            $nickname = $this->xpath->evaluate("string(.//span[contains(@class,'TweetAuthor-screenName')])", $e);
+            $datetime = $this->xpath->evaluate("string(.//time[@class='dt-updated']/@datetime)", $e);
 
-            if ($nl->length > 0) {
+            if ($this->xpath->evaluate("contains(@class,'timeline-Tweet--isRetweet')", $e)) {
                 $isRetweet = true;
                 $tweetTime = $previousTweetTime;
             } else {
                 $isRetweet = false;
-                $tweetTime = new DateTime($this->xpath->evaluate("string(div[@class='header']/a/time/@datetime)", $e));
+                $tweetTime = new DateTime($this->xpath->evaluate("string(.//time[@class='dt-updated']/@datetime)", $e));
                 $previousTweetTime = $tweetTime;
             }
 
