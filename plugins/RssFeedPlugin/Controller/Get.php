@@ -23,6 +23,39 @@ class RssFeedPlugin_Controller_Get
     extends CommonPlugin_Controller
 {
     /**
+     * Get the content for custom elements.
+     *
+     * @param array                $customElements
+     * @param PicoFeed\Parser\Item $item
+     *
+     * @return array
+     */
+    private function getCustomElementsValues(array $customElements, Item $item)
+    {
+        $values = array();
+
+        foreach ($customElements as $c) {
+            $parts = explode(':', $c, 2);
+            $result = '';
+
+            if (count($parts) == 1) {
+                $result = $item->getTag($c);
+            } else {
+                if ($item->hasNamespace($parts[0])) {
+                    $tagValues = $item->getTag($c);
+
+                    if (count($tagValues) > 0) {
+                        $result = $tagValues[0];
+                    }
+                }
+            }
+            $values[$c] = $result;
+        }
+
+        return $values;
+    }
+
+    /**
      * Get the content for an item.
      * For an RSS feed use the description element if present.
      * For an ATOM feed use the summary element if present.
@@ -64,7 +97,12 @@ class RssFeedPlugin_Controller_Get
 
             return;
         }
+        $customElementsConfig = getConfig('rss_custom_elements');
+        $customElements = $customElementsConfig === ''
+            ? array()
+            : explode("\n", $customElementsConfig);
 
+var_dump($customElements);
         foreach ($feeds as $row) {
             $feedId = $row['id'];
             $feedUrl = $row['url'];
@@ -110,7 +148,7 @@ class RssFeedPlugin_Controller_Get
                                 'enclosuretype' => $item->getEnclosureType(),
                                 'content' => $itemContent,
                                 'rtl' => $item->isRTL(),
-                            )
+                            ) + $this->getCustomElementsValues($customElements, $item)
                         );
                     }
                 }

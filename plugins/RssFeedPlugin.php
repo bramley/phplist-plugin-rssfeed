@@ -110,6 +110,13 @@ class RssFeedPlugin extends phplistPlugin
             'allowempty' => true,
             'category' => 'RSS',
         ),
+        'rss_custom_elements' => array(
+            'description' => 'Additional feed elements to be included in each item\'s data',
+            'type' => 'textarea',
+            'value' => '',
+            'allowempty' => true,
+            'category' => 'RSS',
+        ),
     );
 
     private function isRssMessage(array $messageData)
@@ -227,7 +234,7 @@ class RssFeedPlugin extends phplistPlugin
 
     private function itemsForTestMessage($mid)
     {
-        $items = iterator_to_array($this->dao->messageFeedItems($mid, getConfig('rss_maximum'), false));
+        $items = $this->dao->messageFeedItems($mid, getConfig('rss_maximum'), false);
 
         if (count($items) == 0) {
             $items = $this->sampleItems();
@@ -402,7 +409,7 @@ END;
         $level = error_reporting(-1);
 
         foreach ($this->dao->readyRssMessages() as $mid) {
-            $items = iterator_to_array($this->dao->messageFeedItems($mid, getConfig('rss_maximum')));
+            $items = $this->dao->messageFeedItems($mid, getConfig('rss_maximum'));
 
             if (count($items) < getConfig('rss_minimum')) {
                 $count = $this->dao->reEmbargoMessage($mid);
@@ -425,7 +432,7 @@ END;
 
             return;
         }
-        $items = iterator_to_array($this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum')));
+        $items = $this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum'));
         $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order']);
         $this->rssText = HTML2Text($this->rssHtml);
         $this->modifySubject($messageData, $items);
@@ -465,7 +472,7 @@ END;
         if ($messageData['status'] == 'draft') {
             $items = $this->itemsForTestMessage($messageData['id']);
         } else {
-            $items = iterator_to_array($this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum')));
+            $items = $this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum'));
         }
 
         $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order']);
