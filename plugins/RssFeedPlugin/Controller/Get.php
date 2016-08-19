@@ -36,20 +36,18 @@ class RssFeedPlugin_Controller_Get
 
         foreach ($customElements as $c) {
             $parts = explode(':', $c, 2);
-            $result = '';
 
             if (count($parts) == 1) {
-                $result = $item->getTag($c);
+                $values[$c] = $item->getTag($c);
             } else {
                 if ($item->hasNamespace($parts[0])) {
                     $tagValues = $item->getTag($c);
 
                     if (count($tagValues) > 0) {
-                        $result = $tagValues[0];
+                        $values[$c] = $tagValues[0];
                     }
                 }
             }
-            $values[$c] = $result;
         }
 
         return $values;
@@ -102,7 +100,6 @@ class RssFeedPlugin_Controller_Get
             ? array()
             : explode("\n", $customElementsConfig);
 
-var_dump($customElements);
         foreach ($feeds as $row) {
             $feedId = $row['id'];
             $feedUrl = $row['url'];

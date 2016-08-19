@@ -181,9 +181,11 @@ class RssFeedPlugin extends phplistPlugin
         );
     }
 
-    private function generateItemHtml(array $items, $order)
+    private function generateItemHtml(array $items, $order, $customTemplate)
     {
-        $htmltemplate = getConfig('rss_htmltemplate');
+        $htmltemplate = trim($customTemplate) === ''
+            ? getConfig('rss_htmltemplate')
+            : $customTemplate;
         $html = '';
 
         if ($order == self::LATEST_FIRST) {
@@ -319,12 +321,14 @@ class RssFeedPlugin extends phplistPlugin
             isset($data['rss_order']) ? $data['rss_order'] : self::OLDEST_FIRST,
             array(self::OLDEST_FIRST => 'Oldest items first', self::LATEST_FIRST => 'Latest items first')
         );
+        $template = isset($data['rss_template']) ? htmlspecialchars($data['rss_template']) : '';
 
         $html = <<<END
     <label>RSS feed URL
     <input type="text" name="rss_feed" value="$feedUrl" /></label>
     <label>How to order feed items
     $order</label>
+    <label>Custom template</label><textarea name="rss_template" rows="10" cols="40">$template</textarea>
 END;
 
         return $html;
@@ -349,7 +353,7 @@ END;
         }
         $items = $this->itemsForTestMessage($messageData['id']);
 
-        $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order']);
+        $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order'], $messageData['rss_template']);
         $this->rssText = HTML2Text($this->rssHtml);
         $this->modifySubject($messageData, $items);
 
@@ -433,7 +437,7 @@ END;
             return;
         }
         $items = $this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum'));
-        $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order']);
+        $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order'], $messageData['rss_template']);
         $this->rssText = HTML2Text($this->rssHtml);
         $this->modifySubject($messageData, $items);
     }
@@ -475,7 +479,7 @@ END;
             $items = $this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum'));
         }
 
-        $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order']);
+        $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order'], $messageData['rss_template']);
         $messageData['subject'] = $this->newSubject($messageData['subject'], $items);
     }
 }
