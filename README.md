@@ -65,6 +65,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.4.0+20160820  Support custom tags
     2.3.2+20160419  Rework parsing of twitter timeline
     2.3.1+20160105  Fix output buffering problem
     2.3.0+20151231  Add public page to generate RSS from a twitter timeline

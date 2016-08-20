@@ -262,10 +262,9 @@ class RssFeedPlugin extends phplistPlugin
         global $plugins;
 
         return array(
-            'Common plugin v3.3.0 or later installed' => (
+            'Common plugin v3.5.8 or later installed' => (
                 phpListPlugin::isEnabled('CommonPlugin')
-                && preg_match('/\d+\.\d+\.\d+/', $plugins['CommonPlugin']->version, $matches)
-                && version_compare($matches[0], '3.3.0') >= 0
+                && version_compare($plugins['CommonPlugin']->version, '3.5.8') >= 0
             ),
             'View in Browser plugin v2.4.0 or later installed' => (
                 phpListPlugin::isEnabled('ViewBrowserPlugin')

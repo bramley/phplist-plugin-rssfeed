@@ -4,7 +4,7 @@ error_reporting(-1);
 
 if (isset($_POST['daysago']) && ctype_digit($_POST['daysago'])) {
     if (!$_SESSION['logindetails']['superuser']) {
-        print '<p>'.s('Sorry, only super users can delete RSS items from the database').'</p>';
+        echo '<p>'.s('Sorry, only super users can delete RSS items from the database').'</p>';
 
         return;
     }

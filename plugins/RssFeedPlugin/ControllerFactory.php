@@ -17,7 +17,6 @@
  * 
  * @category  phplist
  */
-
 class RssFeedPlugin_ControllerFactory extends CommonPlugin_ControllerFactoryBase
 {
     /**

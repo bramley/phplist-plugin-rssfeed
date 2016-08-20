@@ -6,8 +6,10 @@ use DateTime;
 use DOMDocument;
 use DOMElement;
 use DOMXpath;
-use PicoFeed\Syndication\Atom;
-use PicoFeed\Syndication\Rss20;
+use PicoFeed\Syndication\AtomFeedBuilder;
+use PicoFeed\Syndication\AtomItemBuilder;
+use PicoFeed\Syndication\Rss20FeedBuilder;
+use PicoFeed\Syndication\Rss20ItemBuilder;
 use stdClass;
 
 class TwitterParser
@@ -89,7 +91,7 @@ class TwitterParser
 
     private function getContent(DOMElement $e)
     {
-        $nl = $this->xpath->query("div[@class='timeline-Tweet-text']", $e);
+        $nl = $this->xpath->query("p[@class='timeline-Tweet-text']", $e);
         $div = $nl->item(0);
         $this->removeAttributes($div);
         $this->removeSpan($div);
@@ -125,10 +127,10 @@ class TwitterParser
         }
 
         if ($format == 'atom') {
-            $writer = new Atom();
+            $feedBuilder = AtomFeedBuilder::create();
             $result->contentType = 'application/atom+xml; charset=utf-8';
         } else {
-            $writer = new Rss20();
+            $feedBuilder = Rss20FeedBuilder::create();
             $result->contentType = 'application/rss+xml; charset=utf-8';
         }
         libxml_use_internal_errors(true);
@@ -136,11 +138,14 @@ class TwitterParser
         $dom->loadHTML('<?xml encoding="utf-8" ?>' . $o->body);
         $this->xpath = new DOMXpath($dom);
 
-        $writer->title = $this->xpath->evaluate("string(//h1[@class='summary']/a/@title)");
-        $writer->site_url = $this->xpath->evaluate("string(//h1[@class='summary']/a/@href)");
-        $writer->feed_url =
-            (isset($_SERVER['HTTPS']) ? 'https' : 'http')
-            . htmlspecialchars_decode("://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");
+        $feedBuilder
+            ->withTitle($this->xpath->evaluate("string(//h1[@class='summary']/a/@title)"))
+            ->withSiteUrl($this->xpath->evaluate("string(//h1[@class='summary']/a/@href)"))
+            ->withFeedUrl(
+                (isset($_SERVER['HTTPS']) ? 'https' : 'http')
+                . htmlspecialchars_decode("://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]")
+            )
+            ->withDate(new DateTime());
 
         $previousTweetTime = new DateTime();
 
@@ -149,6 +154,7 @@ class TwitterParser
         } else {
             $since = null;
         }
+        $itemCount = 0;
 
         foreach ($this->xpath->query('.//div[@data-tweet-id]') as $e) {
             $id = $this->xpath->evaluate('string(@data-tweet-id)', $e);
@@ -178,21 +184,28 @@ class TwitterParser
                 $textContent = substr($textContent, 0, strrpos(substr($textContent, 0, 40), ' ')) . ' …';
             }
 
-            $writer->items[] = array(
-                'id' => $id,
-                'title' => ($isRetweet ? 'RT ' : '') . $nickname . ' - ' . $textContent,
-                'updated' => $tweetTime->format('U'),
-                'url' => $url,
-                'content' => $avatar . $content . $image,
+            $itemBuilder = ($format == 'atom')
+                ? AtomItemBuilder::create($feedBuilder)
+                : Rss20ItemBuilder::create($feedBuilder);
+
+            $feedBuilder->withItem(
+                $itemBuilder
+                    ->withId($id)
+                    ->withTitle(($isRetweet ? 'RT ' : '') . $nickname . ' - ' . $textContent)
+                    ->withUpdatedDate($tweetTime)
+                    ->withPublishedDate($tweetTime)
+                    ->withUrl($url)
+                    ->withContent($avatar . $content . $image)
             );
+            ++$itemCount;
         }
 
-        if (count($writer->items) === 0) {
+        if ($itemCount === 0) {
             $result->code = 304;
 
             return $result;
         }
-        $result->content = $writer->execute();
+        $result->content = $feedBuilder->build();
         $result->code = '';
 
         return $result;
