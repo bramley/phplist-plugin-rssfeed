@@ -395,6 +395,10 @@ END;
             return 'Must have [RSS] placeholder in an RSS message';
         }
 
+        if (!USE_REPETITION) {
+            return 'Campaign repetition must be enabled in config.php';
+        }
+
         if ($messageData['repeatinterval'] == 0) {
             return 'Repeat interval must be selected for an RSS campaign';
         }

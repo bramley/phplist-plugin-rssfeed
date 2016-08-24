@@ -1,7 +1,8 @@
-version 2.4.0+20160820
+version 2.4.0+20160824
       Support custom tags
       Add a custom template to the RSS tab
       Rework twitter processing for latest version of PicoFeed
+      Show error when repetition is not enabled. Fixes #17
 
 version 2.3.2+20160419
       Rework parsing of twitter timeline
