@@ -1,3 +1,7 @@
+version 2.4.1+20161013
+Sam Tuke (1):
+      Moved two menu items from "system" menu to "campaigns" menu
+
 version 2.4.0+20160824
       Support custom tags
       Add a custom template to the RSS tab

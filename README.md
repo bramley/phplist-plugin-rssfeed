@@ -65,6 +65,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.4.1+20161013  Move System menu items to Campaigns menu
     2.4.0+20160824  Support custom tags
     2.3.2+20160419  Rework parsing of twitter timeline
     2.3.1+20160105  Fix output buffering problem

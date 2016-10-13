@@ -38,9 +38,9 @@ class RssFeedPlugin extends phplistPlugin
     public $publicPages = array(self::TWITTER_PAGE);
 
     public $topMenuLinks = array(
-        'get' => array('category' => 'system'),
         'view' => array('category' => 'campaigns'),
-        'delete' => array('category' => 'system'),
+        'get' => array('category' => 'campaigns'),
+        'delete' => array('category' => 'campaigns'),
     );
 
     public $pageTitles = array(
