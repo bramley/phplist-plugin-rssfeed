@@ -116,9 +116,9 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
             ? 'AND it.published >= m.embargo - INTERVAL m.repeatinterval MINUTE AND it.published < m.embargo'
             : '';
         $subquery =
-            "SELECT *
+            "SELECT id
             FROM (
-                SELECT DISTINCT it.id
+                SELECT DISTINCT it.id, it.published
                 FROM {$this->tables['message']} m
                 JOIN {$this->tables['messagedata']} md ON m.id = md.id AND md.name = 'rss_feed'
                 JOIN {$this->tables['feed']} fe ON fe.url = md.data
