@@ -392,7 +392,16 @@ END;
         }
 
         if (stripos($messageData['message'], '[RSS]') === false) {
-            return 'Must have [RSS] placeholder in an RSS message';
+            if ($messageData['template'] === 0) {
+                $templateHasPlaceholder = false;
+            } else {
+                $templateBody = $this->dao->templateBody($messageData['template']);
+                $templateHasPlaceholder = stripos($templateBody, '[RSS]') !== false;
+            }
+
+            if (!$templateHasPlaceholder) {
+                return 'Must have [RSS] placeholder in an RSS message';
+            }
         }
 
         if (!USE_REPETITION) {

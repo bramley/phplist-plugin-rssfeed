@@ -280,4 +280,14 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
 
         return $this->dbCommand->queryAffectedRows($sql);
     }
+
+    public function templateBody($id)
+    {
+        $sql =
+            "SELECT template
+            FROM {$this->tables['template']}
+            WHERE id = $id";
+
+        return stripslashes($this->dbCommand->queryOne($sql));
+    }
 }

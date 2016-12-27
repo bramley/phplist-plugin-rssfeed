@@ -1,3 +1,7 @@
+version 2.4.2+20161227
+      Correct query to work with strict mysql
+      Allow RSS placeholder to be in the template or the message content.
+
 version 2.4.1+20161013
 Sam Tuke (1):
       Moved two menu items from "system" menu to "campaigns" menu
