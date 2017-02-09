@@ -494,4 +494,16 @@ END;
         $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order'], $messageData['rss_template']);
         $messageData['subject'] = $this->newSubject($messageData['subject'], $items);
     }
+
+    /**
+     * Called when a campaign is being copied.
+     * Allows this plugin to specify which rows of the messagedata table should also
+     * be copied.
+     *
+     * @return array rows of messagedata table that should be copied
+     */
+    public function copyCampaignHook()
+    {
+        return array('rss_feed', 'rss_order', 'rss_template');
+    }
 }
