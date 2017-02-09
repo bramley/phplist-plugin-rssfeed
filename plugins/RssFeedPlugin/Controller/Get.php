@@ -1,7 +1,7 @@
 <?php
 /**
  * RssFeedPlugin for phplist.
- * 
+ *
  * This file is a part of RssFeedPlugin.
  *
  * @category  phplist
@@ -19,8 +19,7 @@ use PicoFeed\Parser\Item;
 use PicoFeed\PicoFeedException;
 use PicoFeed\Reader\Reader;
 
-class RssFeedPlugin_Controller_Get
-    extends CommonPlugin_Controller
+class RssFeedPlugin_Controller_Get extends CommonPlugin_Controller
 {
     /**
      * Get the content for custom elements.

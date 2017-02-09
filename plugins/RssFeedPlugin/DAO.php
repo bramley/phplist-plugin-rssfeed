@@ -1,7 +1,7 @@
 <?php
 /**
  * RssFeedPlugin for phplist.
- * 
+ *
  * This file is a part of RssFeedPlugin.
  *
  * @category  phplist
@@ -102,7 +102,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
     /**
      * Builds an array of items for a message's feed in ascending order of
      * published date.
-     * 
+     *
      * @param int  $mid        message id
      * @param int  $limit      maximum number of items to return
      * @param bool $useEmbargo whether to select only items published within
@@ -179,6 +179,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
 
         return $this->dbCommand->queryAffectedRows($sql);
     }
+
     /*
      *  Used by view controller
      */

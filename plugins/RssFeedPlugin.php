@@ -1,7 +1,7 @@
 <?php
 /**
  * RssFeedPlugin for phplist.
- * 
+ *
  * This file is a part of RssFeedPlugin.
  *
  * @category  phplist
@@ -244,6 +244,7 @@ class RssFeedPlugin extends phplistPlugin
 
         return $items;
     }
+
 /*
  *  Public functions
  *
@@ -310,7 +311,7 @@ class RssFeedPlugin extends phplistPlugin
 
 /*
  *  Methods for composing a campaign
- * 
+ *
  */
     public function sendMessageTab($messageid = 0, $data = array())
     {
@@ -418,7 +419,7 @@ END;
 
 /*
  *  Methods for processing the queue and messages
- * 
+ *
  */
     public function processQueueStart()
     {
@@ -475,7 +476,7 @@ END;
     /**
      * Called by ViewBrowser plugin to manipulate template and message.
      * Gets the RSS HTML content and modifies the message subject.
-     * 
+     *
      * @param string &$templateBody the body of the template
      * @param array  &$messageData  the message data
      */

@@ -1,3 +1,8 @@
+version 2.4.3+20170209
+      Update to cs fixer config file
+      Added hook for copying a campaign.
+      coding standards changes
+
 version 2.4.2+20161227
       Correct query to work with strict mysql
       Allow RSS placeholder to be in the template or the message content.

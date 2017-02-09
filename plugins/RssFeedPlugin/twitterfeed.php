@@ -1,7 +1,7 @@
 <?php
 /**
  * RssFeedPlugin for phplist.
- * 
+ *
  * This file is a part of RssFeedPlugin.
  *
  * @category  phplist
@@ -13,7 +13,7 @@
 
 /**
  * This is the entry code invoked by phplist.
- * 
+ *
  * @category  phplist
  */
 if (!(phplistPlugin::isEnabled('CommonPlugin'))) {

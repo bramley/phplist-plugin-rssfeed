@@ -78,7 +78,7 @@ class TwitterParser
         $image = $nl->item(0);
         $srcset = urldecode($image->getAttribute('data-srcset'));
         $srcs = explode(',', $srcset);
-        list($src, $width) = explode(' ',  $srcs[count($srcs) - 1], 2);
+        list($src, $width) = explode(' ', $srcs[count($srcs) - 1], 2);
         preg_match('/\d+/', $width, $w);
         $image->setAttribute('src', $src);
         $image->setAttribute('width', $w[0]);
