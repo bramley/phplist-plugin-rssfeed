@@ -74,8 +74,10 @@ class RssFeedPlugin_Controller_Get extends CommonPlugin_Controller
             } else {
                 $content = $values[0];
             }
-        } else {
+        } elseif (is_array($values)) {
             $content = $values[0];
+        } else {
+            $content = $values;
         }
 
         return $content;
