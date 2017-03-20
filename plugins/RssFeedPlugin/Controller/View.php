@@ -1,7 +1,7 @@
 <?php
 /**
  * RssFeedPlugin for phplist.
- * 
+ *
  * This file is a part of RssFeedPlugin.
  *
  * @category  phplist
@@ -15,9 +15,7 @@
  * This class is a subclass of the base controller class that implements the CommonPlugin_IPopulator
  * interface to show rss items.
  */
-class RssFeedPlugin_Controller_View
-    extends CommonPlugin_Controller
-    implements CommonPlugin_IPopulator
+class RssFeedPlugin_Controller_View extends CommonPlugin_Controller implements CommonPlugin_IPopulator
 {
     /*
      *    Protected methods

@@ -1,3 +1,31 @@
+version 2.4.3+20170209
+      Update to cs fixer config file
+      Added hook for copying a campaign.
+      coding standards changes
+
+version 2.4.2+20161227
+      Correct query to work with strict mysql
+      Allow RSS placeholder to be in the template or the message content.
+
+version 2.4.1+20161013
+Sam Tuke (1):
+      Moved two menu items from "system" menu to "campaigns" menu
+
+version 2.4.0+20160824
+      Support custom tags
+      Add a custom template to the RSS tab
+      Rework twitter processing for latest version of PicoFeed
+      Show error when repetition is not enabled. Fixes #17
+
+version 2.3.2+20160419
+      Rework parsing of twitter timeline
+
+version 2.3.1+20160105
+      Correct output buffering
+
+version 2.3.0+20151231
+      Add public page to convert twitter feed to rss
+
 version 2.2.1+20151124
       For an RSS feed use the description element if present as the content. For an ATOM feed use the summary element if present.
 

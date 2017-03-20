@@ -1,7 +1,7 @@
 <?php
 /**
  * RssFeedPlugin for phplist.
- * 
+ *
  * This file is a part of RssFeedPlugin.
  *
  * @category  phplist
@@ -20,6 +20,7 @@ class RssFeedPlugin extends phplistPlugin
     const VERSION_FILE = 'version.txt';
     const OLDEST_FIRST = 1;
     const LATEST_FIRST = 2;
+    const TWITTER_PAGE = 'twitterfeed';
 
     private $dao;
     private $rssHtml;
@@ -34,10 +35,12 @@ class RssFeedPlugin extends phplistPlugin
         'get',
     );
 
+    public $publicPages = array(self::TWITTER_PAGE);
+
     public $topMenuLinks = array(
-        'get' => array('category' => 'system'),
         'view' => array('category' => 'campaigns'),
-        'delete' => array('category' => 'system'),
+        'get' => array('category' => 'campaigns'),
+        'delete' => array('category' => 'campaigns'),
     );
 
     public $pageTitles = array(
@@ -107,6 +110,13 @@ class RssFeedPlugin extends phplistPlugin
             'allowempty' => true,
             'category' => 'RSS',
         ),
+        'rss_custom_elements' => array(
+            'description' => 'Additional feed elements to be included in each item\'s data',
+            'type' => 'textarea',
+            'value' => '',
+            'allowempty' => true,
+            'category' => 'RSS',
+        ),
     );
 
     private function isRssMessage(array $messageData)
@@ -171,9 +181,11 @@ class RssFeedPlugin extends phplistPlugin
         );
     }
 
-    private function generateItemHtml(array $items, $order)
+    private function generateItemHtml(array $items, $order, $customTemplate)
     {
-        $htmltemplate = getConfig('rss_htmltemplate');
+        $htmltemplate = trim($customTemplate) === ''
+            ? getConfig('rss_htmltemplate')
+            : $customTemplate;
         $html = '';
 
         if ($order == self::LATEST_FIRST) {
@@ -224,7 +236,7 @@ class RssFeedPlugin extends phplistPlugin
 
     private function itemsForTestMessage($mid)
     {
-        $items = iterator_to_array($this->dao->messageFeedItems($mid, getConfig('rss_maximum'), false));
+        $items = $this->dao->messageFeedItems($mid, getConfig('rss_maximum'), false);
 
         if (count($items) == 0) {
             $items = $this->sampleItems();
@@ -232,6 +244,7 @@ class RssFeedPlugin extends phplistPlugin
 
         return $items;
     }
+
 /*
  *  Public functions
  *
@@ -250,10 +263,9 @@ class RssFeedPlugin extends phplistPlugin
         global $plugins;
 
         return array(
-            'Common plugin v3.3.0 or later installed' => (
+            'Common plugin v3.5.8 or later installed' => (
                 phpListPlugin::isEnabled('CommonPlugin')
-                && preg_match('/\d+\.\d+\.\d+/', $plugins['CommonPlugin']->version, $matches)
-                && version_compare($matches[0], '3.3.0') >= 0
+                && version_compare($plugins['CommonPlugin']->version, '3.5.8') >= 0
             ),
             'View in Browser plugin v2.4.0 or later installed' => (
                 phpListPlugin::isEnabled('ViewBrowserPlugin')
@@ -299,7 +311,7 @@ class RssFeedPlugin extends phplistPlugin
 
 /*
  *  Methods for composing a campaign
- * 
+ *
  */
     public function sendMessageTab($messageid = 0, $data = array())
     {
@@ -309,12 +321,14 @@ class RssFeedPlugin extends phplistPlugin
             isset($data['rss_order']) ? $data['rss_order'] : self::OLDEST_FIRST,
             array(self::OLDEST_FIRST => 'Oldest items first', self::LATEST_FIRST => 'Latest items first')
         );
+        $template = isset($data['rss_template']) ? htmlspecialchars($data['rss_template']) : '';
 
         $html = <<<END
     <label>RSS feed URL
     <input type="text" name="rss_feed" value="$feedUrl" /></label>
     <label>How to order feed items
     $order</label>
+    <label>Custom template</label><textarea name="rss_template" rows="10" cols="40">$template</textarea>
 END;
 
         return $html;
@@ -339,7 +353,7 @@ END;
         }
         $items = $this->itemsForTestMessage($messageData['id']);
 
-        $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order']);
+        $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order'], $messageData['rss_template']);
         $this->rssText = HTML2Text($this->rssHtml);
         $this->modifySubject($messageData, $items);
 
@@ -379,7 +393,20 @@ END;
         }
 
         if (stripos($messageData['message'], '[RSS]') === false) {
-            return 'Must have [RSS] placeholder in an RSS message';
+            if ($messageData['template'] === 0) {
+                $templateHasPlaceholder = false;
+            } else {
+                $templateBody = $this->dao->templateBody($messageData['template']);
+                $templateHasPlaceholder = stripos($templateBody, '[RSS]') !== false;
+            }
+
+            if (!$templateHasPlaceholder) {
+                return 'Must have [RSS] placeholder in an RSS message';
+            }
+        }
+
+        if (!USE_REPETITION) {
+            return 'Campaign repetition must be enabled in config.php';
         }
 
         if ($messageData['repeatinterval'] == 0) {
@@ -392,14 +419,14 @@ END;
 
 /*
  *  Methods for processing the queue and messages
- * 
+ *
  */
     public function processQueueStart()
     {
         $level = error_reporting(-1);
 
         foreach ($this->dao->readyRssMessages() as $mid) {
-            $items = iterator_to_array($this->dao->messageFeedItems($mid, getConfig('rss_maximum')));
+            $items = $this->dao->messageFeedItems($mid, getConfig('rss_maximum'));
 
             if (count($items) < getConfig('rss_minimum')) {
                 $count = $this->dao->reEmbargoMessage($mid);
@@ -422,8 +449,8 @@ END;
 
             return;
         }
-        $items = iterator_to_array($this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum')));
-        $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order']);
+        $items = $this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum'));
+        $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order'], $messageData['rss_template']);
         $this->rssText = HTML2Text($this->rssHtml);
         $this->modifySubject($messageData, $items);
     }
@@ -449,7 +476,7 @@ END;
     /**
      * Called by ViewBrowser plugin to manipulate template and message.
      * Gets the RSS HTML content and modifies the message subject.
-     * 
+     *
      * @param string &$templateBody the body of the template
      * @param array  &$messageData  the message data
      */
@@ -462,10 +489,22 @@ END;
         if ($messageData['status'] == 'draft') {
             $items = $this->itemsForTestMessage($messageData['id']);
         } else {
-            $items = iterator_to_array($this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum')));
+            $items = $this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum'));
         }
 
-        $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order']);
+        $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order'], $messageData['rss_template']);
         $messageData['subject'] = $this->newSubject($messageData['subject'], $items);
+    }
+
+    /**
+     * Called when a campaign is being copied.
+     * Allows this plugin to specify which rows of the messagedata table should also
+     * be copied.
+     *
+     * @return array rows of messagedata table that should be copied
+     */
+    public function copyCampaignHook()
+    {
+        return array('rss_feed', 'rss_order', 'rss_template');
     }
 }

@@ -65,6 +65,13 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.4.3+20170209  Added hook for copying a campaign
+    2.4.2+20161227  Allow RSS placeholder to be in the template or the message content
+    2.4.1+20161013  Move System menu items to Campaigns menu
+    2.4.0+20160824  Support custom tags
+    2.3.2+20160419  Rework parsing of twitter timeline
+    2.3.1+20160105  Fix output buffering problem
+    2.3.0+20151231  Add public page to generate RSS from a twitter timeline
     2.2.1+20151124  Use description element as content for an RSS feed
     2.2.0+20151121  Support for View in Browser plugin, reposition RSS tab
     2.1.2+20151014  GitHub #8, #9, #10

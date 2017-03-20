@@ -1,7 +1,7 @@
 <?php
 /**
  * RssFeedPlugin for phplist.
- * 
+ *
  * This file is a part of RssFeedPlugin.
  *
  * @category  phplist
@@ -99,29 +99,51 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
         return $this->dbCommand->queryAffectedRows($sql);
     }
 
+    /**
+     * Builds an array of items for a message's feed in ascending order of
+     * published date.
+     *
+     * @param int  $mid        message id
+     * @param int  $limit      maximum number of items to return
+     * @param bool $useEmbargo whether to select only items published within
+     *                         the repeat period
+     *
+     * @return array 0-indexed array of items
+     */
     public function messageFeedItems($mid, $limit, $useEmbargo = true)
     {
         $published = $useEmbargo
             ? 'AND it.published >= m.embargo - INTERVAL m.repeatinterval MINUTE AND it.published < m.embargo'
             : '';
-        $sql =
-            "SELECT title, content, url, published
+        $subquery =
+            "SELECT id
             FROM (
-                SELECT itd1.value as title, itd2.value as content, itd3.value as url, it.published
+                SELECT DISTINCT it.id, it.published
                 FROM {$this->tables['message']} m
                 JOIN {$this->tables['messagedata']} md ON m.id = md.id AND md.name = 'rss_feed'
                 JOIN {$this->tables['feed']} fe ON fe.url = md.data
                 JOIN {$this->tables['item']} it ON fe.id = it.feedid
-                JOIN {$this->tables['item_data']} itd1 on itd1.itemid = it.id AND itd1.property = 'title'
-                JOIN {$this->tables['item_data']} itd2 on itd2.itemid = it.id AND itd2.property = 'content'
-                JOIN {$this->tables['item_data']} itd3 on itd3.itemid = it.id AND itd3.property = 'url'
-                WHERE m.id = $mid $published
+                WHERE m.id = $mid
+                $published
                 ORDER BY it.published DESC
                 LIMIT $limit
-            ) AS temp
-            ORDER BY published ASC";
+            ) AS t";
 
-        return $this->dbCommand->queryAll($sql);
+        $sql = "SELECT it.id, it.published, itd.property, itd.value
+                FROM {$this->tables['item']} it
+                JOIN {$this->tables['item_data']} itd on itd.itemid = it.id
+                WHERE it.id IN ($subquery)
+                ORDER BY it.published ASC, it.id ASC";
+
+        $rows = $this->dbCommand->queryAll($sql);
+        $result = array();
+
+        foreach ($rows as $row) {
+            $result[$row['id']][$row['property']] = $row['value'];
+            $result[$row['id']]['published'] = $row['published'];
+        }
+
+        return array_values($result);
     }
 
     public function feeds()
@@ -157,6 +179,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
 
         return $this->dbCommand->queryAffectedRows($sql);
     }
+
     /*
      *  Used by view controller
      */
@@ -257,5 +280,15 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
             WHERE id = $id";
 
         return $this->dbCommand->queryAffectedRows($sql);
+    }
+
+    public function templateBody($id)
+    {
+        $sql =
+            "SELECT template
+            FROM {$this->tables['template']}
+            WHERE id = $id";
+
+        return stripslashes($this->dbCommand->queryOne($sql));
     }
 }

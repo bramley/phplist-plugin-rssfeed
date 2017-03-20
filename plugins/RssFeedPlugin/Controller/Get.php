@@ -1,7 +1,7 @@
 <?php
 /**
  * RssFeedPlugin for phplist.
- * 
+ *
  * This file is a part of RssFeedPlugin.
  *
  * @category  phplist
@@ -19,9 +19,39 @@ use PicoFeed\Parser\Item;
 use PicoFeed\PicoFeedException;
 use PicoFeed\Reader\Reader;
 
-class RssFeedPlugin_Controller_Get
-    extends CommonPlugin_Controller
+class RssFeedPlugin_Controller_Get extends CommonPlugin_Controller
 {
+    /**
+     * Get the content for custom elements.
+     *
+     * @param array                $customElements
+     * @param PicoFeed\Parser\Item $item
+     *
+     * @return array
+     */
+    private function getCustomElementsValues(array $customElements, Item $item)
+    {
+        $values = array();
+
+        foreach ($customElements as $c) {
+            $parts = explode(':', $c, 2);
+
+            if (count($parts) == 1) {
+                $values[$c] = $item->getTag($c);
+            } else {
+                if ($item->hasNamespace($parts[0])) {
+                    $tagValues = $item->getTag($c);
+
+                    if (count($tagValues) > 0) {
+                        $values[$c] = $tagValues[0];
+                    }
+                }
+            }
+        }
+
+        return $values;
+    }
+
     /**
      * Get the content for an item.
      * For an RSS feed use the description element if present.
@@ -64,17 +94,22 @@ class RssFeedPlugin_Controller_Get
 
             return;
         }
+        $customElementsConfig = getConfig('rss_custom_elements');
+        $customElements = $customElementsConfig === ''
+            ? array()
+            : explode("\n", $customElementsConfig);
 
         foreach ($feeds as $row) {
             $feedId = $row['id'];
             $feedUrl = $row['url'];
 
             try {
+                $output(s('Fetching') . ' ' . $feedUrl);
                 $reader = new Reader($config);
                 $resource = $reader->download($feedUrl, $row['lastmodified'], $row['etag']);
 
                 if (!$resource->isModified()) {
-                    $output("Feed '$feedUrl' not modified");
+                    $output('Not modified');
                     continue;
                 }
 
@@ -83,9 +118,6 @@ class RssFeedPlugin_Controller_Get
                     $resource->getContent(),
                     $resource->getEncoding()
                 );
-                $line = s('Parsing') . ' ' . $feedUrl;
-                $output($line);
-
                 $feed = $parser->execute();
                 $itemCount = 0;
                 $newItemCount = 0;
@@ -112,7 +144,7 @@ class RssFeedPlugin_Controller_Get
                                 'enclosuretype' => $item->getEnclosureType(),
                                 'content' => $itemContent,
                                 'rtl' => $item->isRTL(),
-                            )
+                            ) + $this->getCustomElementsValues($customElements, $item)
                         );
                     }
                 }
@@ -145,7 +177,7 @@ class RssFeedPlugin_Controller_Get
         } else {
             $output = function ($line) {
                 echo "$line<br/>\n";
-                ob_flush();
+                @ob_flush();
                 flush();
             };
             ob_end_flush();

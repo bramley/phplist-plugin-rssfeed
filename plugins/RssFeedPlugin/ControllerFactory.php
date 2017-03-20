@@ -2,7 +2,7 @@
 
 /**
  * RssFeedPlugin for phplist.
- * 
+ *
  * This file is a part of RssFeedPlugin.
  *
  * @category  phplist
@@ -14,10 +14,9 @@
 
 /**
  * This class is a concrete implementation of CommonPlugin_ControllerFactoryBase.
- * 
+ *
  * @category  phplist
  */
-
 class RssFeedPlugin_ControllerFactory extends CommonPlugin_ControllerFactoryBase
 {
     /**
