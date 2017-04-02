@@ -1,0 +1,11 @@
+README.html
+.php_cs.cache
+
+plugins/RssFeedPlugin/vendor/fguillot/picofeed/*
+!plugins/RssFeedPlugin/vendor/fguillot/picofeed/LICENSE
+!plugins/RssFeedPlugin/vendor/fguillot/picofeed/lib/
+plugins/RssFeedPlugin/vendor/fguillot/picofeed/lib/PicoFeed/Rules/
+
+plugins/RssFeedPlugin/vendor/zendframework/zendxml/*
+!plugins/RssFeedPlugin/vendor/zendframework/zendxml/library
+!plugins/RssFeedPlugin/vendor/zendframework/zendxml/LICENSE.md

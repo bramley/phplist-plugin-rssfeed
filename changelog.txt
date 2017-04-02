@@ -1,3 +1,6 @@
+version 2.4.4+20170402
+      Add Composer and PicoFeed
+
 version 2.4.3+20170209
       Update to cs fixer config file
       Added hook for copying a campaign.
