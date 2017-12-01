@@ -81,7 +81,7 @@ class RssFeedPlugin_Controller_Get extends CommonPlugin_Controller
         return $content;
     }
 
-    private function getRssFeeds(Closure $output)
+    private function getRssFeeds(callable $output)
     {
         $utcTimeZone = new DateTimeZone('UTC');
         $config = new Config();
@@ -166,23 +166,9 @@ class RssFeedPlugin_Controller_Get extends CommonPlugin_Controller
 
     protected function actionDefault()
     {
-        global $commandline;
-
-        if ($commandline) {
-            $output = function ($line) {
-                echo $line, "\n";
-            };
-            ob_end_clean();
-            echo ClineSignature();
-        } else {
-            $output = function ($line) {
-                echo "$line<br/>\n";
-                @ob_flush();
-                flush();
-            };
-            ob_end_flush();
-        }
-        $this->getRssFeeds($output);
-        ob_start();
+        $context = phpList\plugin\Common\Context::create();
+        $context->start();
+        $this->getRssFeeds([$context, 'output']);
+        $context->finish();
     }
 }
