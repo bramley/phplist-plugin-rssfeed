@@ -32,7 +32,8 @@ class ControllerFactory extends ControllerFactoryBase
     {
         $depends = include __DIR__ . '/depends.php';
         $container = new \phpList\plugin\Common\Container($depends);
-        $class = 'phpList\plugin\\' . $pi . '\\Controller\\' . ucfirst($params['page']);
+        $page = isset($params['page']) ? $params['page'] : $params['p'];
+        $class = 'phpList\plugin\\' . $pi . '\\Controller\\' . ucfirst($page);
 
         return $container->get($class);
     }

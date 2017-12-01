@@ -31,6 +31,19 @@ return [
             $container->get('phpList\plugin\RssFeedPlugin\DAO')
         );
     },
+    'phpList\plugin\RssFeedPlugin\Controller\Delete' => function (ContainerInterface $container) {
+        return new Controller\Delete(
+            $container->get('phpList\plugin\RssFeedPlugin\DAO')
+        );
+    },
+    'phpList\plugin\RssFeedPlugin\Controller\Twitterfeed' => function (ContainerInterface $container) {
+        return new Controller\Twitterfeed(
+            $container->get('phpList\plugin\RssFeedPlugin\TwitterParser')
+        );
+    },
+    'phpList\plugin\RssFeedPlugin\TwitterParser' => function (ContainerInterface $container) {
+        return new TwitterParser();
+    },
     'phpList\plugin\RssFeedPlugin\DAO' => function (ContainerInterface $container) {
         return new DAO(
             $container->get('phpList\plugin\Common\DB')
