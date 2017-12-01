@@ -14,10 +14,10 @@
 namespace phpList\plugin\RssFeedPlugin\Controller;
 
 use phpList\plugin\Common\Controller;
-use phpList\plugin\Common\DB;
 use phpList\plugin\Common\IPopulator;
 use phpList\plugin\Common\Listing;
 use phpList\plugin\RssFeedPlugin;
+use phpList\plugin\RssFeedPlugin\DAO;
 use WebblerListing;
 
 /**
@@ -26,6 +26,8 @@ use WebblerListing;
  */
 class View extends Controller implements IPopulator
 {
+    private $dao;
+
     /*
      *    Protected methods
      */
@@ -40,10 +42,10 @@ class View extends Controller implements IPopulator
     /*
      *    Public methods
      */
-    public function __construct()
+    public function __construct(DAO $dao)
     {
         parent::__construct();
-        $this->dao = new RssFeedPlugin\DAO(new DB());
+        $this->dao = $dao;
     }
 
     /*

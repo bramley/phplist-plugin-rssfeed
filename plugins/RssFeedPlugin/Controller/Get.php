@@ -14,10 +14,10 @@
 namespace phpList\plugin\RssFeedPlugin\Controller;
 
 use DateTimeZone;
-use phpList\plugin\Common\DB;
 use phpList\plugin\Common\Context;
 use phpList\plugin\Common\Controller;
 use phpList\plugin\RssFeedPlugin;
+use phpList\plugin\RssFeedPlugin\DAO;
 use PicoFeed\Config\Config;
 use PicoFeed\Parser\Item;
 use PicoFeed\PicoFeedException;
@@ -28,6 +28,9 @@ use PicoFeed\Reader\Reader;
  */
 class Get extends Controller
 {
+    private $context;
+    private $dao;
+
     private function getCustomElementsValues(array $customElements, Item $item)
     {
         $values = array();
@@ -80,13 +83,11 @@ class Get extends Controller
         return $content;
     }
 
-    private function getRssFeeds(callable $output)
+    private function getRssFeeds(DAO $dao, callable $output)
     {
         $utcTimeZone = new DateTimeZone('UTC');
         $config = new Config();
         $config->setContentFiltering(true);
-        $dao = new RssFeedPlugin\DAO(new DB());
-        //~ $dao = new RssFeedPlugin_DAO(new CommonPlugin_DB());
         $feeds = $dao->activeFeeds();
 
         if (count($feeds) == 0) {
@@ -166,9 +167,15 @@ class Get extends Controller
 
     protected function actionDefault()
     {
-        $context = Context::create();
-        $context->start();
-        $this->getRssFeeds([$context, 'output']);
-        $context->finish();
+        $this->context->start();
+        $this->getRssFeeds($this->dao, [$this->context, 'output']);
+        $this->context->finish();
+    }
+
+    public function __construct(DAO $dao, Context $context)
+    {
+        parent::__construct();
+        $this->dao = $dao;
+        $this->context = $context;
     }
 }
