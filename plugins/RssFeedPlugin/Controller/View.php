@@ -11,18 +11,27 @@
  * @license   http://www.gnu.org/licenses/gpl.html GNU General Public License, Version 3
  */
 
+namespace phpList\plugin\RssFeedPlugin\Controller;
+
+use phpList\plugin\Common\Controller;
+use phpList\plugin\Common\DB;
+use phpList\plugin\Common\IPopulator;
+use phpList\plugin\Common\Listing;
+use phpList\plugin\RssFeedPlugin;
+use WebblerListing;
+
 /**
  * This class is a subclass of the base controller class that implements the CommonPlugin_IPopulator
  * interface to show rss items.
  */
-class RssFeedPlugin_Controller_View extends CommonPlugin_Controller implements CommonPlugin_IPopulator
+class View extends Controller implements IPopulator
 {
     /*
      *    Protected methods
      */
     protected function actionDefault()
     {
-        $listing = new CommonPlugin_Listing($this, $this);
+        $listing = new Listing($this, $this);
         echo $listing->display();
 
         return;
@@ -34,7 +43,7 @@ class RssFeedPlugin_Controller_View extends CommonPlugin_Controller implements C
     public function __construct()
     {
         parent::__construct();
-        $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB());
+        $this->dao = new RssFeedPlugin\DAO(new DB());
     }
 
     /*

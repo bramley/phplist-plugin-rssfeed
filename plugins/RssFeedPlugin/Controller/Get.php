@@ -11,24 +11,23 @@
  * @license   http://www.gnu.org/licenses/gpl.html GNU General Public License, Version 3
  */
 
-/**
- * This class retrieves RSS items.
- */
+namespace phpList\plugin\RssFeedPlugin\Controller;
+
+use DateTimeZone;
+use phpList\plugin\Common\DB;
+use phpList\plugin\Common\Context;
+use phpList\plugin\Common\Controller;
+use phpList\plugin\RssFeedPlugin;
 use PicoFeed\Config\Config;
 use PicoFeed\Parser\Item;
 use PicoFeed\PicoFeedException;
 use PicoFeed\Reader\Reader;
 
-class RssFeedPlugin_Controller_Get extends CommonPlugin_Controller
+/**
+ * This class retrieves items from RSS feeds.
+ */
+class Get extends Controller
 {
-    /**
-     * Get the content for custom elements.
-     *
-     * @param array                $customElements
-     * @param PicoFeed\Parser\Item $item
-     *
-     * @return array
-     */
     private function getCustomElementsValues(array $customElements, Item $item)
     {
         $values = array();
@@ -86,7 +85,8 @@ class RssFeedPlugin_Controller_Get extends CommonPlugin_Controller
         $utcTimeZone = new DateTimeZone('UTC');
         $config = new Config();
         $config->setContentFiltering(true);
-        $dao = new RssFeedPlugin_DAO(new CommonPlugin_DB());
+        $dao = new RssFeedPlugin\DAO(new DB());
+        //~ $dao = new RssFeedPlugin_DAO(new CommonPlugin_DB());
         $feeds = $dao->activeFeeds();
 
         if (count($feeds) == 0) {
@@ -166,7 +166,7 @@ class RssFeedPlugin_Controller_Get extends CommonPlugin_Controller
 
     protected function actionDefault()
     {
-        $context = phpList\plugin\Common\Context::create();
+        $context = Context::create();
         $context->start();
         $this->getRssFeeds([$context, 'output']);
         $context->finish();

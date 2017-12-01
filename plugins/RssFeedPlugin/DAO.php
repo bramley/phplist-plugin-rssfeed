@@ -11,10 +11,14 @@
  * @license   http://www.gnu.org/licenses/gpl.html GNU General Public License, Version 3
  */
 
+namespace phpList\plugin\RssFeedPlugin;
+
+use phpList\plugin\Common\DAO as CommonDAO;
+
 /**
  * Data access class.
  */
-class RssFeedPlugin_DAO extends CommonPlugin_DAO
+class DAO extends CommonDAO
 {
     public function __construct($db)
     {

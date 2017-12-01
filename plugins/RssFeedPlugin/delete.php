@@ -8,7 +8,7 @@ if (isset($_POST['daysago']) && ctype_digit($_POST['daysago'])) {
 
         return;
     }
-    $dao = new RssFeedPlugin_DAO(new CommonPlugin_DB());
+    $dao = new phpList\plugin\RssFeedPlugin\DAO(new phpList\plugin\Common\DB());
     $count = $dao->deleteItems($_POST['daysago']);
     echo "<div class='note'>$count items deleted</div>";
 }

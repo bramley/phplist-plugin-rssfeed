@@ -22,4 +22,4 @@ if (!(phplistPlugin::isEnabled('CommonPlugin'))) {
     return;
 }
 
-CommonPlugin_Main::run(new RssFeedPlugin_ControllerFactory());
+phpList\plugin\Common\Main::run(new phpList\plugin\RssFeedPlugin\ControllerFactory());

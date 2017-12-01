@@ -245,10 +245,6 @@ class RssFeedPlugin extends phplistPlugin
         return $items;
     }
 
-/*
- *  Public functions
- *
- */
     public function __construct()
     {
         $this->coderoot = dirname(__FILE__) . '/' . __CLASS__ . '/';
@@ -291,7 +287,7 @@ class RssFeedPlugin extends phplistPlugin
         global $plugins;
 
         require_once $plugins['CommonPlugin']->coderoot . 'Autoloader.php';
-        $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB());
+        $this->dao = new phpList\plugin\RssFeedPlugin\DAO(new phpList\plugin\Common\DB());
     }
 
     public function adminmenu()
@@ -309,10 +305,9 @@ class RssFeedPlugin extends phplistPlugin
         );
     }
 
-/*
- *  Methods for composing a campaign
- *
- */
+    /*
+     *  Methods for composing a campaign
+     */
     public function sendMessageTab($messageid = 0, $data = array())
     {
         $feedUrl = isset($data['rss_feed']) ? htmlspecialchars($data['rss_feed']) : '';
@@ -417,10 +412,10 @@ END;
         return '';
     }
 
-/*
- *  Methods for processing the queue and messages
- *
- */
+    /*
+     *  Methods for processing the queue and messages
+     *
+     */
     public function processQueueStart()
     {
         $level = error_reporting(-1);
