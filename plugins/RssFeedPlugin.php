@@ -339,6 +339,11 @@ END;
         return 'Format';
     }
 
+    /**
+     * Generate RSS items for a test message.
+     *
+     * @param array $messageData message fields
+     */
     public function sendTestAllowed($messageData)
     {
         if (!$this->isRssMessage($messageData)) {
@@ -355,6 +360,12 @@ END;
         return true;
     }
 
+    /**
+     * Provide a read-only view of the RSS fields for a campaign.
+     *
+     * @param int   $messageId   message id
+     * @param array $messageData message fields
+     */
     public function viewMessage($messageId, array $messageData)
     {
         if (!$this->isRssMessage($messageData)) {
@@ -370,6 +381,11 @@ END;
         return array('RSS', $html);
     }
 
+    /**
+     * Validate that the RSS fields have been entered and the feed url is valid.
+     *
+     * @param array $messageData message fields
+     */
     public function allowMessageToBeQueued($messageData = array())
     {
         if (!$this->isRssMessage($messageData)) {
@@ -412,9 +428,9 @@ END;
         return '';
     }
 
-    /*
-     *  Methods for processing the queue and messages
-     *
+    /**
+     * Use this hook to see whether any RSS messages have sufficient items to be sent.
+     * If not then the embargo of the campaign is moved forward to avoid sending a message with no RSS content.
      */
     public function processQueueStart()
     {
@@ -437,6 +453,11 @@ END;
         error_reporting($level);
     }
 
+    /**
+     * Use this hook to generate the html and plain text of the RSS items and modify the subject.
+     *
+     * @param array $messageData message fields
+     */
     public function campaignStarted($messageData = array())
     {
         if (!$this->isRssMessage($messageData)) {
@@ -450,6 +471,16 @@ END;
         $this->modifySubject($messageData, $items);
     }
 
+    /**
+     * Replace the placeholder by the html RSS content.
+     *
+     * @param int    $messageid   the message id
+     * @param string $content     the message content
+     * @param string $destination destination email address
+     * @param array  $userdata    user fields
+     *
+     * @return string
+     */
     public function parseOutgoingHTMLMessage($messageid, $content, $destination = '', $userdata = array())
     {
         if ($this->rssHtml === null) {
@@ -459,6 +490,16 @@ END;
         return str_ireplace('[RSS]', $this->rssHtml, $content);
     }
 
+    /**
+     * Replace the placeholder by the text RSS content.
+     *
+     * @param int    $messageid   the message id
+     * @param string $content     the message content
+     * @param string $destination destination email address
+     * @param array  $userdata    user fields
+     *
+     * @return string
+     */
     public function parseOutgoingTextMessage($messageid, $content, $destination = '', $userdata = array())
     {
         if ($this->rssHtml === null) {
