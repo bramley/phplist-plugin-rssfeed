@@ -16,9 +16,11 @@ namespace phpList\plugin\RssFeedPlugin\Controller;
 use DateTimeZone;
 use phpList\plugin\Common\Context;
 use phpList\plugin\Common\Controller;
+use phpList\plugin\Common\Logger;
 use phpList\plugin\RssFeedPlugin;
 use phpList\plugin\RssFeedPlugin\DAO;
 use PicoFeed\Config\Config;
+use PicoFeed\Logging\Logger as PicoLogger;
 use PicoFeed\Parser\Item;
 use PicoFeed\PicoFeedException;
 use PicoFeed\Reader\Reader;
@@ -83,8 +85,11 @@ class Get extends Controller
         return $content;
     }
 
-    private function getRssFeeds(DAO $dao, callable $output)
+    private function getRssFeeds(DAO $dao, callable $output, Logger $logger)
     {
+        if ($logger->isDebug()) {
+            PicoLogger::enable();
+        }
         $utcTimeZone = new DateTimeZone('UTC');
         $config = new Config();
         $config->setContentFiltering(true);
@@ -163,12 +168,13 @@ class Get extends Controller
                 $output($e->getMessage());
             }
         }
+        $logger->debug(PicoLogger::toString());
     }
 
     protected function actionDefault()
     {
         $this->context->start();
-        $this->getRssFeeds($this->dao, [$this->context, 'output']);
+        $this->getRssFeeds($this->dao, [$this->context, 'output'], $this->logger);
         $this->context->finish();
     }
 
