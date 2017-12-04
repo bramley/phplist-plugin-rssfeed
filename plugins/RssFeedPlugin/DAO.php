@@ -46,6 +46,18 @@ class DAO extends CommonDAO
         return $this->dbCommand->queryInsertId($sql);
     }
 
+    public function feedExists($url)
+    {
+        $url = sql_escape($url);
+        $sql =
+            "SELECT id
+            FROM {$this->tables['feed']}
+            WHERE url = '$url'
+            LIMIT 1";
+
+        return $this->dbCommand->queryOne($sql);
+    }
+
     public function addItem($uid, $published, $feedId)
     {
         $uid = sql_escape($uid);

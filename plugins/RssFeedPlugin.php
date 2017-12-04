@@ -258,9 +258,9 @@ class RssFeedPlugin extends phplistPlugin
         global $plugins;
 
         return array(
-            'Common plugin v3.5.8 or later installed' => (
+            'Common plugin v3.7.4 or later installed' => (
                 phpListPlugin::isEnabled('CommonPlugin')
-                && version_compare($plugins['CommonPlugin']->version, '3.5.8') >= 0
+                && version_compare($plugins['CommonPlugin']->version, '3.7.4') >= 0
             ),
             'View in Browser plugin v2.4.0 or later installed' => (
                 phpListPlugin::isEnabled('ViewBrowserPlugin')
@@ -386,6 +386,8 @@ END;
      * Validate that the RSS fields have been entered and the feed url is valid.
      *
      * @param array $messageData message fields
+     *
+     * @return string empty string for success otherwise an error message
      */
     public function allowMessageToBeQueued($messageData = array())
     {
@@ -397,11 +399,15 @@ END;
         if (!preg_match('/^http/i', $feedUrl)) {
             return "Invalid URL $feedUrl for RSS feed";
         }
+        $exists = $this->dao->feedExists($feedUrl);
 
-        try {
-            $this->validateFeed($feedUrl);
-        } catch (PicoFeed\PicoFeedException $e) {
-            return s('Failed to fetch URL %s %s', $feedUrl, $e->getMessage());
+        if (!$exists) {
+            try {
+                $this->validateFeed($feedUrl);
+            } catch (PicoFeed\PicoFeedException $e) {
+                return s('Failed to fetch URL %s %s', $feedUrl, $e->getMessage());
+            }
+            $this->dao->addFeed($feedUrl);
         }
 
         if (stripos($messageData['message'], '[RSS]') === false) {
@@ -424,7 +430,6 @@ END;
         if ($messageData['repeatinterval'] == 0) {
             return s('Repeat interval must be selected for an RSS campaign');
         }
-        $this->dao->addFeed($feedUrl);
 
         return '';
     }

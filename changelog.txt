@@ -1,3 +1,15 @@
+version 2.5.0+20171204
+      Use Context class
+      Use namespaces
+      Use DIC to inject dependencies into controllers
+      Select img elements only where the data-srcset attribute exists
+      Move delete and twitterfeed processing into controller classes
+      Add docblocks for public methods
+      Replace the placeholder in a message by the actual RSS items when sending completes.
+      Include PicoFeed logging when debug is enabled
+      Made all text translateable
+      Avoid repeated validation of a feed
+
 version 2.4.4+20170402
       Add Composer and PicoFeed
 

@@ -65,6 +65,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.5.0+20171204  Lots of internal reworking
     2.4.4+20170402  Add PicoFeed package
     2.4.3+20170209  Added hook for copying a campaign
     2.4.2+20161227  Allow RSS placeholder to be in the template or the message content
