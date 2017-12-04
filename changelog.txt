@@ -1,3 +1,6 @@
+version 2.5.1+20171204
+      Remove debug logging
+
 version 2.5.0+20171204
       Use Context class
       Use namespaces
