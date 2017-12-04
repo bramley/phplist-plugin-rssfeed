@@ -29,15 +29,19 @@ class Delete extends Controller
                 return;
             }
             $count = $this->dao->deleteItems($_POST['daysago']);
-            echo "<div class='note'>$count items deleted</div>";
+            $note = s('%d items deleted', $count);
+            echo "<div class='note'>$note</div>";
         }
 
-        echo <<<'END'
+        $prompt1 = s('Enter the number of days to be kept.');
+        $prompt2 = s('All items whose published date is earlier will be deleted.');
+        $button = s('Delete');
+        echo <<<"END"
 <form method="post" action="">
-<caption>Enter the number of days to be kept.<br />
-All items whose published date is earlier will be deleted.
+<caption>$prompt1<br />
+$prompt2
     <input type=text name="daysago" value="30" size=7></caption>
-    <input type=submit name="submit" value="Purge">
+    <input type=submit name="submit" value="$button">
 </form>
 END;
     }

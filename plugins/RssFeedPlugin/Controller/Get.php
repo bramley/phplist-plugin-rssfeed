@@ -17,7 +17,6 @@ use DateTimeZone;
 use phpList\plugin\Common\Context;
 use phpList\plugin\Common\Controller;
 use phpList\plugin\Common\Logger;
-use phpList\plugin\RssFeedPlugin;
 use phpList\plugin\RssFeedPlugin\DAO;
 use PicoFeed\Config\Config;
 use PicoFeed\Logging\Logger as PicoLogger;
@@ -96,7 +95,7 @@ class Get extends Controller
         $feeds = $dao->activeFeeds();
 
         if (count($feeds) == 0) {
-            $output('There are no active RSS feeds to fetch');
+            $output(s('There are no active RSS feeds to fetch'));
 
             return;
         }
@@ -115,7 +114,7 @@ class Get extends Controller
                 $resource = $reader->download($feedUrl, $row['lastmodified'], $row['etag']);
 
                 if (!$resource->isModified()) {
-                    $output('Not modified');
+                    $output(s('Not modified'));
                     continue;
                 }
 
@@ -162,7 +161,7 @@ class Get extends Controller
                 $output($line);
 
                 if ($newItemCount > 0) {
-                    logEvent("Feed $feedUrl $line");
+                    logEvent(s('Feed') . " $feedUrl $line");
                 }
             } catch (PicoFeedException $e) {
                 $output($e->getMessage());

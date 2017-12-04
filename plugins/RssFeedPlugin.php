@@ -43,12 +43,6 @@ class RssFeedPlugin extends phplistPlugin
         'delete' => array('category' => 'campaigns'),
     );
 
-    public $pageTitles = array(
-        'get' => 'Fetch RSS items',
-        'view' => 'View RSS items',
-        'delete' => 'Delete outdated RSS items',
-    );
-
     public $DBstruct = array(
         'feed' => array(
             'id' => array('integer not null primary key auto_increment', 'ID'),
@@ -70,52 +64,6 @@ class RssFeedPlugin extends phplistPlugin
             'property' => array('varchar(100) not null', ''),
             'value' => array('text', ''),
             'primary key' => array('(itemid, property)', ''),
-        ),
-    );
-
-    public $settings = array(
-        'rss_minimum' => array(
-            'description' => 'Minimum number of items to send in an RSS email',
-            'type' => 'integer',
-            'value' => 1,
-            'allowempty' => 0,
-            'min' => 1,
-            'max' => 50,
-            'category' => 'RSS',
-        ),
-        'rss_maximum' => array(
-            'description' => 'Maximum number of items to send in an RSS email',
-            'type' => 'integer',
-            'value' => 30,
-            'allowempty' => 0,
-            'min' => 1,
-            'max' => 50,
-            'category' => 'RSS',
-        ),
-        'rss_htmltemplate' => array(
-            'description' => 'Item HTML template',
-            'type' => 'textarea',
-            'value' => '
-            <a href="[URL]"><b>[TITLE]</b></a><br/>
-            [PUBLISHED]<br/>
-            [CONTENT]
-            <hr/>',
-            'allowempty' => 0,
-            'category' => 'RSS',
-        ),
-        'rss_subjectsuffix' => array(
-            'description' => 'Text to append when the title of the latest item is used in the subject',
-            'type' => 'text',
-            'value' => '',
-            'allowempty' => true,
-            'category' => 'RSS',
-        ),
-        'rss_custom_elements' => array(
-            'description' => 'Additional feed elements to be included in each item\'s data',
-            'type' => 'textarea',
-            'value' => '',
-            'allowempty' => true,
-            'category' => 'RSS',
         ),
     );
 
@@ -247,6 +195,57 @@ class RssFeedPlugin extends phplistPlugin
 
     public function __construct()
     {
+        $this->pageTitles = array(
+            'get' => s('Fetch RSS items'),
+            'view' => s('View RSS items'),
+            'delete' => s('Delete outdated RSS items'),
+        );
+        $this->settings = array(
+            'rss_minimum' => array(
+                'description' => s('Minimum number of items to send in an RSS email'),
+                'type' => 'integer',
+                'value' => 1,
+                'allowempty' => 0,
+                'min' => 1,
+                'max' => 50,
+                'category' => 'RSS',
+            ),
+            'rss_maximum' => array(
+                'description' => s('Maximum number of items to send in an RSS email'),
+                'type' => 'integer',
+                'value' => 30,
+                'allowempty' => 0,
+                'min' => 1,
+                'max' => 50,
+                'category' => 'RSS',
+            ),
+            'rss_htmltemplate' => array(
+                'description' => s('Item HTML template'),
+                'type' => 'textarea',
+                'value' => '
+                <a href="[URL]"><b>[TITLE]</b></a><br/>
+                [PUBLISHED]<br/>
+                [CONTENT]
+                <hr/>',
+                'allowempty' => 0,
+                'category' => 'RSS',
+            ),
+            'rss_subjectsuffix' => array(
+                'description' => s('Text to append when the title of the latest item is used in the subject'),
+                'type' => 'text',
+                'value' => '',
+                'allowempty' => true,
+                'category' => 'RSS',
+            ),
+            'rss_custom_elements' => array(
+                'description' => s('Additional feed elements to be included in each item\'s data'),
+                'type' => 'textarea',
+                'value' => '',
+                'allowempty' => true,
+                'category' => 'RSS',
+            ),
+        );
+
         $this->coderoot = dirname(__FILE__) . '/' . __CLASS__ . '/';
         parent::__construct();
         $this->version = (is_file($f = $this->coderoot . self::VERSION_FILE))
@@ -314,16 +313,18 @@ class RssFeedPlugin extends phplistPlugin
         $order = CHtml::dropDownList(
             'rss_order',
             isset($data['rss_order']) ? $data['rss_order'] : self::OLDEST_FIRST,
-            array(self::OLDEST_FIRST => 'Oldest items first', self::LATEST_FIRST => 'Latest items first')
+            array(self::OLDEST_FIRST => s('Oldest items first'), self::LATEST_FIRST => s('Latest items first'))
         );
         $template = isset($data['rss_template']) ? htmlspecialchars($data['rss_template']) : '';
-
+        $feedLabel = s('RSS feed URL');
+        $orderLabel = s('How to order feed items');
+        $templateLabel = s('Custom template');
         $html = <<<END
-    <label>RSS feed URL
+    <label>$feedLabel
     <input type="text" name="rss_feed" value="$feedUrl" /></label>
-    <label>How to order feed items
+    <label>$orderLabel
     $order</label>
-    <label>Custom template</label><textarea name="rss_template" rows="10" cols="40">$template</textarea>
+    <label>$templateLabel</label><textarea name="rss_template" rows="10" cols="40">$template</textarea>
 END;
 
         return $html;
@@ -400,7 +401,7 @@ END;
         try {
             $this->validateFeed($feedUrl);
         } catch (PicoFeed\PicoFeedException $e) {
-            return "Failed to fetch URL $feedUrl " . $e->getMessage();
+            return s('Failed to fetch URL %s %s', $feedUrl, $e->getMessage());
         }
 
         if (stripos($messageData['message'], '[RSS]') === false) {
@@ -412,16 +413,16 @@ END;
             }
 
             if (!$templateHasPlaceholder) {
-                return 'Must have [RSS] placeholder in an RSS message';
+                return s('Must have [RSS] placeholder in an RSS message');
             }
         }
 
         if (!USE_REPETITION) {
-            return 'Campaign repetition must be enabled in config.php';
+            return s('Campaign repetition must be enabled in config.php');
         }
 
         if ($messageData['repeatinterval'] == 0) {
-            return 'Repeat interval must be selected for an RSS campaign';
+            return s('Repeat interval must be selected for an RSS campaign');
         }
         $this->dao->addFeed($feedUrl);
 
@@ -443,10 +444,10 @@ END;
                 $count = $this->dao->reEmbargoMessage($mid);
 
                 if ($count > 0) {
-                    logEvent("Embargo advanced for RSS message $mid");
+                    logEvent(s('Embargo advanced for RSS message %s', $mid));
                 } else {
                     $count = $this->dao->setMessageSent($mid);
-                    logEvent("RSS message $mid marked as 'sent' because it has finished repeating");
+                    logEvent(s('RSS message %d marked as "sent" because it has finished repeating', $mid));
                 }
             }
         }

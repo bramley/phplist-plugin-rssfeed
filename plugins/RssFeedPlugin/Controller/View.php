@@ -16,7 +16,6 @@ namespace phpList\plugin\RssFeedPlugin\Controller;
 use phpList\plugin\Common\Controller;
 use phpList\plugin\Common\IPopulator;
 use phpList\plugin\Common\Listing;
-use phpList\plugin\RssFeedPlugin;
 use phpList\plugin\RssFeedPlugin\DAO;
 use WebblerListing;
 
@@ -61,9 +60,9 @@ class View extends Controller implements IPopulator
         foreach ($this->dao->feedItems($start, $limit, $loginId, false) as $row) {
             $key = $row['id'];
             $w->addElement($key, $row['url']);
-            $w->addColumn($key, 'Title', $row['title']);
-            $w->addColumn($key, 'Published', $row['published']);
-            $w->addColumn($key, 'Content', substr($row['content'], 0, 100));
+            $w->addColumn($key, s('Title'), $row['title']);
+            $w->addColumn($key, s('Published'), $row['published']);
+            $w->addColumn($key, s('Content'), substr($row['content'], 0, 100));
         }
     }
 
