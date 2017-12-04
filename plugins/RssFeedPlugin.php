@@ -472,6 +472,28 @@ END;
     }
 
     /**
+     * When a campaign has finished sending replace the placeholder with the actual RSS content used, and modify
+     * the subject to the actual subject used.
+     *
+     * @param int   $messageId   message id
+     * @param array $messageData message fields
+     */
+    public function processSendingCampaignFinished($messageId, $messageData)
+    {
+        global $MD;
+
+        if (!$this->isRssMessage($messageData)) {
+            return;
+        }
+
+        if (stripos($messageData['message'], '[RSS]') !== false) {
+            $content = str_ireplace('[RSS]', $this->rssHtml, $messageData['message']);
+            $this->dao->setMessage($messageId, $content);
+        }
+        $this->dao->setSubject($messageId, $MD[$messageData['id']]['subject']);
+    }
+
+    /**
      * Replace the placeholder by the html RSS content.
      *
      * @param int    $messageid   the message id

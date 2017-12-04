@@ -275,15 +275,27 @@ class DAO extends CommonDAO
         return $this->dbCommand->queryAffectedRows($sql);
     }
 
-    public function setSubject($id, $subject)
+    public function setMessage($id, $message)
     {
-        $subject = sql_escape($subject);
+        $escaped = sql_escape($message);
         $sql =
             "UPDATE {$this->tables['message']}
-            SET subject = '$subject'
+            SET message = '$escaped'
             WHERE id = $id";
+        $affected = $this->dbCommand->queryAffectedRows($sql);
+        setMessageData($id, 'message', $message);
+    }
 
-        return $this->dbCommand->queryAffectedRows($sql);
+    public function setSubject($id, $subject)
+    {
+        $escaped = sql_escape($subject);
+        $sql =
+            "UPDATE {$this->tables['message']}
+            SET subject = '$escaped'
+            WHERE id = $id";
+        $affected = $this->dbCommand->queryAffectedRows($sql);
+        setMessageData($id, 'subject', $subject);
+        setMessageData($id, 'campaigntitle', $subject);
     }
 
     public function templateBody($id)
