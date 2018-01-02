@@ -272,8 +272,8 @@ class RssFeedPlugin extends phplistPlugin
             'iconv extension installed' => extension_loaded('iconv'),
             'xml extension installed' => extension_loaded('xml'),
             'dom extension installed' => extension_loaded('dom'),
-            'libxml extension installed' => extension_loaded('libxml'),
             'SimpleXML extension installed' => extension_loaded('SimpleXML'),
+            'Multibyte String extension installed' => extension_loaded('mbstring'),
         );
     }
 

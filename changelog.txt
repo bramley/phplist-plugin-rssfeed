@@ -1,3 +1,6 @@
+version 2.5.2+20180102
+      Convert characters outside the BMP to numeric entities.
+
 version 2.5.1+20171204
       Remove debug logging
 

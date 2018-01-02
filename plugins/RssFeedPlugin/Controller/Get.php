@@ -30,6 +30,21 @@ class Get extends Controller
     private $context;
     private $dao;
 
+    /**
+     * Convert characters above the BMP to numeric entities to avoid a restriction of the MySQL utf8 character set to
+     * only three bytes.
+     *
+     * @param string $content
+     *
+     * @return string encoded content
+     */
+    private function convertToEntities($content)
+    {
+        $convmap = array(0x10000, 0x10FFFF, 0, 0xFFFFFF);
+
+        return mb_encode_numericentity($content, $convmap);
+    }
+
     private function getCustomElementsValues(array $customElements, Item $item)
     {
         $values = array();
@@ -133,6 +148,7 @@ class Get extends Controller
                     if ($itemId > 0) {
                         ++$newItemCount;
                         $itemContent = $this->getItemContent($item);
+                        $itemContent = $this->convertToEntities($itemContent);
                         $dao->addItemData(
                             $itemId,
                             array(

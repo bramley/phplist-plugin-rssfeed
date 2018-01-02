@@ -16,15 +16,15 @@ These dependencies must be met for the plugin to be installed and run successful
 
 * phplist version 3.2.0 or later.
 * php version 5.4 or later. 
-* The Common Plugin version 3. You should install, or upgrade to, the latest version. See <https://github.com/bramley/phplist-plugin-common>
+* The Common Plugin version 3.7.5 or later. You should install, or upgrade to, the latest version. See <https://github.com/bramley/phplist-plugin-common>
 
 The plugin uses the PicoFeed package that additionally requires these php extensions to be loaded:
 
 * iconv
 * dom
 * xml
-* libxml
 * SimpleXML
+* Multibyte String
 
 ### Set the plugin directory ###
 The default plugin directory is `plugins` within the admin directory.
@@ -65,6 +65,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.5.2+20180102  Handle emoji characters in feed html
     2.5.1+20171204  Remove debug logging
     2.5.0+20171204  Lots of internal reworking
     2.4.4+20170402  Add PicoFeed package
