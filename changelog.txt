@@ -1,3 +1,6 @@
+version 2.5.3+20180111
+      Use only 'submitted' status when finding ready to send campaigns
+
 version 2.5.2+20180102
       Convert characters outside the BMP to numeric entities.
 

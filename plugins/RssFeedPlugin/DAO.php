@@ -248,7 +248,7 @@ class DAO extends CommonDAO
             "SELECT m.id
             FROM {$this->tables['message']} m
             JOIN {$this->tables['messagedata']} md ON m.id = md.id AND md.name = 'rss_feed' AND md.data != ''
-            WHERE m.status NOT IN ('draft', 'sent', 'prepared', 'suspended')
+            WHERE m.status IN ('submitted')
             AND m.embargo <= current_timestamp";
 
         return $this->dbCommand->queryColumn($sql, 'id');

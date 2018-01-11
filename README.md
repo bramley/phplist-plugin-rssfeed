@@ -65,6 +65,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.5.3+20180111  Minor bug fix
     2.5.2+20180102  Handle emoji characters in feed html
     2.5.1+20171204  Remove debug logging
     2.5.0+20171204  Lots of internal reworking
