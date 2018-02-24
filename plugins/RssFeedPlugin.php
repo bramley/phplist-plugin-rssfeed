@@ -484,7 +484,7 @@ END;
      * @param int   $messageId   message id
      * @param array $messageData message fields
      */
-    public function processSendingCampaignFinished($messageId, $messageData)
+    public function processSendingCampaignFinished($messageId, array $messageData)
     {
         global $MD;
 

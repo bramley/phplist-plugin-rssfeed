@@ -1,3 +1,6 @@
+version 2.5.4+20180224
+      Correct method signature
+
 version 2.5.3+20180111
       Use only 'submitted' status when finding ready to send campaigns
 
