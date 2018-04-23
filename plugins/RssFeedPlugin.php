@@ -25,6 +25,7 @@ class RssFeedPlugin extends phplistPlugin
     private $dao;
     private $rssHtml;
     private $rssText;
+    private $errorLevel = E_ALL ^ E_NOTICE ^ E_DEPRECATED ^ E_STRICT;
 
     public $name = 'RSS Feed Manager';
     public $authors = 'Duncan Cameron';
@@ -440,7 +441,7 @@ END;
      */
     public function processQueueStart()
     {
-        $level = error_reporting(-1);
+        $level = error_reporting($this->errorLevel);
 
         foreach ($this->dao->readyRssMessages() as $mid) {
             $items = $this->dao->messageFeedItems($mid, getConfig('rss_maximum'));

@@ -1,3 +1,6 @@
+version 2.5.5+20180423
+      Reduce level of error reporting
+
 version 2.5.4+20180224
       Correct method signature
 
