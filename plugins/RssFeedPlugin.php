@@ -215,12 +215,12 @@ END;
 
     private function itemsForTestMessage($mid)
     {
-        $items = $this->dao->messageFeedItems($mid, getConfig('rss_maximum'), true);
+        $items = $this->dao->messageFeedItems($mid, true);
 
         if (count($items) > 0) {
             $warning = '';
         } else {
-            $items = $this->dao->messageFeedItems($mid, getConfig('rss_maximum'), false);
+            $items = $this->dao->messageFeedItems($mid, false);
 
             if (count($items) > 0) {
                 $warning = s('There are no feed items that will be included in the first campaign. A test message will include only items with earlier published dates.');
@@ -391,9 +391,15 @@ END;
             isset($data['rss_order']) ? $data['rss_order'] : self::OLDEST_FIRST,
             array(self::OLDEST_FIRST => s('Oldest items first'), self::LATEST_FIRST => s('Latest items first'))
         );
+        $itemSelectField = CHtml::dropDownList(
+            'rss_item_select_field',
+            isset($data['rss_item_select_field']) ? $data['rss_item_select_field'] : 1,
+            [1 => s('Published'), 2 => s('Added')]
+        );
         $template = isset($data['rss_template']) ? htmlspecialchars($data['rss_template']) : '';
         $feedLabel = s('RSS feed URL');
         $orderLabel = s('How to order feed items');
+        $itemSelectFieldLabel = s('Which date field to use for selecting feed items');
         $templateLabel = s('Custom template');
 
         if ($feedUrl) {
@@ -406,6 +412,8 @@ END;
     <input type="text" name="rss_feed" value="$feedUrl" size="60"/></label>
     <label>$orderLabel
     $order</label>
+    <label>$itemSelectFieldLabel
+    $itemSelectField</label>
     <label>$templateLabel</label><textarea name="rss_template" rows="10" cols="40">$template</textarea>
     <div class="note">$testItemWarning</div>
 END;
@@ -542,7 +550,7 @@ END;
         $level = error_reporting($this->errorLevel);
 
         foreach ($this->dao->readyRssMessages() as $mid) {
-            $items = $this->dao->messageFeedItems($mid, getConfig('rss_maximum'));
+            $items = $this->dao->messageFeedItems($mid);
 
             if (count($items) < getConfig('rss_minimum')) {
                 $count = $this->dao->reEmbargoMessage($mid);
@@ -570,7 +578,7 @@ END;
 
             return;
         }
-        $items = $this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum'));
+        $items = $this->dao->messageFeedItems($messageData['id']);
         $this->generateItemHtml($items, $messageData['rss_order'], $messageData['rss_template']);
         $this->modifySubject($messageData, $items);
     }
@@ -656,7 +664,7 @@ END;
         if ($messageData['status'] == 'draft') {
             list($items, $warning) = $this->itemsForTestMessage($messageData['id']);
         } else {
-            $items = $this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum'));
+            $items = $this->dao->messageFeedItems($messageData['id']);
         }
 
         $this->generateItemHtml($items, $messageData['rss_order'], $messageData['rss_template']);
@@ -672,6 +680,6 @@ END;
      */
     public function copyCampaignHook()
     {
-        return array('rss_feed', 'rss_order', 'rss_template');
+        return array('rss_feed', 'rss_order', 'rss_template', 'rss_item_select_field');
     }
 }

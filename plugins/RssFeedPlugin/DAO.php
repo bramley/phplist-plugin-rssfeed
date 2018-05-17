@@ -14,18 +14,24 @@
 namespace phpList\plugin\RssFeedPlugin;
 
 use phpList\plugin\Common\DAO as CommonDAO;
+use phpList\plugin\Common\DAO\MessageTrait;
 
 /**
  * Data access class.
  */
 class DAO extends CommonDAO
 {
-    public function __construct($db)
+    use MessageTrait;
+
+    private $maximum;
+
+    public function __construct($db, $maximum)
     {
         global $plugins;
 
         parent::__construct($db);
         $this->tables += $plugins['RssFeedPlugin']->tables;
+        $this->maximum = $maximum;
     }
 
     public function addFeed($url)
@@ -134,21 +140,24 @@ class DAO extends CommonDAO
     }
 
     /**
-     * Builds an array of items for a message's feed in ascending order of
-     * published date.
+     * Builds an array of items for a message's feed selected on the published or added date.
      *
      * @param int  $mid        message id
-     * @param int  $limit      maximum number of items to return
      * @param bool $useEmbargo whether to select only items published within
      *                         the repeat period
      *
      * @return array 0-indexed array of items
      */
-    public function messageFeedItems($mid, $limit, $useEmbargo = true)
+    public function messageFeedItems($mid, $useEmbargo = true)
     {
-        $published = $useEmbargo
-            ? 'AND it.published >= m.embargo - INTERVAL m.repeatinterval MINUTE AND it.published < m.embargo'
-            : '';
+        if ($useEmbargo) {
+            $itemSelectField = $this->messageData($mid, 'rss_item_select_field') ?? 1;
+            $range = ($itemSelectField == 1)
+                ? 'AND it.published >= m.embargo - INTERVAL m.repeatinterval MINUTE AND it.published < m.embargo'
+                : 'AND it.added >= m.embargo - INTERVAL m.repeatinterval MINUTE AND it.added < m.embargo';
+        } else {
+            $range = '';
+        }
         $subquery =
             "SELECT id
             FROM (
@@ -158,9 +167,9 @@ class DAO extends CommonDAO
                 JOIN {$this->tables['feed']} fe ON fe.url = md.data
                 JOIN {$this->tables['item']} it ON fe.id = it.feedid
                 WHERE m.id = $mid
-                $published
+                $range
                 ORDER BY it.published DESC
-                LIMIT $limit
+                LIMIT $this->maximum
             ) AS t";
 
         $sql = "SELECT it.id, it.published, itd.property, itd.value
@@ -238,7 +247,7 @@ class DAO extends CommonDAO
         $order = $asc ? 'ASC' : 'DESC';
         $limit = $start === null ? '' : "LIMIT $start, $maximum";
         $sql =
-            "SELECT it.id, itd1.value as title, itd2.value as content, itd3.value as url, it.published
+            "SELECT it.id, itd1.value as title, itd2.value as content, itd3.value as url, it.published, it.added
             FROM {$this->tables['item']} it
             JOIN {$this->tables['item_data']} itd1 on it.id = itd1.itemid AND itd1.property = 'title'
             JOIN {$this->tables['item_data']} itd2 on it.id = itd2.itemid AND itd2.property = 'content'

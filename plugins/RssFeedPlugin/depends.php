@@ -52,7 +52,8 @@ return [
     },
     'phpList\plugin\RssFeedPlugin\DAO' => function (ContainerInterface $container) {
         return new DAO(
-            $container->get('phpList\plugin\Common\DB')
+            $container->get('phpList\plugin\Common\DB'),
+            getConfig('rss_maximum')
         );
     },
 ];

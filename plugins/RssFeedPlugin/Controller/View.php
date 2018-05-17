@@ -51,6 +51,7 @@ class View extends Controller implements IPopulator
             $w->addElement($key, $row['url']);
             $w->addColumn($key, s('Title'), $row['title']);
             $w->addColumn($key, s('Published'), $row['published']);
+            $w->addColumn($key, s('Added'), $row['added']);
             $w->addColumn($key, s('Content'), substr($row['content'], 0, 100));
         }
     }
