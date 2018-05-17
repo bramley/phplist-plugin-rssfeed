@@ -1,3 +1,6 @@
+version 2.5.6+20180517
+      Remove dependency on php 5.6
+
 version 2.5.5+20180423
       Reduce level of error reporting
 

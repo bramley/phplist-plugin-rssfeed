@@ -25,7 +25,7 @@ class RssFeedPlugin extends phplistPlugin
     private $dao;
     private $rssHtml;
     private $rssText;
-    private $errorLevel = E_ALL ^ E_NOTICE ^ E_DEPRECATED ^ E_STRICT;
+    private $errorLevel;
 
     public $name = 'RSS Feed Manager';
     public $authors = 'Duncan Cameron';
@@ -246,8 +246,9 @@ class RssFeedPlugin extends phplistPlugin
                 'category' => 'RSS',
             ),
         );
-
+        $this->errorLevel = E_ALL ^ E_NOTICE ^ E_DEPRECATED ^ E_STRICT;
         $this->coderoot = dirname(__FILE__) . '/' . __CLASS__ . '/';
+
         parent::__construct();
         $this->version = (is_file($f = $this->coderoot . self::VERSION_FILE))
             ? file_get_contents($f)
