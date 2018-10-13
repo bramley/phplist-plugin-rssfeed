@@ -65,6 +65,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.5.7+20181013  Allow the display format of the published date to be configurable
     2.5.6+20180517  Remove dependency on php 5.6
     2.5.5+20180423  Reduce level of error reporting
     2.5.4+20180224  Minor code change

@@ -146,7 +146,7 @@ class RssFeedPlugin extends phplistPlugin
             $html .= $this->replaceProperties(
                 $htmltemplate,
                 array(
-                    'published' => $d->format('d/m/Y H:i'),
+                    'published' => $d->format(getConfig('rss_date_format')),
                     'title' => htmlspecialchars($item['title']),
                 ) + $item
             );
@@ -243,6 +243,13 @@ class RssFeedPlugin extends phplistPlugin
                 'type' => 'textarea',
                 'value' => '',
                 'allowempty' => true,
+                'category' => 'RSS',
+            ),
+            'rss_date_format' => array(
+                'description' => s('php date() format for the published date'),
+                'type' => 'text',
+                'value' => 'd/m/Y H:i',
+                'allowempty' => false,
                 'category' => 'RSS',
             ),
         );
