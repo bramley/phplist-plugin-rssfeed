@@ -27,9 +27,6 @@ class View extends Controller implements IPopulator
 {
     private $dao;
 
-    /*
-     *    Protected methods
-     */
     protected function actionDefault()
     {
         $listing = new Listing($this, $this);
@@ -38,26 +35,18 @@ class View extends Controller implements IPopulator
         return;
     }
 
-    /*
-     *    Public methods
-     */
     public function __construct(DAO $dao)
     {
         parent::__construct();
         $this->dao = $dao;
     }
 
-    /*
-     * Implementation of CommonPlugin_IPopulator
-     */
-
     public function populate(WebblerListing $w, $start, $limit)
     {
-        $loginId = $_SESSION['logindetails']['superuser'] ? '' : $_SESSION['logindetails']['id'];
+        $w->setTitle(s('Feed Items'));
+        $w->setElementHeading(s('Item ID'));
 
-        $w->setTitle($this->i18n->get('RSS'));
-
-        foreach ($this->dao->feedItems($start, $limit, $loginId, false) as $row) {
+        foreach ($this->dao->itemsForFeed($_GET['id'], $start, $limit, false) as $row) {
             $key = $row['id'];
             $w->addElement($key, $row['url']);
             $w->addColumn($key, s('Title'), $row['title']);
@@ -68,8 +57,6 @@ class View extends Controller implements IPopulator
 
     public function total()
     {
-        $loginId = $_SESSION['logindetails']['superuser'] ? '' : $_SESSION['logindetails']['id'];
-
-        return $this->dao->totalFeedItems($loginId);
+        return $this->dao->totalItemsForFeed($_GET['id']);
     }
 }

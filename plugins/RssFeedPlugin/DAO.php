@@ -162,26 +162,38 @@ class DAO extends CommonDAO
         return array_values($result);
     }
 
+    /**
+     * Return all feeds that have been used in campaigns.
+     * Also indicate whether a feed is being used in an active campaign.
+     *
+     * @return iterator
+     */
     public function feeds()
     {
         $sql =
-            "SELECT *
-            FROM {$this->tables['feed']}";
+            "SELECT f.*, COUNT(m.id) > 0 AS active
+            FROM {$this->tables['feed']} f
+            LEFT JOIN {$this->tables['messagedata']} md ON f.url = md.data AND md.name = 'rss_feed'
+            LEFT JOIN {$this->tables['message']} m ON md.id = m.id AND m.status NOT IN ('sent', 'prepared', 'suspended')
+            GROUP BY f.id
+            ";
 
         return $this->dbCommand->queryAll($sql);
     }
 
+    /**
+     * Return only the active feeds.
+     *
+     * @return array
+     */
     public function activeFeeds()
     {
-        $sql =
-            "SELECT DISTINCT fe.*
-            FROM {$this->tables['feed']} fe
-            JOIN {$this->tables['messagedata']} md ON fe.url = md.data AND md.name = 'rss_feed'
-            JOIN {$this->tables['message']} m ON md.id = m.id
-            WHERE m.status NOT IN ('sent', 'prepared', 'suspended')
-            ";
-
-        return $this->dbCommand->queryAll($sql);
+        return array_filter(
+            iterator_to_array($this->feeds()),
+            function ($current) {
+                return $current['active'];
+            }
+        );
     }
 
     public function updateFeed($feedId, $etag, $lastModified)
@@ -196,13 +208,14 @@ class DAO extends CommonDAO
         return $this->dbCommand->queryAffectedRows($sql);
     }
 
-    /*
-     *  Used by view controller
+    /* Returns all items for a specific feed.
+     *
+     * @return iterator
      */
-    public function feedItems($start, $maximum, $loginId, $asc = true)
+    public function itemsForFeed($feedId, $start = null, $maximum = null, $asc = true)
     {
-        $andOwner = $loginId ? "AND m.owner = $loginId" : '';
         $order = $asc ? 'ASC' : 'DESC';
+        $limit = $start === null ? '' : "LIMIT $start, $maximum";
         $sql =
             "SELECT it.id, itd1.value as title, itd2.value as content, itd3.value as url, it.published
             FROM {$this->tables['item']} it
@@ -210,33 +223,26 @@ class DAO extends CommonDAO
             JOIN {$this->tables['item_data']} itd2 on it.id = itd2.itemid AND itd2.property = 'content'
             JOIN {$this->tables['item_data']} itd3 on it.id = itd3.itemid AND itd3.property = 'url'
             JOIN {$this->tables['feed']} fe ON it.feedid = fe.id
-            WHERE fe.url IN (
-                SELECT DISTINCT data
-                FROM {$this->tables['messagedata']} md
-                JOIN {$this->tables['message']} m ON m.id = md.id
-                WHERE md.name = 'rss_feed' AND md.data != '' $andOwner
-            )
+            WHERE fe.id = $feedId
             ORDER BY it.published $order
-            LIMIT $start, $maximum";
+            $limit";
 
         return $this->dbCommand->queryAll($sql);
     }
 
-    public function totalFeedItems($loginId)
+    /* Returns the number of items for a specific feed.
+     *
+     * @return int
+     */
+    public function totalItemsForFeed($feedId)
     {
-        $andOwner = $loginId ? "AND m.owner = $loginId" : '';
         $sql =
-            "SELECT COUNT(*) AS t
+            "SELECT COUNT(*)
             FROM {$this->tables['item']} it
             JOIN {$this->tables['feed']} fe ON it.feedid = fe.id
-            WHERE fe.url IN (
-                SELECT DISTINCT data
-                FROM {$this->tables['messagedata']} md
-                JOIN {$this->tables['message']} m ON m.id = md.id
-                WHERE md.name = 'rss_feed' AND md.data != '' $andOwner
-            )";
+            WHERE fe.id = $feedId";
 
-        return $this->dbCommand->queryOne($sql, 't');
+        return $this->dbCommand->queryOne($sql);
     }
 
     /*
@@ -258,7 +264,7 @@ class DAO extends CommonDAO
     {
         $sql =
             "UPDATE {$this->tables['message']}
-            SET embargo = embargo + 
+            SET embargo = embargo +
                 INTERVAL (FLOOR(TIMESTAMPDIFF(MINUTE, embargo, NOW()) / repeatinterval) + 1) * repeatinterval MINUTE
             WHERE id = $id AND now() < repeatuntil";
 

@@ -39,7 +39,7 @@ class RssFeedPlugin extends phplistPlugin
     public $publicPages = array(self::TWITTER_PAGE);
 
     public $topMenuLinks = array(
-        'view' => array('category' => 'campaigns'),
+        'feeds' => array('category' => 'campaigns'),
         'get' => array('category' => 'campaigns'),
         'delete' => array('category' => 'campaigns'),
     );
@@ -197,8 +197,8 @@ class RssFeedPlugin extends phplistPlugin
     public function __construct()
     {
         $this->pageTitles = array(
+            'feeds' => s('RSS feeds'),
             'get' => s('Fetch RSS items'),
-            'view' => s('View RSS items'),
             'delete' => s('Delete outdated RSS items'),
         );
         $this->settings = array(

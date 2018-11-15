@@ -20,6 +20,11 @@ use Psr\Container\ContainerInterface;
  */
 
 return [
+    'phpList\plugin\RssFeedPlugin\Controller\Feeds' => function (ContainerInterface $container) {
+        return new Controller\Feeds(
+            $container->get('phpList\plugin\RssFeedPlugin\DAO')
+        );
+    },
     'phpList\plugin\RssFeedPlugin\Controller\Get' => function (ContainerInterface $container) {
         return new Controller\Get(
             $container->get('phpList\plugin\RssFeedPlugin\DAO'),
