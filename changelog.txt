@@ -1,3 +1,11 @@
+version 2.6.0+20181115
+      New page to display all feeds
+      View page now displays items for a specific feed
+      Update English translations
+      Update copyright year
+      Revised required version of phplist
+      Removed redundant code
+
 version 2.5.7+20181013
       Allow the display format of the published date to be configurable.
       Fixes #22

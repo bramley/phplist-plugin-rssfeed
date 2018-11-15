@@ -16,10 +16,4 @@
  *
  * @category  phplist
  */
-if (!(phplistPlugin::isEnabled('CommonPlugin'))) {
-    echo 'phplist-plugin-common must be installed and enabled to use this plugin';
-
-    return;
-}
-
 phpList\plugin\Common\Main::run(new phpList\plugin\RssFeedPlugin\ControllerFactory());
