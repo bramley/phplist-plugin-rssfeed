@@ -48,7 +48,7 @@ class Feeds extends Controller implements IPopulator
         foreach ($this->dao->feeds() as $row) {
             $key = $row['id'];
             $w->addElement($key);
-            $w->addColumn($key, 'URL', $row['url']);
+            $w->addColumn($key, 'URL', $row['url'], '', 'wrap');
             $active = $row['active'] ? new ImageTag('yes.png', s('active')) : '';
             $w->addColumnHtml($key, s('Active'), $active);
             $totalItems = $this->dao->totalItemsForFeed($row['id']);
