@@ -16,4 +16,11 @@
  *
  * @category  phplist
  */
-phpList\plugin\Common\Main::run(new phpList\plugin\RssFeedPlugin\ControllerFactory());
+if (isset($_GET['p'])) {
+    // invoked as a public page
+    if (empty($_GET['secret']) || $_GET['secret'] != getConfig('remote_processing_secret')) {
+        http_response_code(403);
+        echo 'Not allowed';
+        exit;
+    }
+}phpList\plugin\Common\Main::run(new phpList\plugin\RssFeedPlugin\ControllerFactory());

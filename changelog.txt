@@ -1,3 +1,7 @@
+version 2.6.1+20181116
+      Use css class to wrap long urls
+      Allow the get page to be accessed using the remote processing secret
+
 version 2.6.0+20181115
       New page to display all feeds
       View page now displays items for a specific feed

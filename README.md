@@ -16,7 +16,7 @@ These dependencies must be met for the plugin to be installed and run successful
 
 * phplist version 3.3.2 or later.
 * php version 5.4 or later. 
-* The Common Plugin version 3.7.5 or later. You should install, or upgrade to, the latest version. See <https://github.com/bramley/phplist-plugin-common>
+* The Common Plugin version 3.9.3 or later. You should install, or upgrade to, the latest version. See <https://github.com/bramley/phplist-plugin-common>
 
 The plugin uses the PicoFeed package that additionally requires these php extensions to be loaded:
 
@@ -65,6 +65,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.6.1+20181116  Allow the get page to be accessed using the remote processing secret
     2.6.0+20181115  New page to display all feeds
     2.5.7+20181013  Allow the display format of the published date to be configurable
     2.5.6+20180517  Remove dependency on php 5.6
