@@ -36,7 +36,7 @@ class RssFeedPlugin extends phplistPlugin
         'get',
     );
 
-    public $publicPages = array(self::TWITTER_PAGE, 'get');
+    public $remotePages = array(self::TWITTER_PAGE, 'get');
 
     public $topMenuLinks = array(
         'feeds' => array('category' => 'campaigns'),
