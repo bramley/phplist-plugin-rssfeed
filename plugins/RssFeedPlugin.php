@@ -290,6 +290,7 @@ class RssFeedPlugin extends phplistPlugin
      */
     public function activate()
     {
+        parent::activate();
         $depends = require $this->coderoot . 'depends.php';
         $container = new \phpList\plugin\Common\Container($depends);
         $this->dao = $container->get('phpList\plugin\RssFeedPlugin\DAO');

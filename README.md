@@ -65,6 +65,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.6.2+20181126  Fix bug of missing call to parent method introduced in 2.6.0
     2.6.1+20181116  Allow the get page to be accessed using the remote processing secret
     2.6.0+20181115  New page to display all feeds
     2.5.7+20181013  Allow the display format of the published date to be configurable
