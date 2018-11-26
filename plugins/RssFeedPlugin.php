@@ -32,11 +32,9 @@ class RssFeedPlugin extends phplistPlugin
     public $description = 'Send campaigns that contain RSS feed items';
     public $documentationUrl = 'https://resources.phplist.com/plugin/rssfeed';
 
-    public $commandlinePluginPages = array(
-        'get',
-    );
+    public $commandlinePluginPages = array('get', 'delete');
 
-    public $remotePages = array(self::TWITTER_PAGE, 'get');
+    public $remotePages = array(self::TWITTER_PAGE, 'get', 'delete');
 
     public $topMenuLinks = array(
         'feeds' => array('category' => 'campaigns'),

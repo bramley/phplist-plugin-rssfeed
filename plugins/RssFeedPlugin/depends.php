@@ -38,7 +38,8 @@ return [
     },
     'phpList\plugin\RssFeedPlugin\Controller\Delete' => function (ContainerInterface $container) {
         return new Controller\Delete(
-            $container->get('phpList\plugin\RssFeedPlugin\DAO')
+            $container->get('phpList\plugin\RssFeedPlugin\DAO'),
+            $container->get('phpList\plugin\Common\Context')
         );
     },
     'phpList\plugin\RssFeedPlugin\Controller\Twitterfeed' => function (ContainerInterface $container) {

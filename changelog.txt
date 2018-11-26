@@ -1,3 +1,7 @@
+version 2.7.0+20181210
+      Add pages that can be accessed by remote processing
+      Allow delete command to be run as command line or remote page
+
 version 2.6.2+20181126
       Add missing call to parent method
 
