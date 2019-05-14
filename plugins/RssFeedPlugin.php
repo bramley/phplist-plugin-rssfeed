@@ -431,9 +431,21 @@ END;
         if (!USE_REPETITION) {
             return s('Campaign repetition must be enabled in config.php');
         }
+        $repeatInterval = $messageData['repeatinterval'] * 60;
 
-        if ($messageData['repeatinterval'] == 0) {
+        if ($repeatInterval == 0) {
             return s('Repeat interval must be selected for an RSS campaign');
+        }
+
+        if ($repeatInterval > DEFAULT_MESSAGEAGE) {
+            $helpLink = sprintf('<a href="%s#rss_campaign_schedule" target="_blank">%s</a>', $this->documentationUrl, $this->documentationUrl);
+
+            return s(
+                'The value of the config.php setting DEFAULT_MESSAGEAGE (%d) must be greater than the repeat interval in seconds (%d). See %s.',
+                DEFAULT_MESSAGEAGE,
+                $repeatInterval,
+                $helpLink
+            );
         }
 
         return '';
