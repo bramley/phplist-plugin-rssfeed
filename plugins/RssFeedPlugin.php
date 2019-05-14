@@ -26,6 +26,8 @@ class RssFeedPlugin extends phplistPlugin
     private $dao;
     private $rssHtml;
     private $rssText;
+    private $rssToc;
+    private $rssTocText;
     private $errorLevel;
 
     public $name = 'RSS Feed Manager';
@@ -131,19 +133,33 @@ class RssFeedPlugin extends phplistPlugin
         );
     }
 
+    /**
+     * Generate the content to replace the RSS placeholder in the campaign by applying the RSS
+     * template to each feed item.
+     * Generate a table of contents of feed items.
+     *
+     * @param array  $items          feed items
+     * @param int    $order          whether to list feed items in ascending or descending date order
+     * @param string $customTemplate custom RSS template for the campaign
+     */
     private function generateItemHtml(array $items, $order, $customTemplate)
     {
         $htmltemplate = trim($customTemplate) === ''
             ? getConfig('rss_htmltemplate')
             : $customTemplate;
+        $tocItemTemplate = <<<END
+<li><a href="#item_%d">%s</a></li>
+END;
         $html = '';
+        $tocItems = '';
 
         if ($order == self::LATEST_FIRST) {
             $items = array_reverse($items);
         }
 
-        foreach ($items as $item) {
+        foreach ($items as $i => $item) {
             $d = new DateTime($item['published']);
+            $html .= sprintf('<a name="item_%d"></a>', $i);
             $html .= $this->replaceProperties(
                 $htmltemplate,
                 array(
@@ -151,9 +167,14 @@ class RssFeedPlugin extends phplistPlugin
                     'title' => htmlspecialchars($item['title']),
                 ) + $item
             );
+            $tocItems .= sprintf($tocItemTemplate, $i, htmlspecialchars($item['title']));
         }
+        $toc = sprintf('<ul>%s</ul>', $tocItems);
 
-        return $html;
+        $this->rssHtml = $html;
+        $this->rssText = HTML2Text($this->rssHtml);
+        $this->rssToc = $toc;
+        $this->rssTocText = HTML2Text($this->rssToc);
     }
 
     private function newSubject($subject, array $items)
@@ -408,8 +429,7 @@ END;
         }
         list($items, $warning) = $this->itemsForTestMessage($messageData['id']);
 
-        $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order'], $messageData['rss_template']);
-        $this->rssText = HTML2Text($this->rssHtml);
+        $this->generateItemHtml($items, $messageData['rss_order'], $messageData['rss_template']);
         $this->modifySubject($messageData, $items);
 
         return true;
@@ -543,8 +563,7 @@ END;
             return;
         }
         $items = $this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum'));
-        $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order'], $messageData['rss_template']);
-        $this->rssText = HTML2Text($this->rssHtml);
+        $this->generateItemHtml($items, $messageData['rss_order'], $messageData['rss_template']);
         $this->modifySubject($messageData, $items);
     }
 
@@ -571,7 +590,7 @@ END;
     }
 
     /**
-     * Replace the placeholder by the html RSS content.
+     * Replace the placeholders by the html RSS content.
      *
      * @param int    $messageid   the message id
      * @param string $content     the message content
@@ -582,15 +601,17 @@ END;
      */
     public function parseOutgoingHTMLMessage($messageid, $content, $destination = '', $userdata = array())
     {
-        if ($this->rssHtml === null) {
-            return $content;
-        }
-
-        return str_ireplace('[RSS]', $this->rssHtml, $content);
+        return $this->rssHtml === null
+            ? $content
+            : str_ireplace(
+                ['[RSS]', '[RSS:TOC]'],
+                [$this->rssHtml, $this->rssToc],
+                $content
+            );
     }
 
     /**
-     * Replace the placeholder by the text RSS content.
+     * Replace the placeholders by the text RSS content.
      *
      * @param int    $messageid   the message id
      * @param string $content     the message content
@@ -601,11 +622,13 @@ END;
      */
     public function parseOutgoingTextMessage($messageid, $content, $destination = '', $userdata = array())
     {
-        if ($this->rssHtml === null) {
-            return $content;
-        }
-
-        return str_ireplace('[RSS]', $this->rssText, $content);
+        return $this->rssHtml === null
+            ? $content
+            : str_ireplace(
+                ['[RSS]', '[RSS:TOC]'],
+                [$this->rssText, $this->rssTocText],
+                $content
+            );
     }
 
     /**
@@ -627,7 +650,7 @@ END;
             $items = $this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum'));
         }
 
-        $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order'], $messageData['rss_template']);
+        $this->generateItemHtml($items, $messageData['rss_order'], $messageData['rss_template']);
         $messageData['subject'] = $this->newSubject($messageData['subject'], $items);
     }
 
