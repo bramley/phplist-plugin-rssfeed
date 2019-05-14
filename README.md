@@ -15,7 +15,7 @@ When the campaign is sent the content of the message has recent items, dependent
 These dependencies must be met for the plugin to be installed and run successfully.
 
 * phplist version 3.3.2 or later.
-* php version 5.4 or later. 
+* php version 5.4 or later.
 * The Common Plugin version 3.9.3 or later. You should install, or upgrade to, the latest version. See <https://github.com/bramley/phplist-plugin-common>
 
 The plugin uses the PicoFeed package that additionally requires these php extensions to be loaded:
@@ -65,6 +65,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.7.1+20190514  Add validation of repeat interval and DEFAULT_MESSAGEAGE
     2.7.0+20181210  Improve methods of running get and delete by cron jobs
     2.6.2+20181126  Fix bug of missing call to parent method introduced in 2.6.0
     2.6.1+20181116  Allow the get page to be accessed using the remote processing secret

@@ -34,7 +34,9 @@ return [
     ['Repeat interval must be selected for an RSS campaign', 'Repeat interval must be selected for an RSS campaign'],
     ['Sorry, only super users can delete RSS items from the database', 'Sorry, only super users can delete RSS items from the database'],
     ['Text to append when the title of the latest item is used in the subject', 'Text to append when the title of the latest item is used in the subject'],
+    ['The value of the config.php setting DEFAULT_MESSAGEAGE (%d) must be greater than the repeat interval in seconds (%d). See %s.', 'The value of the config.php setting DEFAULT_MESSAGEAGE (%d) must be greater than the repeat interval in seconds (%d). See %s.'],
     ['There are no active RSS feeds to fetch', 'There are no active RSS feeds to fetch'],
-    ['Title', 'Title'],
+    ['days parameter not found', 'days parameter not found'],
+    ['option d not found', 'option d not found'],
     ['php date() format for the published date', 'php date() format for the published date'],
 ];
