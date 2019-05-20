@@ -183,13 +183,22 @@ class RssFeedPlugin extends phplistPlugin
 
     private function itemsForTestMessage($mid)
     {
-        $items = $this->dao->messageFeedItems($mid, getConfig('rss_maximum'), false);
+        $items = $this->dao->messageFeedItems($mid, getConfig('rss_maximum'), true);
 
-        if (count($items) == 0) {
-            $items = $this->sampleItems();
+        if (count($items) > 0) {
+            $warning = '';
+        } else {
+            $items = $this->dao->messageFeedItems($mid, getConfig('rss_maximum'), false);
+
+            if (count($items) > 0) {
+                $warning = s('There are no feed items that will be included in the first campaign. A test message will include only items with earlier published dates.');
+            } else {
+                $warning = s('There are no feed items. A test message will include the sample items.');
+                $items = $this->sampleItems();
+            }
         }
 
-        return $items;
+        return [$items, $warning];
     }
 
     public function __construct()
@@ -324,12 +333,19 @@ class RssFeedPlugin extends phplistPlugin
         $feedLabel = s('RSS feed URL');
         $orderLabel = s('How to order feed items');
         $templateLabel = s('Custom template');
+
+        if ($feedUrl) {
+            list($items, $testItemWarning) = $this->itemsForTestMessage($data['id']);
+        } else {
+            $testItemWarning = '';
+        }
         $html = <<<END
     <label>$feedLabel
     <input type="text" name="rss_feed" value="$feedUrl" /></label>
     <label>$orderLabel
     $order</label>
     <label>$templateLabel</label><textarea name="rss_template" rows="10" cols="40">$template</textarea>
+    <div class="note">$testItemWarning</div>
 END;
 
         return $html;
@@ -357,7 +373,7 @@ END;
 
             return true;
         }
-        $items = $this->itemsForTestMessage($messageData['id']);
+        list($items, $warning) = $this->itemsForTestMessage($messageData['id']);
 
         $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order'], $messageData['rss_template']);
         $this->rssText = HTML2Text($this->rssHtml);
@@ -568,7 +584,7 @@ END;
         }
 
         if ($messageData['status'] == 'draft') {
-            $items = $this->itemsForTestMessage($messageData['id']);
+            list($items, $warning) = $this->itemsForTestMessage($messageData['id']);
         } else {
             $items = $this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum'));
         }
