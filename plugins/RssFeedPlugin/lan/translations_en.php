@@ -36,6 +36,8 @@ return [
     ['Text to append when the title of the latest item is used in the subject', 'Text to append when the title of the latest item is used in the subject'],
     ['The value of the config.php setting DEFAULT_MESSAGEAGE (%d) must be greater than the repeat interval in seconds (%d). See %s.', 'The value of the config.php setting DEFAULT_MESSAGEAGE (%d) must be greater than the repeat interval in seconds (%d). See %s.'],
     ['There are no active RSS feeds to fetch', 'There are no active RSS feeds to fetch'],
+    ['There are no feed items that will be included in the first campaign. A test message will include only items with earlier published dates.', 'There are no feed items that will be included in the first campaign. A test message will include only items with earlier published dates.'],
+    ['There are no feed items. A test message will include the sample items.', 'There are no feed items. A test message will include the sample items.'],
     ['days parameter not found', 'days parameter not found'],
     ['option d not found', 'option d not found'],
     ['php date() format for the published date', 'php date() format for the published date'],

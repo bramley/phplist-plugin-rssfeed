@@ -65,6 +65,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.7.2+20190521  Improve the selection of feed items for a test message
     2.7.1+20190514  Add validation of repeat interval and DEFAULT_MESSAGEAGE
     2.7.0+20181210  Improve methods of running get and delete by cron jobs
     2.6.2+20181126  Fix bug of missing call to parent method introduced in 2.6.0

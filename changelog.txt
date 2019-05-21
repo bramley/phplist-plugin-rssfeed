@@ -1,3 +1,8 @@
+version 2.7.2+20190521
+      Improve the selection of feed items for a test message
+      Increase the visible size of the RSS feed URL input field
+      Update English translations
+
 version 2.7.1+20190514
       Add validation of repeat interval and DEFAULT_MESSAGEAGE
       Update English translations
