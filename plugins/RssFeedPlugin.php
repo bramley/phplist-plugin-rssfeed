@@ -341,7 +341,7 @@ class RssFeedPlugin extends phplistPlugin
         }
         $html = <<<END
     <label>$feedLabel
-    <input type="text" name="rss_feed" value="$feedUrl" /></label>
+    <input type="text" name="rss_feed" value="$feedUrl" size="60"/></label>
     <label>$orderLabel
     $order</label>
     <label>$templateLabel</label><textarea name="rss_template" rows="10" cols="40">$template</textarea>
