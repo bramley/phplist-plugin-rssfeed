@@ -45,23 +45,29 @@ class Get extends Controller
         return mb_encode_numericentity($content, $convmap);
     }
 
+    /**
+     * Get the values of custom elements and attributes.
+     *
+     * @param array                $customElements
+     * @param PicoFeed\Parser\Item $item
+     *
+     * @return array
+     */
     private function getCustomElementsValues(array $customElements, Item $item)
     {
-        $values = array();
+        $values = [];
 
-        foreach ($customElements as $c) {
-            $parts = explode(':', $c, 2);
+        foreach ($customElements as $element) {
+            $parts = explode('@', $element, 2);
 
-            if (count($parts) == 1) {
-                $values[$c] = $item->getTag($c);
+            if (count($parts) == 2) {
+                $tagValues = $item->getTag($parts[0], $parts[1]);
             } else {
-                if ($item->hasNamespace($parts[0])) {
-                    $tagValues = $item->getTag($c);
+                $tagValues = $item->getTag($element);
+            }
 
-                    if (count($tagValues) > 0) {
-                        $values[$c] = $tagValues[0];
-                    }
-                }
+            if ($tagValues) {
+                $values[$element] = $tagValues[0];
             }
         }
 
@@ -83,7 +89,8 @@ class Get extends Controller
         $values = $item->getTag('description');
 
         if ($values === false || count($values) == 0) {
-            $values = $item->getTag('summary');
+            $item->setNamespaces($item->getNamespaces() + ['atom' => 'http://www.w3.org/2005/Atom']);
+            $values = $item->getTag('atom:summary');
 
             if ($values === false || count($values) == 0) {
                 $content = $item->getContent();
