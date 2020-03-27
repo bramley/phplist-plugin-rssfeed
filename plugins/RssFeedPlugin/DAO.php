@@ -176,6 +176,7 @@ class DAO extends CommonDAO
             LEFT JOIN {$this->tables['messagedata']} md ON f.url = md.data AND md.name = 'rss_feed'
             LEFT JOIN {$this->tables['message']} m ON md.id = m.id AND m.status NOT IN ('sent', 'prepared', 'suspended')
             GROUP BY f.id
+            ORDER BY active DESC, f.id
             ";
 
         return $this->dbCommand->queryAll($sql);
