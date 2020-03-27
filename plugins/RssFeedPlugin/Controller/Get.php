@@ -21,6 +21,7 @@ use PicoFeed\Config\Config;
 use PicoFeed\Parser\Item;
 use PicoFeed\PicoFeedException;
 use PicoFeed\Reader\Reader;
+use function phpList\plugin\Common\getConfigLines;
 
 /**
  * This class retrieves items from RSS feeds.
@@ -116,10 +117,7 @@ class Get extends Controller
 
             return;
         }
-        $customElementsConfig = getConfig('rss_custom_elements');
-        $customElements = $customElementsConfig === ''
-            ? array()
-            : explode("\n", $customElementsConfig);
+        $customElements = getConfigLines('rss_custom_elements');
 
         foreach ($feeds as $row) {
             $feedId = $row['id'];
