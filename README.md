@@ -65,6 +65,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.8.2+20200413  On the RSS Ffeds page show the number of active campaigns and sent campaigns
     2.8.1+20200328  On RSS feeds page display active feeds first
     2.8.0+20200305  Support getting an attribute value of a custom element
     2.7.2+20190521  Improve the selection of feed items for a test message

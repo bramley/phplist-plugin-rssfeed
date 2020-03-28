@@ -54,6 +54,8 @@ class Feeds extends Controller implements IPopulator
             $totalItems = $this->dao->totalItemsForFeed($row['id']);
             $url = $totalItems > 0 ? new PageURL('view', ['pi' => $_GET['pi'], 'id' => $row['id']]) : '';
             $w->addColumn($key, s('Items'), $totalItems, $url);
+            $w->addColumn($key, s('Active campaigns'), $row['total_active']);
+            $w->addColumn($key, s('Sent campaigns'), $row['total_sent']);
             $w->addRow($key, s('ETag'), $row['etag'], '', 'left');
             $w->addRow($key, s('Last modified'), $row['lastmodified'], '', 'left');
         }

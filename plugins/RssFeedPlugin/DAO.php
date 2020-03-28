@@ -182,17 +182,19 @@ class DAO extends CommonDAO
 
     /**
      * Return all feeds that have been used in campaigns.
-     * Also indicate whether a feed is being used in an active campaign.
+     * Also indicate whether a feed is being used in an active campaign and the number of active and sent
+     * campaigns.
      *
      * @return iterator
      */
     public function feeds()
     {
         $sql =
-            "SELECT f.*, COUNT(m.id) > 0 AS active
+            "SELECT f.*, COUNT(m.id) > 0 AS active, COUNT(m.id) AS total_active, COUNT(m2.id) AS total_sent
             FROM {$this->tables['feed']} f
             LEFT JOIN {$this->tables['messagedata']} md ON f.url = md.data AND md.name = 'rss_feed'
             LEFT JOIN {$this->tables['message']} m ON md.id = m.id AND m.status NOT IN ('sent', 'prepared', 'suspended')
+            LEFT JOIN {$this->tables['message']} m2 ON md.id = m2.id AND m2.status IN ('sent')
             GROUP BY f.id
             ORDER BY active DESC, f.id
             ";
