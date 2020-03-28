@@ -116,6 +116,24 @@ class DAO extends CommonDAO
     }
 
     /**
+     * Delete rows from the feed table that do not have any items and are not referred to by a message.
+     *
+     * @return int number of rows deleted
+     */
+    public function deleteUnusedFeeds()
+    {
+        $sql =
+            "DELETE f
+            FROM {$this->tables['feed']} f
+            LEFT JOIN {$this->tables['item']} i ON i.feedid = f.id
+            LEFT JOIN {$this->tables['messagedata']} md ON f.url = md.data AND md.name = 'rss_feed'
+            WHERE i.feedid IS NULL AND md.data IS NULL
+            ";
+
+        return $this->dbCommand->queryAffectedRows($sql);
+    }
+
+    /**
      * Builds an array of items for a message's feed in ascending order of
      * published date.
      *
