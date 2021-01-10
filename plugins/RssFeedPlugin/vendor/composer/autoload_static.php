@@ -6,24 +6,8 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit75c29cff3013ab11539bef7b69c98835
 {
-    public static $prefixesPsr0 = array (
-        'Z' => 
-        array (
-            'ZendXml\\' => 
-            array (
-                0 => __DIR__ . '/..' . '/zendframework/zendxml/library',
-            ),
-        ),
-        'P' => 
-        array (
-            'PicoFeed' => 
-            array (
-                0 => __DIR__ . '/..' . '/fguillot/picofeed/lib',
-            ),
-        ),
-    );
-
     public static $classMap = array (
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'PicoFeed\\Base' => __DIR__ . '/..' . '/fguillot/picofeed/lib/PicoFeed/Base.php',
         'PicoFeed\\Client\\Client' => __DIR__ . '/..' . '/fguillot/picofeed/lib/PicoFeed/Client/Client.php',
         'PicoFeed\\Client\\ClientException' => __DIR__ . '/..' . '/fguillot/picofeed/lib/PicoFeed/Client/ClientException.php',
@@ -100,7 +84,6 @@ class ComposerStaticInit75c29cff3013ab11539bef7b69c98835
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixesPsr0 = ComposerStaticInit75c29cff3013ab11539bef7b69c98835::$prefixesPsr0;
             $loader->classMap = ComposerStaticInit75c29cff3013ab11539bef7b69c98835::$classMap;
 
         }, null, ClassLoader::class);

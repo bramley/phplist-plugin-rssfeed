@@ -6,6 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname(dirname(dirname($vendorDir)));
 
 return array(
+    'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
     'PicoFeed\\Base' => $vendorDir . '/fguillot/picofeed/lib/PicoFeed/Base.php',
     'PicoFeed\\Client\\Client' => $vendorDir . '/fguillot/picofeed/lib/PicoFeed/Client/Client.php',
     'PicoFeed\\Client\\ClientException' => $vendorDir . '/fguillot/picofeed/lib/PicoFeed/Client/ClientException.php',
