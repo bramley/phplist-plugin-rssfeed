@@ -1,3 +1,8 @@
+version 2.9.0+20210113
+      Take picofeed and zendxml out of the control of composer
+      Add config setting to enable/disable content generator processing
+      Add config settings to enable/disable picofeed content filtering and content generating.
+
 version 2.8.2+20200413
       Add method to delete rows in the feed table for unused feeds
       On the Feeds page show the number of active campaigns and sent campaigns

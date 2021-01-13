@@ -109,7 +109,8 @@ class Get extends Controller
     {
         $utcTimeZone = new DateTimeZone('UTC');
         $config = new Config();
-        $config->setContentFiltering(true);
+        $config->setContentFiltering((bool) getConfig('rss_content_filtering'));
+        $config->setContentGenerating((bool) getConfig('rss_content_generating'));
         $feeds = $dao->activeFeeds();
 
         if (count($feeds) == 0) {

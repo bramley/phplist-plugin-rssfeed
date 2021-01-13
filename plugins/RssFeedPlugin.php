@@ -259,6 +259,20 @@ class RssFeedPlugin extends phplistPlugin
                 'allowempty' => false,
                 'category' => 'RSS',
             ),
+            'rss_content_filtering' => array(
+                'description' => s('Allow only whitelisted tags in item content'),
+                'type' => 'boolean',
+                'value' => true,
+                'allowempty' => true,
+                'category' => 'RSS',
+            ),
+            'rss_content_generating' => array(
+                'description' => s('Generate special content when an item URL is to YouTube or to a pdf file'),
+                'type' => 'boolean',
+                'value' => false,
+                'allowempty' => true,
+                'category' => 'RSS',
+            ),
         );
         $this->errorLevel = E_ALL ^ E_NOTICE ^ E_DEPRECATED ^ E_STRICT;
         $this->coderoot = dirname(__FILE__) . '/' . __CLASS__ . '/';
