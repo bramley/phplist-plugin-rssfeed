@@ -3,6 +3,7 @@
 namespace PicoFeed\Processor;
 
 use PicoFeed\Base;
+use PicoFeed\Logging\Logger;
 use PicoFeed\Parser\Feed;
 use PicoFeed\Parser\Item;
 
@@ -35,13 +36,17 @@ class ContentGeneratorProcessor extends Base implements ItemProcessorInterface
      */
     public function execute(Feed $feed, Item $item)
     {
-        foreach ($this->generators as $generator) {
-            $className = '\PicoFeed\Generator\\'.ucfirst($generator).'ContentGenerator';
-            $object = new $className($this->config);
+        if ($this->config->getContentGenerating(true)) {
+            foreach ($this->generators as $generator) {
+                $className = '\PicoFeed\Generator\\'.ucfirst($generator).'ContentGenerator';
+                $object = new $className($this->config);
 
-            if ($object->execute($item)) {
-                return true;
+                if ($object->execute($item)) {
+                    return true;
+                }
             }
+        } else {
+            Logger::setMessage(get_called_class().': Content generating disabled');
         }
 
         return false;
