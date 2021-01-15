@@ -459,7 +459,7 @@ END;
         }
 
         if (!USE_REPETITION) {
-            return s('Campaign repetition must be enabled in config.php');
+            return s('Campaign repetition must be enabled in config.php').' (<a href="https://resources.phplist.com/system/config/use_repetition" target="_blank">'.s('Documentation').'</a>)';;
         }
         $repeatInterval = $messageData['repeatinterval'] * 60;
 
