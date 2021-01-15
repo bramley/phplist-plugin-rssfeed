@@ -7,14 +7,18 @@
  * @category  phplist
  *
  * @author    Duncan Cameron
- * @copyright 2015 Duncan Cameron
+ * @copyright 2015-2018 Duncan Cameron
  * @license   http://www.gnu.org/licenses/gpl.html GNU General Public License, Version 3
  */
+
+namespace phpList\plugin\RssFeedPlugin;
+
+use phpList\plugin\Common\DAO as CommonDAO;
 
 /**
  * Data access class.
  */
-class RssFeedPlugin_DAO extends CommonPlugin_DAO
+class DAO extends CommonDAO
 {
     public function __construct($db)
     {
@@ -40,6 +44,18 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
             )";
 
         return $this->dbCommand->queryInsertId($sql);
+    }
+
+    public function feedExists($url)
+    {
+        $url = sql_escape($url);
+        $sql =
+            "SELECT id
+            FROM {$this->tables['feed']}
+            WHERE url = '$url'
+            LIMIT 1";
+
+        return $this->dbCommand->queryOne($sql);
     }
 
     public function addItem($uid, $published, $feedId)
@@ -100,6 +116,24 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
     }
 
     /**
+     * Delete rows from the feed table that do not have any items and are not referred to by a message.
+     *
+     * @return int number of rows deleted
+     */
+    public function deleteUnusedFeeds()
+    {
+        $sql =
+            "DELETE f
+            FROM {$this->tables['feed']} f
+            LEFT JOIN {$this->tables['item']} i ON i.feedid = f.id
+            LEFT JOIN {$this->tables['messagedata']} md ON f.url = md.data AND md.name = 'rss_feed'
+            WHERE i.feedid IS NULL AND md.data IS NULL
+            ";
+
+        return $this->dbCommand->queryAffectedRows($sql);
+    }
+
+    /**
      * Builds an array of items for a message's feed in ascending order of
      * published date.
      *
@@ -146,26 +180,41 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
         return array_values($result);
     }
 
+    /**
+     * Return all feeds that have been used in campaigns.
+     * Also indicate whether a feed is being used in an active campaign and the number of active and sent
+     * campaigns.
+     *
+     * @return iterator
+     */
     public function feeds()
     {
         $sql =
-            "SELECT *
-            FROM {$this->tables['feed']}";
+            "SELECT f.*, COUNT(m.id) > 0 AS active, COUNT(m.id) AS total_active, COUNT(m2.id) AS total_sent
+            FROM {$this->tables['feed']} f
+            LEFT JOIN {$this->tables['messagedata']} md ON f.url = md.data AND md.name = 'rss_feed'
+            LEFT JOIN {$this->tables['message']} m ON md.id = m.id AND m.status NOT IN ('sent', 'prepared', 'suspended')
+            LEFT JOIN {$this->tables['message']} m2 ON md.id = m2.id AND m2.status IN ('sent')
+            GROUP BY f.id
+            ORDER BY active DESC, f.id
+            ";
 
         return $this->dbCommand->queryAll($sql);
     }
 
+    /**
+     * Return only the active feeds.
+     *
+     * @return array
+     */
     public function activeFeeds()
     {
-        $sql =
-            "SELECT DISTINCT fe.*
-            FROM {$this->tables['feed']} fe
-            JOIN {$this->tables['messagedata']} md ON fe.url = md.data AND md.name = 'rss_feed'
-            JOIN {$this->tables['message']} m ON md.id = m.id
-            WHERE m.status NOT IN ('sent', 'prepared', 'suspended')
-            ";
-
-        return $this->dbCommand->queryAll($sql);
+        return array_filter(
+            iterator_to_array($this->feeds()),
+            function ($current) {
+                return $current['active'];
+            }
+        );
     }
 
     public function updateFeed($feedId, $etag, $lastModified)
@@ -180,13 +229,14 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
         return $this->dbCommand->queryAffectedRows($sql);
     }
 
-    /*
-     *  Used by view controller
+    /* Returns all items for a specific feed.
+     *
+     * @return iterator
      */
-    public function feedItems($start, $maximum, $loginId, $asc = true)
+    public function itemsForFeed($feedId, $start = null, $maximum = null, $asc = true)
     {
-        $andOwner = $loginId ? "AND m.owner = $loginId" : '';
         $order = $asc ? 'ASC' : 'DESC';
+        $limit = $start === null ? '' : "LIMIT $start, $maximum";
         $sql =
             "SELECT it.id, itd1.value as title, itd2.value as content, itd3.value as url, it.published
             FROM {$this->tables['item']} it
@@ -194,33 +244,26 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
             JOIN {$this->tables['item_data']} itd2 on it.id = itd2.itemid AND itd2.property = 'content'
             JOIN {$this->tables['item_data']} itd3 on it.id = itd3.itemid AND itd3.property = 'url'
             JOIN {$this->tables['feed']} fe ON it.feedid = fe.id
-            WHERE fe.url IN (
-                SELECT DISTINCT data
-                FROM {$this->tables['messagedata']} md
-                JOIN {$this->tables['message']} m ON m.id = md.id
-                WHERE md.name = 'rss_feed' AND md.data != '' $andOwner
-            )
+            WHERE fe.id = $feedId
             ORDER BY it.published $order
-            LIMIT $start, $maximum";
+            $limit";
 
         return $this->dbCommand->queryAll($sql);
     }
 
-    public function totalFeedItems($loginId)
+    /* Returns the number of items for a specific feed.
+     *
+     * @return int
+     */
+    public function totalItemsForFeed($feedId)
     {
-        $andOwner = $loginId ? "AND m.owner = $loginId" : '';
         $sql =
-            "SELECT COUNT(*) AS t
+            "SELECT COUNT(*)
             FROM {$this->tables['item']} it
             JOIN {$this->tables['feed']} fe ON it.feedid = fe.id
-            WHERE fe.url IN (
-                SELECT DISTINCT data
-                FROM {$this->tables['messagedata']} md
-                JOIN {$this->tables['message']} m ON m.id = md.id
-                WHERE md.name = 'rss_feed' AND md.data != '' $andOwner
-            )";
+            WHERE fe.id = $feedId";
 
-        return $this->dbCommand->queryOne($sql, 't');
+        return $this->dbCommand->queryOne($sql);
     }
 
     /*
@@ -232,7 +275,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
             "SELECT m.id
             FROM {$this->tables['message']} m
             JOIN {$this->tables['messagedata']} md ON m.id = md.id AND md.name = 'rss_feed' AND md.data != ''
-            WHERE m.status NOT IN ('draft', 'sent', 'prepared', 'suspended')
+            WHERE m.status IN ('submitted')
             AND m.embargo <= current_timestamp";
 
         return $this->dbCommand->queryColumn($sql, 'id');
@@ -242,7 +285,7 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
     {
         $sql =
             "UPDATE {$this->tables['message']}
-            SET embargo = embargo + 
+            SET embargo = embargo +
                 INTERVAL (FLOOR(TIMESTAMPDIFF(MINUTE, embargo, NOW()) / repeatinterval) + 1) * repeatinterval MINUTE
             WHERE id = $id AND now() < repeatuntil";
 
@@ -271,15 +314,27 @@ class RssFeedPlugin_DAO extends CommonPlugin_DAO
         return $this->dbCommand->queryAffectedRows($sql);
     }
 
-    public function setSubject($id, $subject)
+    public function setMessage($id, $message)
     {
-        $subject = sql_escape($subject);
+        $escaped = sql_escape($message);
         $sql =
             "UPDATE {$this->tables['message']}
-            SET subject = '$subject'
+            SET message = '$escaped'
             WHERE id = $id";
+        $affected = $this->dbCommand->queryAffectedRows($sql);
+        setMessageData($id, 'message', $message);
+    }
 
-        return $this->dbCommand->queryAffectedRows($sql);
+    public function setSubject($id, $subject)
+    {
+        $escaped = sql_escape($subject);
+        $sql =
+            "UPDATE {$this->tables['message']}
+            SET subject = '$escaped'
+            WHERE id = $id";
+        $affected = $this->dbCommand->queryAffectedRows($sql);
+        setMessageData($id, 'subject', $subject);
+        setMessageData($id, 'campaigntitle', $subject);
     }
 
     public function templateBody($id)

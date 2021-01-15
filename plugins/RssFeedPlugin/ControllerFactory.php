@@ -1,5 +1,4 @@
 <?php
-
 /**
  * RssFeedPlugin for phplist.
  *
@@ -8,16 +7,18 @@
  * @category  phplist
  *
  * @author    Duncan Cameron
- * @copyright 2015 Duncan Cameron
+ * @copyright 2015-2018 Duncan Cameron
  * @license   http://www.gnu.org/licenses/gpl.html GNU General Public License, Version 3
  */
 
+namespace phpList\plugin\RssFeedPlugin;
+
+use phpList\plugin\Common\ControllerFactoryBase;
+
 /**
  * This class is a concrete implementation of CommonPlugin_ControllerFactoryBase.
- *
- * @category  phplist
  */
-class RssFeedPlugin_ControllerFactory extends CommonPlugin_ControllerFactoryBase
+class ControllerFactory extends ControllerFactoryBase
 {
     /**
      * Custom implementation to create a controller using plugin and page.
@@ -25,12 +26,15 @@ class RssFeedPlugin_ControllerFactory extends CommonPlugin_ControllerFactoryBase
      * @param string $pi     the plugin
      * @param array  $params further parameters from the URL
      *
-     * @return CommonPlugin_Controller
+     * @return Controller
      */
     public function createController($pi, array $params)
     {
-        $class = $pi . '_Controller_' . ucfirst($params['page']);
+        $depends = include __DIR__ . '/depends.php';
+        $container = new \phpList\plugin\Common\Container($depends);
+        $page = isset($params['page']) ? $params['page'] : $params['p'];
+        $class = 'phpList\plugin\\' . $pi . '\\Controller\\' . ucfirst($page);
 
-        return new $class();
+        return $container->get($class);
     }
 }

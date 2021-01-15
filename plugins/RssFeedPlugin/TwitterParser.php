@@ -70,7 +70,7 @@ class TwitterParser
 
     private function getInlineImage(DOMElement $e)
     {
-        $nl = $this->xpath->query(".//img[@class='NaturalImage-image']", $e);
+        $nl = $this->xpath->query(".//img[@class='NaturalImage-image'][@data-srcset]", $e);
 
         if ($nl->length === 0) {
             return '';

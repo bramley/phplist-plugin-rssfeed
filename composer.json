@@ -1,0 +1,14 @@
+{
+    "config": {
+        "vendor-dir": "plugins/RssFeedPlugin/vendor",
+        "prepend-autoloader": false
+    },
+    "require": {
+    },
+    "autoload": {
+        "classmap": [
+            "plugins/RssFeedPlugin/vendor/fguillot/picofeed/lib",
+            "plugins/RssFeedPlugin/vendor/zendframework/zendxml/library"
+        ]
+    }
+}

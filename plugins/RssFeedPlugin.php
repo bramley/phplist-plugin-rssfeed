@@ -7,7 +7,7 @@
  * @category  phplist
  *
  * @author    Duncan Cameron
- * @copyright 2015 Duncan Cameron
+ * @copyright 2015-2018 Duncan Cameron
  * @license   http://www.gnu.org/licenses/gpl.html GNU General Public License, Version 3
  */
 
@@ -25,28 +25,21 @@ class RssFeedPlugin extends phplistPlugin
     private $dao;
     private $rssHtml;
     private $rssText;
+    private $errorLevel;
 
     public $name = 'RSS Feed Manager';
     public $authors = 'Duncan Cameron';
     public $description = 'Send campaigns that contain RSS feed items';
     public $documentationUrl = 'https://resources.phplist.com/plugin/rssfeed';
 
-    public $commandlinePluginPages = array(
-        'get',
-    );
+    public $commandlinePluginPages = array('get', 'delete');
 
-    public $publicPages = array(self::TWITTER_PAGE);
+    public $remotePages = array(self::TWITTER_PAGE, 'get', 'delete');
 
     public $topMenuLinks = array(
-        'view' => array('category' => 'campaigns'),
+        'feeds' => array('category' => 'campaigns'),
         'get' => array('category' => 'campaigns'),
         'delete' => array('category' => 'campaigns'),
-    );
-
-    public $pageTitles = array(
-        'get' => 'Fetch RSS items',
-        'view' => 'View RSS items',
-        'delete' => 'Delete outdated RSS items',
     );
 
     public $DBstruct = array(
@@ -70,52 +63,6 @@ class RssFeedPlugin extends phplistPlugin
             'property' => array('varchar(100) not null', ''),
             'value' => array('text', ''),
             'primary key' => array('(itemid, property)', ''),
-        ),
-    );
-
-    public $settings = array(
-        'rss_minimum' => array(
-            'description' => 'Minimum number of items to send in an RSS email',
-            'type' => 'integer',
-            'value' => 1,
-            'allowempty' => 0,
-            'min' => 1,
-            'max' => 50,
-            'category' => 'RSS',
-        ),
-        'rss_maximum' => array(
-            'description' => 'Maximum number of items to send in an RSS email',
-            'type' => 'integer',
-            'value' => 30,
-            'allowempty' => 0,
-            'min' => 1,
-            'max' => 50,
-            'category' => 'RSS',
-        ),
-        'rss_htmltemplate' => array(
-            'description' => 'Item HTML template',
-            'type' => 'textarea',
-            'value' => '
-            <a href="[URL]"><b>[TITLE]</b></a><br/>
-            [PUBLISHED]<br/>
-            [CONTENT]
-            <hr/>',
-            'allowempty' => 0,
-            'category' => 'RSS',
-        ),
-        'rss_subjectsuffix' => array(
-            'description' => 'Text to append when the title of the latest item is used in the subject',
-            'type' => 'text',
-            'value' => '',
-            'allowempty' => true,
-            'category' => 'RSS',
-        ),
-        'rss_custom_elements' => array(
-            'description' => 'Additional feed elements to be included in each item\'s data',
-            'type' => 'textarea',
-            'value' => '',
-            'allowempty' => true,
-            'category' => 'RSS',
         ),
     );
 
@@ -197,7 +144,7 @@ class RssFeedPlugin extends phplistPlugin
             $html .= $this->replaceProperties(
                 $htmltemplate,
                 array(
-                    'published' => $d->format('d/m/Y H:i'),
+                    'published' => $d->format(getConfig('rss_date_format')),
                     'title' => htmlspecialchars($item['title']),
                 ) + $item
             );
@@ -236,22 +183,100 @@ class RssFeedPlugin extends phplistPlugin
 
     private function itemsForTestMessage($mid)
     {
-        $items = $this->dao->messageFeedItems($mid, getConfig('rss_maximum'), false);
+        $items = $this->dao->messageFeedItems($mid, getConfig('rss_maximum'), true);
 
-        if (count($items) == 0) {
-            $items = $this->sampleItems();
+        if (count($items) > 0) {
+            $warning = '';
+        } else {
+            $items = $this->dao->messageFeedItems($mid, getConfig('rss_maximum'), false);
+
+            if (count($items) > 0) {
+                $warning = s('There are no feed items that will be included in the first campaign. A test message will include only items with earlier published dates.');
+            } else {
+                $warning = s('There are no feed items. A test message will include the sample items.');
+                $items = $this->sampleItems();
+            }
         }
 
-        return $items;
+        return [$items, $warning];
     }
 
-/*
- *  Public functions
- *
- */
     public function __construct()
     {
+        $this->pageTitles = array(
+            'feeds' => s('RSS feeds'),
+            'get' => s('Fetch RSS items'),
+            'delete' => s('Delete outdated RSS items'),
+        );
+        $this->settings = array(
+            'rss_minimum' => array(
+                'description' => s('Minimum number of items to send in an RSS email'),
+                'type' => 'integer',
+                'value' => 1,
+                'allowempty' => 0,
+                'min' => 1,
+                'max' => 50,
+                'category' => 'RSS',
+            ),
+            'rss_maximum' => array(
+                'description' => s('Maximum number of items to send in an RSS email'),
+                'type' => 'integer',
+                'value' => 30,
+                'allowempty' => 0,
+                'min' => 1,
+                'max' => 50,
+                'category' => 'RSS',
+            ),
+            'rss_htmltemplate' => array(
+                'description' => s('Item HTML template'),
+                'type' => 'textarea',
+                'value' => '
+                <a href="[URL]"><b>[TITLE]</b></a><br/>
+                [PUBLISHED]<br/>
+                [CONTENT]
+                <hr/>',
+                'allowempty' => 0,
+                'category' => 'RSS',
+            ),
+            'rss_subjectsuffix' => array(
+                'description' => s('Text to append when the title of the latest item is used in the subject'),
+                'type' => 'text',
+                'value' => '',
+                'allowempty' => true,
+                'category' => 'RSS',
+            ),
+            'rss_custom_elements' => array(
+                'description' => s('Additional feed elements to be included in each item\'s data'),
+                'type' => 'textarea',
+                'value' => '',
+                'allowempty' => true,
+                'category' => 'RSS',
+            ),
+            'rss_date_format' => array(
+                'description' => s('php date() format for the published date'),
+                'type' => 'text',
+                'value' => 'd/m/Y H:i',
+                'allowempty' => false,
+                'category' => 'RSS',
+            ),
+            'rss_content_filtering' => array(
+                'description' => s('Allow only whitelisted tags in item content'),
+                'type' => 'boolean',
+                'value' => true,
+                'allowempty' => true,
+                'category' => 'RSS',
+            ),
+            'rss_content_generating' => array(
+                'description' => s('Generate special content when an item URL is to YouTube or to a pdf file'),
+                'type' => 'boolean',
+                'value' => false,
+                'allowempty' => true,
+                'category' => 'RSS',
+            ),
+        );
+        $this->errorLevel = E_ALL ^ E_NOTICE ^ E_DEPRECATED ^ E_STRICT;
         $this->coderoot = dirname(__FILE__) . '/' . __CLASS__ . '/';
+
         parent::__construct();
         $this->version = (is_file($f = $this->coderoot . self::VERSION_FILE))
             ? file_get_contents($f)
@@ -263,35 +288,33 @@ class RssFeedPlugin extends phplistPlugin
         global $plugins;
 
         return array(
-            'Common plugin v3.5.8 or later installed' => (
+            'Common plugin v3.11.1 or later installed' => (
                 phpListPlugin::isEnabled('CommonPlugin')
-                && version_compare($plugins['CommonPlugin']->version, '3.5.8') >= 0
+                && version_compare($plugins['CommonPlugin']->version, '3.11.1') >= 0
             ),
             'View in Browser plugin v2.4.0 or later installed' => (
-                phpListPlugin::isEnabled('ViewBrowserPlugin')
-                && version_compare($plugins['ViewBrowserPlugin']->version, '2.4.0') >= 0
-                || !phpListPlugin::isEnabled('ViewBrowserPlugin')
+                !phpListPlugin::isEnabled('ViewBrowserPlugin')
+                || version_compare($plugins['ViewBrowserPlugin']->version, '2.4.0') >= 0
             ),
-            'phpList version 3.2.0 or later' => version_compare(VERSION, '3.2') > 0,
+            'phpList version 3.3.2 or later' => version_compare(VERSION, '3.3.2') >= 0,
             'PHP version 5.4.0 or later' => version_compare(PHP_VERSION, '5.4') > 0,
             'iconv extension installed' => extension_loaded('iconv'),
             'xml extension installed' => extension_loaded('xml'),
             'dom extension installed' => extension_loaded('dom'),
-            'libxml extension installed' => extension_loaded('libxml'),
             'SimpleXML extension installed' => extension_loaded('SimpleXML'),
+            'Multibyte String extension installed' => extension_loaded('mbstring'),
         );
     }
 
     /**
-     * Use this method as a hook to create the dao
-     * Need to create autoloader because of the unpredictable order in which plugins are called.
+     * Use this method as a hook to create the dao.
      */
-    public function sendFormats()
+    public function activate()
     {
-        global $plugins;
-
-        require_once $plugins['CommonPlugin']->coderoot . 'Autoloader.php';
-        $this->dao = new RssFeedPlugin_DAO(new CommonPlugin_DB());
+        parent::activate();
+        $depends = require $this->coderoot . 'depends.php';
+        $container = new \phpList\plugin\Common\Container($depends);
+        $this->dao = $container->get('phpList\plugin\RssFeedPlugin\DAO');
     }
 
     public function adminmenu()
@@ -309,26 +332,34 @@ class RssFeedPlugin extends phplistPlugin
         );
     }
 
-/*
- *  Methods for composing a campaign
- *
- */
+    /*
+     *  Methods for composing a campaign
+     */
     public function sendMessageTab($messageid = 0, $data = array())
     {
         $feedUrl = isset($data['rss_feed']) ? htmlspecialchars($data['rss_feed']) : '';
         $order = CHtml::dropDownList(
             'rss_order',
             isset($data['rss_order']) ? $data['rss_order'] : self::OLDEST_FIRST,
-            array(self::OLDEST_FIRST => 'Oldest items first', self::LATEST_FIRST => 'Latest items first')
+            array(self::OLDEST_FIRST => s('Oldest items first'), self::LATEST_FIRST => s('Latest items first'))
         );
         $template = isset($data['rss_template']) ? htmlspecialchars($data['rss_template']) : '';
+        $feedLabel = s('RSS feed URL');
+        $orderLabel = s('How to order feed items');
+        $templateLabel = s('Custom template');
 
+        if ($feedUrl) {
+            list($items, $testItemWarning) = $this->itemsForTestMessage($data['id']);
+        } else {
+            $testItemWarning = '';
+        }
         $html = <<<END
-    <label>RSS feed URL
-    <input type="text" name="rss_feed" value="$feedUrl" /></label>
-    <label>How to order feed items
+    <label>$feedLabel
+    <input type="text" name="rss_feed" value="$feedUrl" size="60"/></label>
+    <label>$orderLabel
     $order</label>
-    <label>Custom template</label><textarea name="rss_template" rows="10" cols="40">$template</textarea>
+    <label>$templateLabel</label><textarea name="rss_template" rows="10" cols="40">$template</textarea>
+    <div class="note">$testItemWarning</div>
 END;
 
         return $html;
@@ -344,6 +375,11 @@ END;
         return 'Format';
     }
 
+    /**
+     * Generate RSS items for a test message.
+     *
+     * @param array $messageData message fields
+     */
     public function sendTestAllowed($messageData)
     {
         if (!$this->isRssMessage($messageData)) {
@@ -351,7 +387,7 @@ END;
 
             return true;
         }
-        $items = $this->itemsForTestMessage($messageData['id']);
+        list($items, $warning) = $this->itemsForTestMessage($messageData['id']);
 
         $this->rssHtml = $this->generateItemHtml($items, $messageData['rss_order'], $messageData['rss_template']);
         $this->rssText = HTML2Text($this->rssHtml);
@@ -360,6 +396,12 @@ END;
         return true;
     }
 
+    /**
+     * Provide a read-only view of the RSS fields for a campaign.
+     *
+     * @param int   $messageId   message id
+     * @param array $messageData message fields
+     */
     public function viewMessage($messageId, array $messageData)
     {
         if (!$this->isRssMessage($messageData)) {
@@ -375,6 +417,13 @@ END;
         return array('RSS', $html);
     }
 
+    /**
+     * Validate that the RSS fields have been entered and the feed url is valid.
+     *
+     * @param array $messageData message fields
+     *
+     * @return string empty string for success otherwise an error message
+     */
     public function allowMessageToBeQueued($messageData = array())
     {
         if (!$this->isRssMessage($messageData)) {
@@ -385,11 +434,15 @@ END;
         if (!preg_match('/^http/i', $feedUrl)) {
             return "Invalid URL $feedUrl for RSS feed";
         }
+        $exists = $this->dao->feedExists($feedUrl);
 
-        try {
-            $this->validateFeed($feedUrl);
-        } catch (PicoFeed\PicoFeedException $e) {
-            return "Failed to fetch URL $feedUrl " . $e->getMessage();
+        if (!$exists) {
+            try {
+                $this->validateFeed($feedUrl);
+            } catch (PicoFeed\PicoFeedException $e) {
+                return s('Failed to fetch URL %s %s', $feedUrl, $e->getMessage());
+            }
+            $this->dao->addFeed($feedUrl);
         }
 
         if (stripos($messageData['message'], '[RSS]') === false) {
@@ -401,29 +454,40 @@ END;
             }
 
             if (!$templateHasPlaceholder) {
-                return 'Must have [RSS] placeholder in an RSS message';
+                return s('Must have [RSS] placeholder in an RSS message');
             }
         }
 
         if (!USE_REPETITION) {
-            return 'Campaign repetition must be enabled in config.php';
+            return s('Campaign repetition must be enabled in config.php');
+        }
+        $repeatInterval = $messageData['repeatinterval'] * 60;
+
+        if ($repeatInterval == 0) {
+            return s('Repeat interval must be selected for an RSS campaign');
         }
 
-        if ($messageData['repeatinterval'] == 0) {
-            return 'Repeat interval must be selected for an RSS campaign';
+        if ($repeatInterval > DEFAULT_MESSAGEAGE) {
+            $helpLink = sprintf('<a href="%s#rss_campaign_schedule" target="_blank">%s</a>', $this->documentationUrl, $this->documentationUrl);
+
+            return s(
+                'The value of the config.php setting DEFAULT_MESSAGEAGE (%d) must be greater than the repeat interval in seconds (%d). See %s.',
+                DEFAULT_MESSAGEAGE,
+                $repeatInterval,
+                $helpLink
+            );
         }
-        $this->dao->addFeed($feedUrl);
 
         return '';
     }
 
-/*
- *  Methods for processing the queue and messages
- *
- */
+    /**
+     * Use this hook to see whether any RSS messages have sufficient items to be sent.
+     * If not then the embargo of the campaign is moved forward to avoid sending a message with no RSS content.
+     */
     public function processQueueStart()
     {
-        $level = error_reporting(-1);
+        $level = error_reporting($this->errorLevel);
 
         foreach ($this->dao->readyRssMessages() as $mid) {
             $items = $this->dao->messageFeedItems($mid, getConfig('rss_maximum'));
@@ -432,16 +496,21 @@ END;
                 $count = $this->dao->reEmbargoMessage($mid);
 
                 if ($count > 0) {
-                    logEvent("Embargo advanced for RSS message $mid");
+                    logEvent(s('Embargo advanced for RSS message %s', $mid));
                 } else {
                     $count = $this->dao->setMessageSent($mid);
-                    logEvent("RSS message $mid marked as 'sent' because it has finished repeating");
+                    logEvent(s('RSS message %d marked as "sent" because it has finished repeating', $mid));
                 }
             }
         }
         error_reporting($level);
     }
 
+    /**
+     * Use this hook to generate the html and plain text of the RSS items and modify the subject.
+     *
+     * @param array $messageData message fields
+     */
     public function campaignStarted($messageData = array())
     {
         if (!$this->isRssMessage($messageData)) {
@@ -455,6 +524,38 @@ END;
         $this->modifySubject($messageData, $items);
     }
 
+    /**
+     * When a campaign has finished sending replace the placeholder with the actual RSS content used, and modify
+     * the subject to the actual subject used.
+     *
+     * @param int   $messageId   message id
+     * @param array $messageData message fields
+     */
+    public function processSendingCampaignFinished($messageId, array $messageData)
+    {
+        global $MD;
+
+        if (!$this->isRssMessage($messageData)) {
+            return;
+        }
+
+        if (stripos($messageData['message'], '[RSS]') !== false) {
+            $content = str_ireplace('[RSS]', $this->rssHtml, $messageData['message']);
+            $this->dao->setMessage($messageId, $content);
+        }
+        $this->dao->setSubject($messageId, $MD[$messageData['id']]['subject']);
+    }
+
+    /**
+     * Replace the placeholder by the html RSS content.
+     *
+     * @param int    $messageid   the message id
+     * @param string $content     the message content
+     * @param string $destination destination email address
+     * @param array  $userdata    user fields
+     *
+     * @return string
+     */
     public function parseOutgoingHTMLMessage($messageid, $content, $destination = '', $userdata = array())
     {
         if ($this->rssHtml === null) {
@@ -464,6 +565,16 @@ END;
         return str_ireplace('[RSS]', $this->rssHtml, $content);
     }
 
+    /**
+     * Replace the placeholder by the text RSS content.
+     *
+     * @param int    $messageid   the message id
+     * @param string $content     the message content
+     * @param string $destination destination email address
+     * @param array  $userdata    user fields
+     *
+     * @return string
+     */
     public function parseOutgoingTextMessage($messageid, $content, $destination = '', $userdata = array())
     {
         if ($this->rssHtml === null) {
@@ -487,7 +598,7 @@ END;
         }
 
         if ($messageData['status'] == 'draft') {
-            $items = $this->itemsForTestMessage($messageData['id']);
+            list($items, $warning) = $this->itemsForTestMessage($messageData['id']);
         } else {
             $items = $this->dao->messageFeedItems($messageData['id'], getConfig('rss_maximum'));
         }

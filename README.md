@@ -14,17 +14,17 @@ When the campaign is sent the content of the message has recent items, dependent
 
 These dependencies must be met for the plugin to be installed and run successfully.
 
-* phplist version 3.2.0 or later.
-* php version 5.4 or later. 
-* The Common Plugin version 3. You should install, or upgrade to, the latest version. See <https://github.com/bramley/phplist-plugin-common>
+* phplist version 3.3.2 or later.
+* php version 5.4 or later.
+* The Common Plugin version 3.9.3 or later. You should install, or upgrade to, the latest version. See <https://github.com/bramley/phplist-plugin-common>
 
 The plugin uses the PicoFeed package that additionally requires these php extensions to be loaded:
 
 * iconv
 * dom
 * xml
-* libxml
 * SimpleXML
+* Multibyte String
 
 ### Set the plugin directory ###
 The default plugin directory is `plugins` within the admin directory.
@@ -48,12 +48,12 @@ This should contain
 * the file RssFeedPlugin.php
 * the directory RssFeedPlugin
 
-##Usage##
+## Usage ##
 
 For guidance on using the plugin and its configuration settings see the plugin's page within the phplist documentation site
 <https://resources.phplist.com/plugin/rssfeed>
 
-##Support##
+## Support ##
 
 Please raise any questions or problems in the user forum <https://discuss.phplist.org/>.
 
@@ -65,6 +65,25 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.9.0+20210113  Add config settings to enable/disable picofeed content filtering and content generating
+    2.8.2+20200413  On the RSS Ffeds page show the number of active campaigns and sent campaigns
+    2.8.1+20200328  On RSS feeds page display active feeds first
+    2.8.0+20200305  Support getting an attribute value of a custom element
+    2.7.2+20190521  Improve the selection of feed items for a test message
+    2.7.1+20190514  Add validation of repeat interval and DEFAULT_MESSAGEAGE
+    2.7.0+20181210  Improve methods of running get and delete by cron jobs
+    2.6.2+20181126  Fix bug of missing call to parent method introduced in 2.6.0
+    2.6.1+20181116  Allow the get page to be accessed using the remote processing secret
+    2.6.0+20181115  New page to display all feeds
+    2.5.7+20181013  Allow the display format of the published date to be configurable
+    2.5.6+20180517  Remove dependency on php 5.6
+    2.5.5+20180423  Reduce level of error reporting
+    2.5.4+20180224  Minor code change
+    2.5.3+20180111  Minor bug fix
+    2.5.2+20180102  Handle emoji characters in feed html
+    2.5.1+20171204  Remove debug logging
+    2.5.0+20171204  Lots of internal reworking
+    2.4.4+20170402  Add PicoFeed package
     2.4.3+20170209  Added hook for copying a campaign
     2.4.2+20161227  Allow RSS placeholder to be in the template or the message content
     2.4.1+20161013  Move System menu items to Campaigns menu

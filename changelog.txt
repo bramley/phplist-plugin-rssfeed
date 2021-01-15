@@ -1,3 +1,86 @@
+version 2.9.0+20210113
+      Take picofeed and zendxml out of the control of composer
+      Add config setting to enable/disable content generator processing
+      Add config settings to enable/disable picofeed content filtering and content generating.
+
+version 2.8.2+20200413
+      Add method to delete rows in the feed table for unused feeds
+      On the Feeds page show the number of active campaigns and sent campaigns
+
+version 2.8.1+20200328
+      Use getConfigLines() function to get the custom elements.
+      cs fixer changes
+      On RSS feeds page display active feeds first.
+
+version 2.8.0+20200305
+      Support getting an attribute value of a custom element.
+      Fix a problem in getting the summary element of an Atom feed.
+
+version 2.7.2+20190521
+      Improve the selection of feed items for a test message
+      Increase the visible size of the RSS feed URL input field
+      Update English translations
+
+version 2.7.1+20190514
+      Add validation of repeat interval and DEFAULT_MESSAGEAGE
+      Update English translations
+
+version 2.7.0+20181210
+      Add pages that can be accessed by remote processing
+      Allow delete command to be run as command line or remote page
+
+version 2.6.2+20181126
+      Add missing call to parent method
+
+version 2.6.1+20181116
+      Use css class to wrap long urls
+      Allow the get page to be accessed using the remote processing secret
+
+version 2.6.0+20181115
+      New page to display all feeds
+      View page now displays items for a specific feed
+      Update English translations
+      Update copyright year
+      Revised required version of phplist
+      Removed redundant code
+
+version 2.5.7+20181013
+      Allow the display format of the published date to be configurable.
+      Fixes #22
+
+version 2.5.6+20180517
+      Remove dependency on php 5.6
+
+version 2.5.5+20180423
+      Reduce level of error reporting
+
+version 2.5.4+20180224
+      Correct method signature
+
+version 2.5.3+20180111
+      Use only 'submitted' status when finding ready to send campaigns
+
+version 2.5.2+20180102
+      Convert characters outside the BMP to numeric entities.
+
+version 2.5.1+20171204
+      Remove debug logging
+
+version 2.5.0+20171204
+      Use Context class
+      Use namespaces
+      Use DIC to inject dependencies into controllers
+      Select img elements only where the data-srcset attribute exists
+      Move delete and twitterfeed processing into controller classes
+      Add docblocks for public methods
+      Replace the placeholder in a message by the actual RSS items when sending completes.
+      Include PicoFeed logging when debug is enabled
+      Made all text translateable
+      Avoid repeated validation of a feed
+
+version 2.4.4+20170402
+      Add Composer and PicoFeed
+
 version 2.4.3+20170209
       Update to cs fixer config file
       Added hook for copying a campaign.

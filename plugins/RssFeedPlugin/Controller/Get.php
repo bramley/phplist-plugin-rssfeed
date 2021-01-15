@@ -7,22 +7,47 @@
  * @category  phplist
  *
  * @author    Duncan Cameron
- * @copyright 2015 Duncan Cameron
+ * @copyright 2015-2018 Duncan Cameron
  * @license   http://www.gnu.org/licenses/gpl.html GNU General Public License, Version 3
  */
 
-/**
- * This class retrieves RSS items.
- */
+namespace phpList\plugin\RssFeedPlugin\Controller;
+
+use DateTimeZone;
+use phpList\plugin\Common\Context;
+use phpList\plugin\Common\Controller;
+use phpList\plugin\RssFeedPlugin\DAO;
 use PicoFeed\Config\Config;
 use PicoFeed\Parser\Item;
 use PicoFeed\PicoFeedException;
 use PicoFeed\Reader\Reader;
+use function phpList\plugin\Common\getConfigLines;
 
-class RssFeedPlugin_Controller_Get extends CommonPlugin_Controller
+/**
+ * This class retrieves items from RSS feeds.
+ */
+class Get extends Controller
 {
+    private $context;
+    private $dao;
+
     /**
-     * Get the content for custom elements.
+     * Convert characters above the BMP to numeric entities to avoid a restriction of the MySQL utf8 character set to
+     * only three bytes.
+     *
+     * @param string $content
+     *
+     * @return string encoded content
+     */
+    private function convertToEntities($content)
+    {
+        $convmap = array(0x10000, 0x10FFFF, 0, 0xFFFFFF);
+
+        return mb_encode_numericentity($content, $convmap);
+    }
+
+    /**
+     * Get the values of custom elements and attributes.
      *
      * @param array                $customElements
      * @param PicoFeed\Parser\Item $item
@@ -31,21 +56,19 @@ class RssFeedPlugin_Controller_Get extends CommonPlugin_Controller
      */
     private function getCustomElementsValues(array $customElements, Item $item)
     {
-        $values = array();
+        $values = [];
 
-        foreach ($customElements as $c) {
-            $parts = explode(':', $c, 2);
+        foreach ($customElements as $element) {
+            $parts = explode('@', $element, 2);
 
-            if (count($parts) == 1) {
-                $values[$c] = $item->getTag($c);
+            if (count($parts) == 2) {
+                $tagValues = $item->getTag($parts[0], $parts[1]);
             } else {
-                if ($item->hasNamespace($parts[0])) {
-                    $tagValues = $item->getTag($c);
+                $tagValues = $item->getTag($element);
+            }
 
-                    if (count($tagValues) > 0) {
-                        $values[$c] = $tagValues[0];
-                    }
-                }
+            if ($tagValues) {
+                $values[$element] = $tagValues[0];
             }
         }
 
@@ -67,7 +90,8 @@ class RssFeedPlugin_Controller_Get extends CommonPlugin_Controller
         $values = $item->getTag('description');
 
         if ($values === false || count($values) == 0) {
-            $values = $item->getTag('summary');
+            $item->setNamespaces($item->getNamespaces() + ['atom' => 'http://www.w3.org/2005/Atom']);
+            $values = $item->getTag('atom:summary');
 
             if ($values === false || count($values) == 0) {
                 $content = $item->getContent();
@@ -81,23 +105,20 @@ class RssFeedPlugin_Controller_Get extends CommonPlugin_Controller
         return $content;
     }
 
-    private function getRssFeeds(Closure $output)
+    private function getRssFeeds(DAO $dao, callable $output)
     {
         $utcTimeZone = new DateTimeZone('UTC');
         $config = new Config();
-        $config->setContentFiltering(true);
-        $dao = new RssFeedPlugin_DAO(new CommonPlugin_DB());
+        $config->setContentFiltering((bool) getConfig('rss_content_filtering'));
+        $config->setContentGenerating((bool) getConfig('rss_content_generating'));
         $feeds = $dao->activeFeeds();
 
         if (count($feeds) == 0) {
-            $output('There are no active RSS feeds to fetch');
+            $output(s('There are no active RSS feeds to fetch'));
 
             return;
         }
-        $customElementsConfig = getConfig('rss_custom_elements');
-        $customElements = $customElementsConfig === ''
-            ? array()
-            : explode("\n", $customElementsConfig);
+        $customElements = getConfigLines('rss_custom_elements');
 
         foreach ($feeds as $row) {
             $feedId = $row['id'];
@@ -109,7 +130,7 @@ class RssFeedPlugin_Controller_Get extends CommonPlugin_Controller
                 $resource = $reader->download($feedUrl, $row['lastmodified'], $row['etag']);
 
                 if (!$resource->isModified()) {
-                    $output('Not modified');
+                    $output(s('Not modified'));
                     continue;
                 }
 
@@ -133,6 +154,7 @@ class RssFeedPlugin_Controller_Get extends CommonPlugin_Controller
                     if ($itemId > 0) {
                         ++$newItemCount;
                         $itemContent = $this->getItemContent($item);
+                        $itemContent = $this->convertToEntities($itemContent);
                         $dao->addItemData(
                             $itemId,
                             array(
@@ -156,7 +178,7 @@ class RssFeedPlugin_Controller_Get extends CommonPlugin_Controller
                 $output($line);
 
                 if ($newItemCount > 0) {
-                    logEvent("Feed $feedUrl $line");
+                    logEvent(s('Feed') . " $feedUrl $line");
                 }
             } catch (PicoFeedException $e) {
                 $output($e->getMessage());
@@ -166,23 +188,15 @@ class RssFeedPlugin_Controller_Get extends CommonPlugin_Controller
 
     protected function actionDefault()
     {
-        global $commandline;
+        $this->context->start();
+        $this->getRssFeeds($this->dao, [$this->context, 'output']);
+        $this->context->finish();
+    }
 
-        if ($commandline) {
-            $output = function ($line) {
-                echo $line, "\n";
-            };
-            ob_end_clean();
-            echo ClineSignature();
-        } else {
-            $output = function ($line) {
-                echo "$line<br/>\n";
-                @ob_flush();
-                flush();
-            };
-            ob_end_flush();
-        }
-        $this->getRssFeeds($output);
-        ob_start();
+    public function __construct(DAO $dao, Context $context)
+    {
+        parent::__construct();
+        $this->dao = $dao;
+        $this->context = $context;
     }
 }
