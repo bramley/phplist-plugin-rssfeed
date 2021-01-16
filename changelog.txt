@@ -1,3 +1,7 @@
+version 2.9.1+20210116
+      Replace use of curly braces. Fixes #24.
+      Include link to documentation in the warning about USE_REPETITION. Fixes #25.
+
 version 2.9.0+20210113
       Take picofeed and zendxml out of the control of composer
       Add config setting to enable/disable content generator processing

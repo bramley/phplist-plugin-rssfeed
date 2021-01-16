@@ -65,6 +65,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.9.1+20210116  Github #24, #25
     2.9.0+20210113  Add config settings to enable/disable picofeed content filtering and content generating
     2.8.2+20200413  On the RSS Ffeds page show the number of active campaigns and sent campaigns
     2.8.1+20200328  On RSS feeds page display active feeds first
