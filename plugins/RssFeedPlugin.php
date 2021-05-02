@@ -11,6 +11,8 @@
  * @license   http://www.gnu.org/licenses/gpl.html GNU General Public License, Version 3
  */
 
+use PicoFeed\Config\Config;
+
 /**
  * Registers plugin with phplist
  * Provides hooks into message processing.
@@ -73,7 +75,9 @@ class RssFeedPlugin extends phplistPlugin
 
     private function validateFeed($feedUrl)
     {
-        $reader = new PicoFeed\Reader\Reader();
+        $config = new Config();
+        $config->setMaxBodySize((int) getConfig('rss_max_body_size'));
+        $reader = new PicoFeed\Reader\Reader($config);
         $resource = $reader->download($feedUrl);
         $parser = $reader->getParser(
             $resource->getUrl(),
@@ -209,6 +213,15 @@ class RssFeedPlugin extends phplistPlugin
             'delete' => s('Delete outdated RSS items'),
         );
         $this->settings = array(
+            'rss_max_body_size' => array(
+                'description' => s('Maximum size of the HTTP body response allowed'),
+                'type' => 'integer',
+                'value' => 2097152, // 2MB
+                'allowempty' => 1,
+                'min' => 524288,
+                'max' => 16777216,
+                'category' => 'RSS',
+            ),
             'rss_minimum' => array(
                 'description' => s('Minimum number of items to send in an RSS email'),
                 'type' => 'integer',
