@@ -10,6 +10,7 @@
  * @copyright 2015-2018 Duncan Cameron
  * @license   http://www.gnu.org/licenses/gpl.html GNU General Public License, Version 3
  */
+use PicoFeed\Config\Config;
 
 /**
  * Registers plugin with phplist
@@ -73,7 +74,9 @@ class RssFeedPlugin extends phplistPlugin
 
     private function validateFeed($feedUrl)
     {
-        $reader = new PicoFeed\Reader\Reader();
+        $config = new Config();
+        $config->setMaxBodySize((int) getConfig('rss_max_body_size'));
+        $reader = new PicoFeed\Reader\Reader($config);
         $resource = $reader->download($feedUrl);
         $parser = $reader->getParser(
             $resource->getUrl(),
@@ -271,6 +274,15 @@ class RssFeedPlugin extends phplistPlugin
                 'type' => 'boolean',
                 'value' => false,
                 'allowempty' => true,
+                'category' => 'RSS',
+            ),
+            'rss_max_body_size' => array(
+                'description' => s('Maximum size of the HTTP body response allowed'),
+                'type' => 'integer',
+                'value' => 2097152,
+                'allowempty' => false,
+                'min' => 524288,
+                'max' => 16777216,
                 'category' => 'RSS',
             ),
         );

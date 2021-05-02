@@ -1,3 +1,7 @@
+version 2.10.0+20210503
+MallardDuck (1):
+      Add ability to control the size of picofeeds max body size. Closes #26.
+
 version 2.9.1+20210116
       Replace use of curly braces. Fixes #24.
       Include link to documentation in the warning about USE_REPETITION. Fixes #25.
