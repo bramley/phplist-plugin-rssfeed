@@ -68,7 +68,7 @@ class Get extends Controller
             }
 
             if ($tagValues) {
-                $values[$element] = $tagValues[0];
+                $values[$element] = $this->convertToEntities($tagValues[0]);
             }
         }
 
