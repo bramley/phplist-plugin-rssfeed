@@ -285,6 +285,13 @@ class RssFeedPlugin extends phplistPlugin
                 'max' => 16777216,
                 'category' => 'RSS',
             ),
+            'rss_content_use_summary' => array(
+                'description' => s('Use the item summary content, the description or summary element, instead of the content element'),
+                'type' => 'boolean',
+                'value' => true,
+                'allowempty' => true,
+                'category' => 'RSS',
+            ),
         );
         $this->errorLevel = E_ALL ^ E_NOTICE ^ E_DEPRECATED ^ E_STRICT;
         $this->coderoot = dirname(__FILE__) . '/' . __CLASS__ . '/';

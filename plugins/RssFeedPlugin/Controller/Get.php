@@ -77,6 +77,7 @@ class Get extends Controller
 
     /**
      * Get the content for an item.
+     * Use the content element if configured to do so.
      * For an RSS feed use the description element if present.
      * For an ATOM feed use the summary element if present.
      *
@@ -86,6 +87,11 @@ class Get extends Controller
      */
     private function getItemContent(Item $item)
     {
+        $useSummary = getConfig('rss_content_use_summary');
+
+        if (!$useSummary) {
+            return $item->getContent();
+        }
         $content = '';
         $values = $item->getTag('description');
 

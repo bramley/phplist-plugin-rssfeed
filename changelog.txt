@@ -1,3 +1,7 @@
+version 2.11.0+20210708
+      Convert custom tag characters outside the BMP to numeric entities.
+      Add configuration setting to control whether to use the summary or full content. Closes #27.
+
 version 2.10.0+20210503
 MallardDuck (1):
       Add ability to control the size of picofeeds max body size. Closes #26.
