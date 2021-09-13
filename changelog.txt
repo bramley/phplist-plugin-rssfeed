@@ -1,3 +1,6 @@
+version 2.11.1+20210913
+      Correct invalid operator for version_compare()
+
 version 2.11.0+20210708
       Convert custom tag characters outside the BMP to numeric entities.
       Add configuration setting to control whether to use the summary or full content. Closes #27.
