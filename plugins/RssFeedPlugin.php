@@ -171,10 +171,19 @@ class RssFeedPlugin extends phplistPlugin
             }
         }
 
-        return $this->replaceProperties(
-            $subject,
-            array('RSSITEM:TITLE' => $titleReplace)
-        );
+        // add RSSITEM:TITLE
+        $subject = $this->replaceProperties(
+                    $subject,
+                    array('RSSITEM:TITLE' => $titleReplace)
+                );
+
+        // add RSS:N_ITEMS
+        $subject = $this->replaceProperties(
+                    $subject,
+                    array('RSS:N_ITEMS' => $size)
+                );
+
+        return $subject;
     }
 
     private function modifySubject(array $messageData, array $items)
