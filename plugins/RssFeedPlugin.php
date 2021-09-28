@@ -177,6 +177,14 @@ END;
         $this->rssTocText = HTML2Text($this->rssToc);
     }
 
+    /**
+     * Create a new subject containing the title of the last feed item, append the subject suffix
+     * when there is more than one item.
+     * Replace placeholders in the message subject.
+     *
+     * @param string $subject message subject
+     * @param array  $items   feed items
+     */
     private function newSubject($subject, array $items)
     {
         $size = count($items);
@@ -194,7 +202,7 @@ END;
 
         return $this->replaceProperties(
             $subject,
-            array('RSSITEM:TITLE' => $titleReplace)
+            ['RSSITEM:TITLE' => $titleReplace, 'RSS:N' => $size, 'RSS:N-1' => $size - 1]
         );
     }
 

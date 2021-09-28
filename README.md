@@ -65,6 +65,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.12.0+20210928 Add table of contents and placeholder for number of feed items
     2.11.1+20210913 Correct invalid operator for version_compare() which caused a fatal error with php 8
     2.11.0+20210708 Add configuration setting to control whether to use the summary or full content. GitHub #27.
     2.10.0+20210503 Add ability to control the size of picofeeds max body size. GitHub #26.

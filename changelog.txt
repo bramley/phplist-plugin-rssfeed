@@ -1,3 +1,9 @@
+version 2.12.0+20210928
+      Generate a table of contents of feed items in the message content using a placeholder. Closes #28
+
+Tal Galili (1):
+      Add the ability to use a placeholder for the number of feed items in the message subject. Closes #29 #30
+
 version 2.11.1+20210913
       Correct invalid operator for version_compare()
 
