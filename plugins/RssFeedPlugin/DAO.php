@@ -147,7 +147,7 @@ class DAO extends CommonDAO
     public function messageFeedItems($mid, $limit, $useEmbargo = true)
     {
         $published = $useEmbargo
-            ? 'AND it.published >= m.embargo - INTERVAL m.repeatinterval MINUTE AND it.published < m.embargo'
+            ? 'AND it.added >= m.embargo - INTERVAL m.repeatinterval MINUTE AND it.added < m.embargo'
             : '';
         $subquery =
             "SELECT id
