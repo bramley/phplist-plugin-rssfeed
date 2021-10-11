@@ -88,9 +88,9 @@ class RssFeedPlugin extends phplistPlugin
         $feed = $parser->execute();
     }
 
-    private function replaceProperties($template, $properties)
+    private function replacePlaceholders($template, $placeHolders)
     {
-        foreach ($properties as $key => $value) {
+        foreach ($placeHolders as $key => $value) {
             $template = str_ireplace("[$key]", $value, $template);
         }
 
@@ -160,7 +160,7 @@ END;
         foreach ($items as $i => $item) {
             $d = new DateTime($item['published']);
             $html .= sprintf('<a name="item_%d"></a>', $i);
-            $html .= $this->replaceProperties(
+            $html .= $this->replacePlaceholders(
                 $htmltemplate,
                 array(
                     'published' => $d->format(getConfig('rss_date_format')),
@@ -200,7 +200,7 @@ END;
             }
         }
 
-        return $this->replaceProperties(
+        return $this->replacePlaceholders(
             $subject,
             ['RSSITEM:TITLE' => $titleReplace, 'RSS:N' => $size, 'RSS:N-1' => $size - 1]
         );
@@ -591,7 +591,10 @@ END;
         }
 
         if (stripos($messageData['message'], '[RSS]') !== false) {
-            $content = str_ireplace('[RSS]', $this->rssHtml, $messageData['message']);
+            $content = $this->replacePlaceholders(
+                $messageData['message'],
+                ['RSS' => $this->rssHtml, 'RSS:TOC' => $this->rssToc]
+            );
             $this->dao->setMessage($messageId, $content);
         }
         $this->dao->setSubject($messageId, $MD[$messageData['id']]['subject']);
@@ -611,10 +614,9 @@ END;
     {
         return $this->rssHtml === null
             ? $content
-            : str_ireplace(
-                ['[RSS]', '[RSS:TOC]'],
-                [$this->rssHtml, $this->rssToc],
-                $content
+            : $this->replacePlaceholders(
+                $content,
+                ['RSS' => $this->rssHtml, 'RSS:TOC' => $this->rssToc]
             );
     }
 
@@ -632,10 +634,9 @@ END;
     {
         return $this->rssHtml === null
             ? $content
-            : str_ireplace(
-                ['[RSS]', '[RSS:TOC]'],
-                [$this->rssText, $this->rssTocText],
-                $content
+            : $this->replacePlaceholders(
+                $content,
+                ['RSS' => $this->rssText, 'RSS:TOC' => $this->rssTocText]
             );
     }
 
