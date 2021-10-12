@@ -194,6 +194,9 @@ class DAO extends CommonDAO
      * Also indicate whether a feed is being used in an active campaign and the number of active and sent
      * campaigns.
      *
+     * Need to specify redundant GROUP BY fields because MariaDB does not support functional dependency
+     * in ONLY_FULL_GROUP_BY mode.
+     *
      * @return iterator
      */
     public function feeds()
@@ -204,7 +207,7 @@ class DAO extends CommonDAO
             LEFT JOIN {$this->tables['messagedata']} md ON f.url = md.data AND md.name = 'rss_feed'
             LEFT JOIN {$this->tables['message']} m ON md.id = m.id AND m.status NOT IN ('sent', 'prepared', 'suspended')
             LEFT JOIN {$this->tables['message']} m2 ON md.id = m2.id AND m2.status IN ('sent')
-            GROUP BY f.id
+            GROUP BY f.id, f.url, f.etag, f.lastmodified
             ORDER BY active DESC, f.id
             ";
 

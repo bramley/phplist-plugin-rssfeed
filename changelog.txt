@@ -1,3 +1,11 @@
+version 2.13.0+20211012
+      Clarify config item text
+      Replace the RSS:TOC placeholder in the message when the campaign has finished sending.
+      Rename replaceProperties() method to replacePlaceholders().
+      Provide choice of using the published date or the added date when selecting feed items.
+      Update dependencies
+      Avoid problem with MariaDB and ONLY_FULL_GROUP_BY sql mode.
+
 version 2.12.0+20210928
       Generate a table of contents of feed items in the message content using a placeholder. Closes #28
 
