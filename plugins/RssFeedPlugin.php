@@ -336,16 +336,16 @@ END;
         global $plugins;
 
         return array(
-            'Common plugin v3.11.1 or later installed' => (
+            'Common plugin v3.15.7 or later installed' => (
                 phpListPlugin::isEnabled('CommonPlugin')
-                && version_compare($plugins['CommonPlugin']->version, '3.11.1') >= 0
+                && version_compare($plugins['CommonPlugin']->version, '3.15.7') >= 0
             ),
             'View in Browser plugin v2.4.0 or later installed' => (
                 !phpListPlugin::isEnabled('ViewBrowserPlugin')
                 || version_compare($plugins['ViewBrowserPlugin']->version, '2.4.0') >= 0
             ),
             'phpList version 3.3.2 or later' => version_compare(VERSION, '3.3.2') >= 0,
-            'PHP version 5.4.0 or later' => version_compare(PHP_VERSION, '5.4') > 0,
+            'PHP version 7 or later' => version_compare(PHP_VERSION, '7') > 0,
             'iconv extension installed' => extension_loaded('iconv'),
             'xml extension installed' => extension_loaded('xml'),
             'dom extension installed' => extension_loaded('dom'),
