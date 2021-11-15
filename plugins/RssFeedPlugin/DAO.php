@@ -151,7 +151,11 @@ class DAO extends CommonDAO
     public function messageFeedItems($mid, $useEmbargo = true)
     {
         if ($useEmbargo) {
-            $itemSelectField = $this->messageData($mid, 'rss_item_select_field') ?? 1;
+            $itemSelectField = $this->messageData($mid, 'rss_item_select_field');
+
+            if ($itemSelectField === false) {
+                $itemSelectField = 1;
+            }
             $range = ($itemSelectField == 1)
                 ? 'AND it.published >= m.embargo - INTERVAL m.repeatinterval MINUTE AND it.published < m.embargo'
                 : 'AND it.added >= m.embargo - INTERVAL m.repeatinterval MINUTE AND it.added < m.embargo';

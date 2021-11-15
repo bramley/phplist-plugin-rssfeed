@@ -65,6 +65,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.13.1+20211115 Correct the fallback value when rss_item_select_field does not exist for a campaign
     2.13.0+20211012 Provide choice of using the published date or the added date when selecting feed items
     2.12.0+20210928 Add table of contents and placeholder for number of feed items
     2.11.1+20210913 Correct invalid operator for version_compare() which caused a fatal error with php 8

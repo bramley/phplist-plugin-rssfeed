@@ -1,3 +1,6 @@
+version 2.13.1+20211115
+      Correct the fallback value when rss_item_select_field does not exist for a campaign
+
 version 2.13.0+20211012
       Clarify config item text
       Replace the RSS:TOC placeholder in the message when the campaign has finished sending.
