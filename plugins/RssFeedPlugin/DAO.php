@@ -128,13 +128,18 @@ class DAO extends CommonDAO
      */
     public function deleteUnusedFeeds()
     {
-        $sql =
-            "DELETE f
+        $sql = <<<END
+        DELETE feed
+        FROM {$this->tables['feed']} feed
+        JOIN (
+            SELECT f.id
             FROM {$this->tables['feed']} f
             LEFT JOIN {$this->tables['item']} i ON i.feedid = f.id
             LEFT JOIN {$this->tables['messagedata']} md ON f.url = md.data AND md.name = 'rss_feed'
             WHERE i.feedid IS NULL AND md.data IS NULL
-            ";
+            ORDER BY f.id
+        ) sub ON sub.id = feed.id
+END;
 
         return $this->dbCommand->queryAffectedRows($sql);
     }

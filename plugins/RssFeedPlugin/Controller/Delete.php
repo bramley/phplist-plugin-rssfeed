@@ -26,12 +26,17 @@ class Delete extends Controller
         global $commandline, $inRemoteCall;
 
         if ($commandline) {
-            $options = getopt('c:p:m:d:');
+            $options = getopt('c:p:m:d:u:');
             $this->context->start();
 
             if (isset($options['d']) && ctype_digit($options['d'])) {
                 $count = $this->dao->deleteItems($options['d']);
                 $this->context->output(s('%d items deleted', $count));
+
+                if (!empty($options['u'])) {
+                    $count = $this->dao->deleteUnusedFeeds();
+                    $this->context->output(s('%d unused feeds deleted', $count));
+                }
             } else {
                 $this->context->output(s('option d not found'));
             }
@@ -46,6 +51,11 @@ class Delete extends Controller
             if (isset($_GET['days']) && ctype_digit($_GET['days'])) {
                 $count = $this->dao->deleteItems($_GET['days']);
                 $this->context->output(s('%d items deleted', $count));
+
+                if (!empty($_GET['unusedfeeds'])) {
+                    $count = $this->dao->deleteUnusedFeeds();
+                    $this->context->output(s('%d unused feeds deleted', $count));
+                }
             } else {
                 $this->context->output(s('days parameter not found'));
             }
@@ -54,27 +64,39 @@ class Delete extends Controller
             return;
         }
         // No need to use context for the browser
-        $this->context->finish();
+
+        if (!$_SESSION['logindetails']['superuser']) {
+            echo '<p>' . s('Sorry, only super users can delete RSS items from the database') . '</p>';
+
+            return;
+        }
 
         if (isset($_POST['days']) && ctype_digit($_POST['days'])) {
-            if (!$_SESSION['logindetails']['superuser']) {
-                echo '<p>' . s('Sorry, only super users can delete RSS items from the database') . '</p>';
-
-                return;
-            }
             $count = $this->dao->deleteItems($_POST['days']);
             $note = s('%d items deleted', $count);
+
+            if (!empty($_POST['unusedfeeds'])) {
+                $count = $this->dao->deleteUnusedFeeds();
+                $note .= '<br/>' . s('%d unused feeds deleted', $count);
+            }
             echo "<div class='note'>$note</div>";
         }
 
         $prompt1 = s('Enter the number of days to be kept.');
-        $prompt2 = s('All items whose published date is earlier will be deleted.');
+        $prompt2 = s('All items whose published date is earlier will be deleted');
+        $prompt3 = s('Delete RSS feeds that are not used by any campaigns');
         $button = s('Delete');
         echo <<<END
 <form method="post" action="">
-<caption>$prompt1<br />
+    <label>$prompt1<br />
 $prompt2
-    <input type=text name="days" value="30" size=7></caption>
+        <input type=text name="days" value="30" size=7>
+    </label>
+    <br/>
+    <label>$prompt3
+        <input type="checkbox" id="unusedfeeds" name="unusedfeeds">
+    </label>
+    <br/>
     <input type=submit name="submit" value="$button">
 </form>
 END;
