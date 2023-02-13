@@ -1,3 +1,8 @@
+version 2.13.2+20230213
+      In php 8.2 DateTime::getLastErrors() returns false when there are no errors
+      Add PicoFeed logging when fetching feeds
+      Update cs fixer
+
 version 2.13.1+20211115
       Correct the fallback value when rss_item_select_field does not exist for a campaign
 

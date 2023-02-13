@@ -1,5 +1,5 @@
 README.html
-.php_cs.cache
+*.cache
 
 plugins/RssFeedPlugin/vendor/fguillot/picofeed/*
 !plugins/RssFeedPlugin/vendor/fguillot/picofeed/LICENSE
