@@ -16,8 +16,10 @@ namespace phpList\plugin\RssFeedPlugin\Controller;
 use DateTimeZone;
 use phpList\plugin\Common\Context;
 use phpList\plugin\Common\Controller;
+use phpList\plugin\Common\StringCallback;
 use phpList\plugin\RssFeedPlugin\DAO;
 use PicoFeed\Config\Config;
+use PicoFeed\Logging\Logger as PicoFeedLogger;
 use PicoFeed\Parser\Item;
 use PicoFeed\PicoFeedException;
 use PicoFeed\Reader\Reader;
@@ -113,6 +115,11 @@ class Get extends Controller
 
     private function getRssFeeds(DAO $dao, callable $output)
     {
+        $this->logger->debug(new StringCallback(function () {
+            PicoFeedLogger::enable();
+
+            return 'PicoFeed logging enabled';
+        }));
         $utcTimeZone = new DateTimeZone('UTC');
         $config = new Config();
         $config->setMaxBodySize((int) getConfig('rss_max_body_size'));
@@ -190,6 +197,7 @@ class Get extends Controller
             } catch (PicoFeedException $e) {
                 $output($e->getMessage());
             }
+            $this->logger->debug(PicoFeedLogger::toString());
         }
     }
 
