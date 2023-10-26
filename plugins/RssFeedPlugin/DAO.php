@@ -310,7 +310,7 @@ class DAO extends CommonDAO
                 "SELECT embargo
                 FROM {$this->tables['message']}
                 WHERE id = $id";
-            $embargo = $this->dbCommand->queryOne($sql, 'embargo');
+            $embargo = $this->dbCommand->queryOne($sql);
 
             list($e['year'], $e['month'], $e['day'], $e['hour'], $e['minute']) =
                 sscanf($embargo, '%04d-%02d-%02d %02d:%02d');
