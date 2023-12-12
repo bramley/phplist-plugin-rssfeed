@@ -16,7 +16,7 @@ namespace phpList\plugin\RssFeedPlugin;
 use phpList\plugin\Common\ControllerFactoryBase;
 
 /**
- * This class is a concrete implementation of CommonPlugin_ControllerFactoryBase.
+ * This class is a concrete implementation of ControllerFactoryBase.
  */
 class ControllerFactory extends ControllerFactoryBase
 {
@@ -26,7 +26,7 @@ class ControllerFactory extends ControllerFactoryBase
      * @param string $pi     the plugin
      * @param array  $params further parameters from the URL
      *
-     * @return Controller
+     * @return phpList\plugin\Common\Controller
      */
     public function createController($pi, array $params)
     {

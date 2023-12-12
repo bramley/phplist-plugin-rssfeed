@@ -20,7 +20,7 @@ use phpList\plugin\RssFeedPlugin\DAO;
 use WebblerListing;
 
 /**
- * This class is a subclass of the base controller class that implements the CommonPlugin_IPopulator
+ * This class is a subclass of the base controller class that implements the IPopulator
  * interface to show rss items.
  */
 class View extends Controller implements IPopulator
