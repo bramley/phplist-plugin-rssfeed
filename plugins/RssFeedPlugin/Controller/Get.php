@@ -21,8 +21,8 @@ use phpList\plugin\RssFeedPlugin\DAO;
 use PicoFeed\Config\Config;
 use PicoFeed\Logging\Logger as PicoFeedLogger;
 use PicoFeed\Parser\Item;
-use PicoFeed\PicoFeedException;
 use PicoFeed\Reader\Reader;
+
 use function phpList\plugin\Common\getConfigLines;
 
 /**
@@ -194,7 +194,7 @@ class Get extends Controller
                 if ($newItemCount > 0) {
                     logEvent(s('Feed') . " $feedUrl $line");
                 }
-            } catch (PicoFeedException $e) {
+            } catch (\Throwable $e) {
                 $output($e->getMessage());
             }
             $this->logger->debug(PicoFeedLogger::toString());

@@ -494,7 +494,7 @@ END;
         if (!$exists) {
             try {
                 $this->validateFeed($feedUrl);
-            } catch (PicoFeed\PicoFeedException $e) {
+            } catch (\Throwable $e) {
                 return s('Failed to fetch URL %s %s', $feedUrl, $e->getMessage());
             }
             $this->dao->addFeed($feedUrl);
