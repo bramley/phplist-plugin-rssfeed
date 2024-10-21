@@ -1,3 +1,11 @@
+version 2.13.3+20241021
+      Remove unnecessary parameter to queryOne()
+      Revise class names in comments
+      Catch all exceptions and errors when processing a feed
+      Allow 4-byte utf8 characters in item data
+      CS Fixer
+      Avoid deprecation warning about libxml_disable_entity_loader(). In libxml >= 2.9.0, external entity loading is disabled by default.
+
 version 2.13.2+20230213
       In php 8.2 DateTime::getLastErrors() returns false when there are no errors
       Add PicoFeed logging when fetching feeds

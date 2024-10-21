@@ -52,7 +52,7 @@ class Security
             $dom = new DOMDocument();
         }
 
-        if (!self::isPhpFpm()) {
+        if (!self::isPhpFpm() && \LIBXML_VERSION < 20900) {
             $loadEntities = libxml_disable_entity_loader(true);
             $useInternalXmlErrors = libxml_use_internal_errors(true);
         }
@@ -70,7 +70,7 @@ class Security
 
         if (!$result) {
             // Entity load to previous setting
-            if (!self::isPhpFpm()) {
+            if (!self::isPhpFpm() && \LIBXML_VERSION < 20900) {
                 libxml_disable_entity_loader($loadEntities);
                 libxml_use_internal_errors($useInternalXmlErrors);
             }
@@ -89,7 +89,7 @@ class Security
         }
 
         // Entity load to previous setting
-        if (!self::isPhpFpm()) {
+        if (!self::isPhpFpm() && \LIBXML_VERSION < 20900) {
             libxml_disable_entity_loader($loadEntities);
             libxml_use_internal_errors($useInternalXmlErrors);
         }
