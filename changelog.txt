@@ -1,3 +1,7 @@
+version 2.14.0+20241222
+      Allow unused feeds to be deleted
+      Update cs fixer rule name
+
 version 2.13.3+20241021
       Remove unnecessary parameter to queryOne()
       Revise class names in comments

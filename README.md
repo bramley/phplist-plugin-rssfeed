@@ -65,6 +65,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.14.0+20241222 Allow unused feeds to be deleted
     2.13.3+20241021 Handle all php errors when processing a feed
     2.13.2+20230213 Handle different behaviour of DateTime in php 8.2
     2.13.1+20211115 Correct the fallback value when rss_item_select_field does not exist for a campaign
