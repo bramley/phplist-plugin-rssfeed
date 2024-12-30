@@ -65,7 +65,7 @@ class Attribute
         'p' => array(),
         'ul' => array(),
         'li' => array(),
-        'ol' => array(),
+        'ol' => array('start'),
         'br' => array(),
         'del' => array(),
         'a' => array('href'),
