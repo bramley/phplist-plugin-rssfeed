@@ -1,3 +1,8 @@
+version 2.15.0+20250307
+      Allow the ol element to have a start attribute
+      Support language-dependent formatting of the published date
+      Change the default date formats
+
 version 2.14.0+20241222
       Allow unused feeds to be deleted
       Update cs fixer rule name

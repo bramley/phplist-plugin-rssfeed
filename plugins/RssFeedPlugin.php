@@ -297,15 +297,15 @@ END;
             'rss_date_format' => array(
                 'description' => s('php date() format for the published date'),
                 'type' => 'text',
-                'value' => 'd/m/Y H:i',
+                'value' => 'j F Y H:i',
                 'allowempty' => false,
                 'category' => 'RSS',
             ),
             'rss_intl_date_format' => array(
                 'description' => s('php IntlDateFormatter format for the published date'),
                 'type' => 'text',
-                'value' => '',
-                'allowempty' => true,
+                'value' => 'd MMMM y HH:mm',
+                'allowempty' => false,
                 'category' => 'RSS',
             ),
             'rss_content_filtering' => array(
