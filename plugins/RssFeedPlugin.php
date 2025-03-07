@@ -158,12 +158,22 @@ END;
         }
 
         foreach ($items as $i => $item) {
-            $d = new DateTime($item['published']);
+            $pubDate = new DateTime($item['published']);
+
+            if (extension_loaded('intl') && $item['language'] != '') {
+                $fmtPubDate = IntlDateFormatter::formatObject($pubDate, getConfig('rss_intl_date_format'), $item['language']);
+
+                if ($fmtPubDate === false) {
+                    $fmtPubDate = $pubDate->format(getConfig('rss_date_format'));
+                }
+            } else {
+                $fmtPubDate = $pubDate->format(getConfig('rss_date_format'));
+            }
             $html .= sprintf('<a name="item_%d"></a>', $i);
             $html .= $this->replacePlaceholders(
                 $htmltemplate,
                 array(
-                    'published' => $d->format(getConfig('rss_date_format')),
+                    'published' => $fmtPubDate,
                     'title' => htmlspecialchars($item['title']),
                 ) + $item
             );
@@ -289,6 +299,13 @@ END;
                 'type' => 'text',
                 'value' => 'd/m/Y H:i',
                 'allowempty' => false,
+                'category' => 'RSS',
+            ),
+            'rss_intl_date_format' => array(
+                'description' => s('php IntlDateFormatter format for the published date'),
+                'type' => 'text',
+                'value' => '',
+                'allowempty' => true,
                 'category' => 'RSS',
             ),
             'rss_content_filtering' => array(
