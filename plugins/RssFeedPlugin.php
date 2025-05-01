@@ -64,7 +64,7 @@ class RssFeedPlugin extends phplistPlugin
         'item_data' => array(
             'itemid' => array('integer not null', 'fk to item'),
             'property' => array('varchar(100) not null', ''),
-            'value' => array('text character set utf8mb4', ''),
+            'value' => array('mediumtext character set utf8mb4', ''),
             'primary key' => array('(itemid, property)', ''),
         ),
     );
