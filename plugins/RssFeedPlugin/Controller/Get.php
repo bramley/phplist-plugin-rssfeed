@@ -158,30 +158,37 @@ class Get extends Controller
                 $newItemCount = 0;
 
                 foreach ($feed->getItems() as $item) {
-                    ++$itemCount;
-                    $date = $item->getDate();
-                    $date->setTimeZone($utcTimeZone);
-                    $published = $date->format('Y-m-d H:i:s');
+                    try {
+                        ++$itemCount;
+                        $date = $item->getDate();
+                        $date->setTimeZone($utcTimeZone);
+                        $published = $date->format('Y-m-d H:i:s');
 
-                    $itemId = $dao->addItem($item->getId(), $published, $feedId);
+                        $itemId = $dao->addItem($item->getId(), $published, $feedId);
 
-                    if ($itemId > 0) {
-                        ++$newItemCount;
-                        $itemContent = $this->getItemContent($item);
-                        $itemContent = $this->convertToEntities($itemContent);
-                        $dao->addItemData(
-                            $itemId,
-                            array(
-                                'title' => $item->getTitle(),
-                                'url' => $item->getUrl(),
-                                'language' => $item->getLanguage(),
-                                'author' => $item->getAuthor(),
-                                'enclosureurl' => $item->getEnclosureUrl(),
-                                'enclosuretype' => $item->getEnclosureType(),
-                                'content' => $itemContent,
-                                'rtl' => $item->isRTL(),
-                            ) + $this->getCustomElementsValues($customElements, $item)
-                        );
+                        if ($itemId > 0) {
+                            ++$newItemCount;
+                            $itemContent = $this->getItemContent($item);
+                            $itemContent = $this->convertToEntities($itemContent);
+                            $dao->addItemData(
+                                $itemId,
+                                array(
+                                    'title' => $item->getTitle(),
+                                    'url' => $item->getUrl(),
+                                    'language' => $item->getLanguage(),
+                                    'author' => $item->getAuthor(),
+                                    'enclosureurl' => $item->getEnclosureUrl(),
+                                    'enclosuretype' => $item->getEnclosureType(),
+                                    'content' => $itemContent,
+                                    'rtl' => $item->isRTL(),
+                                ) + $this->getCustomElementsValues($customElements, $item)
+                            );
+                        }
+                    } catch (\Throwable $e) {
+                        $this->logger->debug($e->getMessage());
+                        $message = sprintf('Unable to add item %s for feed %s', $item->getTitle(), $feedUrl);
+                        logEvent($message);
+                        $output($message);
                     }
                 }
                 $etag = $resource->getEtag();
