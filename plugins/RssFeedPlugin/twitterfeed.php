@@ -1,4 +1,5 @@
 <?php
+
 /**
  * RssFeedPlugin for phplist.
  *

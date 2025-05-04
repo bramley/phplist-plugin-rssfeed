@@ -1,3 +1,8 @@
+version 2.15.1+20250504
+      Increase size of item_data value field
+      Improve error handling
+      CS Fixer changes
+
 version 2.15.0+20250307
       Allow the ol element to have a start attribute
       Support language-dependent formatting of the published date

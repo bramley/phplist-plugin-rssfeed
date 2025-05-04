@@ -65,6 +65,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.15.1+20250504 Increase the size of the item_data table value field
     2.15.0+20250307 Support language-dependent formatting of the published date
     2.14.0+20241222 Allow unused feeds to be deleted
     2.13.3+20241021 Handle all php errors when processing a feed
