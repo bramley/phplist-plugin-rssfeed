@@ -246,6 +246,15 @@ END;
         return $this->dbCommand->queryAffectedRows($sql);
     }
 
+    public function resetAllFeeds()
+    {
+        $sql =
+            "UPDATE {$this->tables['feed']}
+            SET etag = '', lastmodified = '' ";
+
+        return $this->dbCommand->queryAffectedRows($sql);
+    }
+
     /* Returns all items for a specific feed.
      *
      * @return iterator

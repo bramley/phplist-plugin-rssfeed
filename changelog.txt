@@ -1,3 +1,6 @@
+version 2.16.0+20250605
+      Allow feeds to be reset
+
 version 2.15.1+20250504
       Increase size of item_data value field
       Improve error handling
