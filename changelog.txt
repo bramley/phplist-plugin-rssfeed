@@ -1,3 +1,7 @@
+version 2.16.1+20250605
+      Simplify misleading message
+      Update translations
+
 version 2.16.0+20250605
       Allow feeds to be reset
 

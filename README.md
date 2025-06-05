@@ -65,6 +65,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    2.16.1+20250605 Update translations
     2.16.0+20250605 Allow feeds to be reset
     2.15.1+20250504 Increase the size of the item_data table value field
     2.15.0+20250307 Support language-dependent formatting of the published date
