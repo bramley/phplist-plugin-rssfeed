@@ -78,7 +78,7 @@ class Delete extends Controller
             if ($_POST['submit'] == 'reset') {
                 $count = $this->dao->deleteItems(0);
                 $count = $this->dao->resetAllFeeds();
-                $resetNote = sprintf('<div class="note">%s</div>', s('%d feeds reset', $count));
+                $resetNote = sprintf('<div class="note">%s</div>', s('All feeds reset'));
             } elseif ($_POST['submit'] == 'delete') {
                 if (isset($_POST['days']) && ctype_digit($_POST['days'])) {
                     $count = $this->dao->deleteItems($_POST['days']);
