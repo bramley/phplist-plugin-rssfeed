@@ -1,24 +1,50 @@
-<?php return array (
-  'root' => 
-  array (
-    'pretty_version' => 'dev-master',
-    'version' => 'dev-master',
-    'aliases' => 
-    array (
+<?php return array(
+    'root' => array(
+        'name' => '__root__',
+        'pretty_version' => 'dev-master',
+        'version' => 'dev-master',
+        'reference' => 'cfb1593941f556786d12a32e76df63e1f3797574',
+        'type' => 'library',
+        'install_path' => __DIR__ . '/../../../../',
+        'aliases' => array(),
+        'dev' => true,
     ),
-    'reference' => '81e35111b6b07a92f7bcfd51471e45c99d53bade',
-    'name' => '__root__',
-  ),
-  'versions' => 
-  array (
-    '__root__' => 
-    array (
-      'pretty_version' => 'dev-master',
-      'version' => 'dev-master',
-      'aliases' => 
-      array (
-      ),
-      'reference' => '81e35111b6b07a92f7bcfd51471e45c99d53bade',
+    'versions' => array(
+        '__root__' => array(
+            'pretty_version' => 'dev-master',
+            'version' => 'dev-master',
+            'reference' => 'cfb1593941f556786d12a32e76df63e1f3797574',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../../../../',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'laminas/laminas-escaper' => array(
+            'pretty_version' => '2.18.0',
+            'version' => '2.18.0.0',
+            'reference' => '06f211dfffff18d91844c1f55250d5d13c007e18',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../laminas/laminas-escaper',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'laminas/laminas-feed' => array(
+            'pretty_version' => '2.26.0',
+            'version' => '2.26.0.0',
+            'reference' => '76f537d457bace6d57aa483fccfc676198d5fca7',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../laminas/laminas-feed',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'laminas/laminas-stdlib' => array(
+            'pretty_version' => '3.21.0',
+            'version' => '3.21.0.0',
+            'reference' => 'b1c81514cfe158aadf724c42b34d3d0a8164c096',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../laminas/laminas-stdlib',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
     ),
-  ),
 );

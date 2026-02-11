@@ -4,11 +4,10 @@
         "prepend-autoloader": false
     },
     "require": {
+        "laminas/laminas-feed": "*"
     },
     "autoload": {
         "classmap": [
-            "plugins/RssFeedPlugin/vendor/fguillot/picofeed/lib",
-            "plugins/RssFeedPlugin/vendor/zendframework/zendxml/library"
         ]
     }
 }
