@@ -12,41 +12,16 @@ When the campaign is sent the content of the message has recent items, dependent
 
 ### Dependencies ###
 
-These dependencies must be met for the plugin to be installed and run successfully.
+These dependencies must be met to enable the plugin:
 
 * phplist version 3.3.2 or later.
-* php version 5.4 or later.
-* The Common Plugin version 3.9.3 or later. You should install, or upgrade to, the latest version. See <https://github.com/bramley/phplist-plugin-common>
-
-The plugin uses the PicoFeed package that additionally requires these php extensions to be loaded:
-
-* iconv
-* dom
-* xml
-* SimpleXML
-* Multibyte String
-
-### Set the plugin directory ###
-The default plugin directory is `plugins` within the admin directory.
-
-You can use a directory outside of the web root by changing the definition of `PLUGIN_ROOTDIR` in config.php.
-The benefit of this is that plugins will not be affected when you upgrade phplist.
+* php version 8.2 or later.
+* the Common Plugin enabled.
+* the php xml extension installed.
 
 ### Install through phplist ###
-The recommended method of installing the plugin is through phplist.
 
 Install on the Plugins page (menu Config > Plugins) using the package URL `https://github.com/bramley/phplist-plugin-rssfeed/archive/master.zip`
-
-### Install manually ###
-If you are not able to install the plugin through phplist then it can be installed manually instead.
-
-Download the plugin zip file from <https://github.com/bramley/phplist-plugin-rssfeed/archive/master.zip>
-
-Expand the zip file, then copy the contents of the plugins directory to your phplist plugins directory.
-This should contain
-
-* the file RssFeedPlugin.php
-* the directory RssFeedPlugin
 
 ## Usage ##
 

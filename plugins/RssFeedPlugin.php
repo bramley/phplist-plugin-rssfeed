@@ -11,7 +11,8 @@
  * @copyright 2015-2018 Duncan Cameron
  * @license   http://www.gnu.org/licenses/gpl.html GNU General Public License, Version 3
  */
-use PicoFeed\Config\Config;
+use Laminas\Feed\Reader\Reader as LaminasFeedReader;
+use phpList\plugin\RssFeedPlugin\FeedReader;
 
 /**
  * Registers plugin with phplist
@@ -77,16 +78,8 @@ class RssFeedPlugin extends phplistPlugin
 
     private function validateFeed($feedUrl)
     {
-        $config = new Config();
-        $config->setMaxBodySize((int) getConfig('rss_max_body_size'));
-        $reader = new PicoFeed\Reader\Reader($config);
-        $resource = $reader->download($feedUrl);
-        $parser = $reader->getParser(
-            $resource->getUrl(),
-            $resource->getContent(),
-            $resource->getEncoding()
-        );
-        $feed = $parser->execute();
+        $response = FeedReader::get($feedUrl, '', '');
+        $feed = LaminasFeedReader::importString($response->getBody());
     }
 
     private function replacePlaceholders($template, $placeHolders)
@@ -354,21 +347,10 @@ END;
         global $plugins;
 
         return array(
-            'Common plugin v3.15.7 or later installed' => (
-                phpListPlugin::isEnabled('CommonPlugin')
-                && version_compare($plugins['CommonPlugin']->version, '3.15.7') >= 0
-            ),
-            'View in Browser plugin v2.4.0 or later installed' => (
-                !phpListPlugin::isEnabled('ViewBrowserPlugin')
-                || version_compare($plugins['ViewBrowserPlugin']->version, '2.4.0') >= 0
-            ),
+            'Common plugin installed' => phpListPlugin::isEnabled('CommonPlugin'),
             'phpList version 3.3.2 or later' => version_compare(VERSION, '3.3.2') >= 0,
-            'PHP version 7 or later' => version_compare(PHP_VERSION, '7') > 0,
-            'iconv extension installed' => extension_loaded('iconv'),
+            'PHP version 8.2 or later' => version_compare(PHP_VERSION, '8.2') > 0,
             'xml extension installed' => extension_loaded('xml'),
-            'dom extension installed' => extension_loaded('dom'),
-            'SimpleXML extension installed' => extension_loaded('SimpleXML'),
-            'Multibyte String extension installed' => extension_loaded('mbstring'),
         );
     }
 

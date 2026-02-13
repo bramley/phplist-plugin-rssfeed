@@ -8,21 +8,19 @@
  * @category  phplist
  *
  * @author    Duncan Cameron
- * @copyright 2015-2018 Duncan Cameron
+ * @copyright 2015-2026 Duncan Cameron
  * @license   http://www.gnu.org/licenses/gpl.html GNU General Public License, Version 3
  */
 
 namespace phpList\plugin\RssFeedPlugin\Controller;
 
 use DateTimeZone;
+use Laminas\Feed\Reader\Entry\EntryInterface;
+use Laminas\Feed\Reader\Reader as LaminasFeedReader;
 use phpList\plugin\Common\Context;
 use phpList\plugin\Common\Controller;
-use phpList\plugin\Common\StringCallback;
 use phpList\plugin\RssFeedPlugin\DAO;
-use PicoFeed\Config\Config;
-use PicoFeed\Logging\Logger as PicoFeedLogger;
-use PicoFeed\Parser\Item;
-use PicoFeed\Reader\Reader;
+use phpList\plugin\RssFeedPlugin\FeedReader;
 
 use function phpList\plugin\Common\getConfigLines;
 
@@ -52,80 +50,33 @@ class Get extends Controller
     /**
      * Get the values of custom elements and attributes.
      *
-     * @param array                $customElements
-     * @param PicoFeed\Parser\Item $item
+     * @param array          $customElements
+     * @param EntryInterface $entry
      *
      * @return array
      */
-    private function getCustomElementsValues(array $customElements, Item $item)
+    private function getCustomElementsValues(array $customElements, EntryInterface $entry)
     {
         $values = [];
 
         foreach ($customElements as $element) {
-            $parts = explode('@', $element, 2);
+            $xpathQ = sprintf('string(%s/%s)', $entry->getXpathPrefix(), preg_replace('!/@|@!', '/@', $element));
 
-            if (count($parts) == 2) {
-                $tagValues = $item->getTag($parts[0], $parts[1]);
-            } else {
-                $tagValues = $item->getTag($element);
+            try {
+                $value = $this->convertToEntities($entry->getXpath()->evaluate($xpathQ));
+            } catch (\ErrorException $e) {
+                $this->logger->debug($e->getMessage());
+                $value = '';
             }
-
-            if ($tagValues) {
-                $values[$element] = $this->convertToEntities($tagValues[0]);
-            }
+            $values[$element] = $value;
         }
 
         return $values;
     }
 
-    /**
-     * Get the content for an item.
-     * Use the content element if configured to do so.
-     * For an RSS feed use the description element if present.
-     * For an ATOM feed use the summary element if present.
-     *
-     * @param PicoFeed\Parser\Item $item
-     *
-     * @return string the content for the item
-     */
-    private function getItemContent(Item $item)
-    {
-        $useSummary = getConfig('rss_content_use_summary');
-
-        if (!$useSummary) {
-            return $item->getContent();
-        }
-        $content = '';
-        $values = $item->getTag('description');
-
-        if ($values === false || count($values) == 0) {
-            $item->setNamespaces($item->getNamespaces() + ['atom' => 'http://www.w3.org/2005/Atom']);
-            $values = $item->getTag('atom:summary');
-
-            if ($values === false || count($values) == 0) {
-                $content = $item->getContent();
-            } else {
-                $content = $values[0];
-            }
-        } else {
-            $content = $values[0];
-        }
-
-        return $content;
-    }
-
     private function getRssFeeds(DAO $dao, callable $output)
     {
-        $this->logger->debug(new StringCallback(function () {
-            PicoFeedLogger::enable();
-
-            return 'PicoFeed logging enabled';
-        }));
         $utcTimeZone = new DateTimeZone('UTC');
-        $config = new Config();
-        $config->setMaxBodySize((int) getConfig('rss_max_body_size'));
-        $config->setContentFiltering((bool) getConfig('rss_content_filtering'));
-        $config->setContentGenerating((bool) getConfig('rss_content_generating'));
         $feeds = $dao->activeFeeds();
 
         if (count($feeds) == 0) {
@@ -141,49 +92,45 @@ class Get extends Controller
 
             try {
                 $output(s('Fetching') . ' ' . $feedUrl);
-                $reader = new Reader($config);
-                $resource = $reader->download($feedUrl, $row['lastmodified'], $row['etag']);
+                $response = FeedReader::get($feedUrl, $row['etag'], $row['lastmodified']);
 
-                if (!$resource->isModified()) {
+                if ($response->getStatus() == 304) {
                     $output(s('Not modified'));
                     continue;
                 }
+                $feed = LaminasFeedReader::importString($response->getBody());
 
-                $parser = $reader->getParser(
-                    $resource->getUrl(),
-                    $resource->getContent(),
-                    $resource->getEncoding()
-                );
-                $feed = $parser->execute();
+                if (($dom = $feed->getDomDocument())->encoding === null) {
+                    $dom->encoding = 'UTF-8';
+                }
                 $itemCount = 0;
                 $newItemCount = 0;
 
-                foreach ($feed->getItems() as $item) {
+                foreach ($feed as $item) {
                     try {
                         ++$itemCount;
-                        $date = $item->getDate();
+                        $date = $item->getDateCreated();
                         $date->setTimeZone($utcTimeZone);
                         $published = $date->format('Y-m-d H:i:s');
 
                         $itemId = $dao->addItem($item->getId(), $published, $feedId);
 
                         if ($itemId > 0) {
-                            ++$newItemCount;
-                            $itemContent = $this->getItemContent($item);
-                            $itemContent = $this->convertToEntities($itemContent);
+                            $authorName = is_array($author = $item->getAuthor())
+                                ? $author['name']
+                                : '';
                             $dao->addItemData(
                                 $itemId,
-                                array(
+                                [
                                     'title' => $item->getTitle(),
-                                    'url' => $item->getUrl(),
-                                    'language' => $item->getLanguage(),
-                                    'author' => $item->getAuthor(),
-                                    'enclosureurl' => $item->getEnclosureUrl(),
-                                    'enclosuretype' => $item->getEnclosureType(),
-                                    'content' => $itemContent,
-                                    'rtl' => $item->isRTL(),
-                                ) + $this->getCustomElementsValues($customElements, $item)
+                                    'url' => $item->getLink(),
+                                    'language' => $feed->getLanguage(),
+                                    'author' => $authorName,
+                                    'description' => $this->convertToEntities($item->getDescription()),
+                                    'content' => $this->convertToEntities($item->getContent()),
+                                ] + $this->getCustomElementsValues($customElements, $item)
                             );
+                            ++$newItemCount;
                         }
                     } catch (\Throwable $e) {
                         $this->logger->debug($e->getMessage());
@@ -192,8 +139,8 @@ class Get extends Controller
                         $output($message);
                     }
                 }
-                $etag = $resource->getEtag();
-                $lastModified = $resource->getLastModified();
+                $etag = $response->getHeader('etag');
+                $lastModified = $response->getHeader('last-modified');
                 $dao->updateFeed($feedId, $etag, $lastModified);
 
                 $line = s('%d items, %d new items', $itemCount, $newItemCount);
@@ -205,14 +152,13 @@ class Get extends Controller
             } catch (\Throwable $e) {
                 $output($e->getMessage());
             }
-            $this->logger->debug(PicoFeedLogger::toString());
         }
     }
 
     protected function actionDefault()
     {
         $this->context->start();
-        $this->getRssFeeds($this->dao, [$this->context, 'output']);
+        $this->getRssFeeds($this->dao, $this->context->output(...));
         $this->context->finish();
     }
 
