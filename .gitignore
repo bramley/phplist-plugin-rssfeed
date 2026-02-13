@@ -1,11 +1,19 @@
 README.html
-*.cache
+.php-cs-fixer.cache
 
-plugins/RssFeedPlugin/vendor/fguillot/picofeed/*
-!plugins/RssFeedPlugin/vendor/fguillot/picofeed/LICENSE
-!plugins/RssFeedPlugin/vendor/fguillot/picofeed/lib/
-plugins/RssFeedPlugin/vendor/fguillot/picofeed/lib/PicoFeed/Rules/
+plugins/RssFeedPlugin/vendor/laminas/laminas-feed/*
+!plugins/RssFeedPlugin/vendor/laminas/laminas-feed/src
+!plugins/RssFeedPlugin/vendor/laminas/laminas-feed/LICENSE.md
+!plugins/RssFeedPlugin/vendor/laminas/laminas-feed/COPYRIGHT.md
+plugins/RssFeedPlugin/vendor/laminas/laminas-feed/src/PubSubHubbub/*
+plugins/RssFeedPlugin/vendor/laminas/laminas-feed/src/Writer/*
 
-plugins/RssFeedPlugin/vendor/zendframework/zendxml/*
-!plugins/RssFeedPlugin/vendor/zendframework/zendxml/library
-!plugins/RssFeedPlugin/vendor/zendframework/zendxml/LICENSE.md
+plugins/RssFeedPlugin/vendor/laminas/laminas-escaper/*
+!plugins/RssFeedPlugin/vendor/laminas/laminas-escaper/src
+!plugins/RssFeedPlugin/vendor/laminas/laminas-escaper/LICENSE.md
+!plugins/RssFeedPlugin/vendor/laminas/laminas-escaper/COPYRIGHT.md
+
+plugins/RssFeedPlugin/vendor/laminas/laminas-stdlib/*
+!plugins/RssFeedPlugin/vendor/laminas/laminas-stdlib/src
+!plugins/RssFeedPlugin/vendor/laminas/laminas-stdlib/LICENSE.md
+!plugins/RssFeedPlugin/vendor/laminas/laminas-stdlib/COPYRIGHT.md
