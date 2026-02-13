@@ -248,11 +248,16 @@ END;
 
     public function resetAllFeeds()
     {
-        $sql =
+        $sql = [
+            "TRUNCATE TABLE {$this->tables['item']};",
+            "TRUNCATE TABLE {$this->tables['item_data']}",
             "UPDATE {$this->tables['feed']}
-            SET etag = '', lastmodified = '' ";
+            SET etag = '', lastmodified = ''",
+        ];
 
-        return $this->dbCommand->queryAffectedRows($sql);
+        foreach ($sql as $query) {
+            $this->dbCommand->query($query);
+        }
     }
 
     /* Returns all items for a specific feed.
