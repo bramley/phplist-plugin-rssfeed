@@ -1,3 +1,14 @@
+version 3.0.0+20260216
+      Update .gitignore for new packages
+      Add laminas-feed package and dependencies
+      Remove unused laminas components
+      Remove Picofeed
+      Use truncate to reset tables so that autoincrement field is set to 1.
+      Use laminas-feed instead of picofeed
+      Remove twitter processing
+      Remove settings specific to picofeed and other redundant settings
+      Update translations
+
 version 2.16.1+20250605
       Simplify misleading message
       Update translations
