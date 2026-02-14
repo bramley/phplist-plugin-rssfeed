@@ -301,36 +301,6 @@ END;
                 'allowempty' => false,
                 'category' => 'RSS',
             ),
-            'rss_content_filtering' => array(
-                'description' => s('Allow only whitelisted tags in item content'),
-                'type' => 'boolean',
-                'value' => true,
-                'allowempty' => true,
-                'category' => 'RSS',
-            ),
-            'rss_content_generating' => array(
-                'description' => s('Generate special content when an item URL is to YouTube or to a pdf file'),
-                'type' => 'boolean',
-                'value' => false,
-                'allowempty' => true,
-                'category' => 'RSS',
-            ),
-            'rss_max_body_size' => array(
-                'description' => s('Maximum size of the HTTP body response allowed'),
-                'type' => 'integer',
-                'value' => 2097152,
-                'allowempty' => false,
-                'min' => 524288,
-                'max' => 16777216,
-                'category' => 'RSS',
-            ),
-            'rss_content_use_summary' => array(
-                'description' => s('Use the item summary content (the description or summary element) instead of the content element'),
-                'type' => 'boolean',
-                'value' => true,
-                'allowempty' => true,
-                'category' => 'RSS',
-            ),
         );
         $this->errorLevel = E_ALL ^ E_NOTICE ^ E_DEPRECATED ^ E_STRICT;
         $this->coderoot = dirname(__FILE__) . '/' . __CLASS__ . '/';
@@ -367,16 +337,6 @@ END;
     public function adminmenu()
     {
         return $this->pageTitles;
-    }
-
-    public function cronJobs()
-    {
-        return array(
-            array(
-                'page' => 'get',
-                'frequency' => 60,
-            ),
-        );
     }
 
     /*
