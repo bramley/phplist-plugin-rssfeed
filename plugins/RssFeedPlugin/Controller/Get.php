@@ -99,10 +99,6 @@ class Get extends Controller
                     continue;
                 }
                 $feed = LaminasFeedReader::importString($response->getBody());
-
-                if (($dom = $feed->getDomDocument())->encoding === null) {
-                    $dom->encoding = 'UTF-8';
-                }
                 $itemCount = 0;
                 $newItemCount = 0;
 
