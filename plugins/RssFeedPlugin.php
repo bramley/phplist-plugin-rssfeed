@@ -316,7 +316,10 @@ END;
         global $plugins;
 
         return array(
-            'Common plugin installed' => phpListPlugin::isEnabled('CommonPlugin'),
+            'Common plugin v3.35.2 or later enabled' => (
+                phpListPlugin::isEnabled('CommonPlugin')
+                && version_compare($plugins['CommonPlugin']->version, '3.35.2') >= 0
+            ),
             'phpList version 3.3.2 or later' => version_compare(VERSION, '3.3.2') >= 0,
             'PHP version 8.2 or later' => version_compare(PHP_VERSION, '8.2') > 0,
             'xml extension installed' => extension_loaded('xml'),

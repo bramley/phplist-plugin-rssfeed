@@ -16,7 +16,7 @@ These dependencies must be met to enable the plugin:
 
 * phplist version 3.3.2 or later.
 * php version 8.2 or later.
-* the Common Plugin enabled.
+* the Common Plugin version 3.35.2 or later enabled.
 * the php xml extension installed.
 
 ### Install through phplist ###
@@ -40,6 +40,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    3.0.2+20260304  Change required version of Common plugin
     3.0.1+20260303  Upgrade laminas-feed
     3.0.0+20260216  Use the laminas-feed package instead of picofeed
     2.16.1+20250605 Update translations
