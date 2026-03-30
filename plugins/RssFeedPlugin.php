@@ -55,7 +55,7 @@ class RssFeedPlugin extends phplistPlugin
         ),
         'item' => array(
             'id' => array('integer not null primary key auto_increment', 'ID'),
-            'uid' => array('varchar(100) not null', 'unique id'),
+            'uid' => array('varchar(500) not null', 'unique id'),
             'feedid' => array('integer not null', 'fk to feed'),
             'published' => array('datetime not null', 'published datetime'),
             'added' => array('datetime not null', 'datetime added'),
