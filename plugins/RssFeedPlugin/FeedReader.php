@@ -47,7 +47,7 @@ class FeedReader
         Logger::instance()->debug("\n" . $logOutput);
 
         if ($response->getStatus() !== 200 && $response->getStatus() !== 304) {
-            throw new \Exception('Feed failed to load, got response code ' . $response->getStatusCode());
+            throw new \Exception('Feed failed to load, got response code ' . $response->getStatus());
         }
 
         return $response;
