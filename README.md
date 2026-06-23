@@ -40,6 +40,7 @@ This plugin is free but if you install and find it useful then a donation to sup
 ## Version history ##
 
     version     Description
+    3.0.3+20260623  Follow redirects when fetching a feed
     3.0.2+20260304  Change required version of Common plugin
     3.0.1+20260303  Upgrade laminas-feed
     3.0.0+20260216  Use the laminas-feed package instead of picofeed

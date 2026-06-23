@@ -33,6 +33,7 @@ class FeedReader
     public static function get($uri, $etag = null, $lastModified = null)
     {
         $request = new HTTP_Request2($uri, HTTP_Request2::METHOD_GET);
+        $request->setConfig(['follow_redirects' => true]);
         $logOutput = '';
         $request->attach(new HTTP_Request2_Observer_Log(StringStream::fopen($logOutput, 'w')));
 
